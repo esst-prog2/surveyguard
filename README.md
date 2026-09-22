@@ -30,3 +30,8 @@ in between   calculates Intra-individual Response Variability (IRV) for straight
 * **The Math (Singular Matrices):** Survey items are often highly correlated. Calculating Mahalanobis distance requires inverting a covariance matrix. If items are perfectly collinear, the matrix becomes singular. I will need to implement pseudo-inverses or a dimensionality reduction step (PCA) to prevent mathematical crashes.
 * **Missing Values (NAs):** Standard distance metrics fail when a respondent skipped a question. I must define a strict strategy (e.g., listwise deletion for the calculation, or mean imputation) before calculating the distances.
 * **Data Privacy:** Real survey data with bots and careless responders is often proprietary or contains PII. I will use an open-access dataset (e.g., the Big Five Personality Test dataset from OpenPsychometrics) to build and test the tool, safely pushing it to GitHub.
+
+## 6. Teacher's feedback
+* ** What works: your tests are mathematical identities rather than impressions — the centroid's distance to itself is exactly 0, a perfectly collinear matrix produces a clear error instead of a native crash. That is unusually rigorous for week two, and choosing an open dataset means it all runs in a public repository.
+
+* ** For the specification: IRV, Mahalanobis and reversed-item checks are textbook formulas — an hour of work, tests included. The project is the next question: where is the threshold, and what does it cost you in each direction? Flag too aggressively and you drop real respondents, possibly not at random. And the question a survey methodologist actually asks is not who is careless, but whether cleaning changes the substantive answer at all.
