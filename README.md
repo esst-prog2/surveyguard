@@ -1,5 +1,73 @@
 # SurveyGuard: Numeric Careless Responding Detector
 
+## MVP usage
+
+SurveyGuard is a deterministic Python CLI for flagging suspicious numeric survey response patterns. It calculates straightlining via intra-individual response variability (IRV), inverted-item contradictions, and Mahalanobis multivariate outliers.
+
+Install the Python dependencies in a Python 3.10+ environment:
+
+```powershell
+python -m pip install -r requirements.txt
+```
+
+Run the detector with a CSV and JSON rules file:
+
+```powershell
+python detect_anomalies.py data/wave1_raw.csv --rules config/scale_logic.json
+```
+
+Use `--output` to choose a result path. Without it, `wave1_raw.csv` becomes `wave1_scored.csv` beside the input:
+
+```powershell
+python detect_anomalies.py data/wave1_raw.csv `
+	--rules config/scale_logic.json `
+	--output output/wave1_scored.csv
+```
+
+## Rules configuration
+
+Rules identify question columns by header name, not by physical CSV order. Each block defines its columns and Likert range. `high_min` and `low_max` define the high-high and low-low contradiction bands for inverted pairs.
+
+```json
+{
+	"id_column": "respondent_id",
+	"blocks": {
+		"attitude_scale": {
+			"columns": ["Q1", "Q2", "Q3", "Q4"],
+			"min": 1,
+			"max": 5,
+			"high_min": 4,
+			"low_max": 2,
+			"irv_threshold": 0
+		}
+	},
+	"inverted_pairs": [["Q2", "Q3", "attitude_scale"]],
+	"weights": {
+		"straightlining": 1.0,
+		"logical_contradiction": 1.0,
+		"mahalanobis_outlier": 1.0
+	},
+	"thresholds": {"mahalanobis_outlier": 6},
+	"flag_threshold": 50
+}
+```
+
+The quality score is calculated as:
+
+`100 * (1 - weighted_average_detector_penalty)`
+
+where `100` is good quality and lower scores are more suspicious. A score below `flag_threshold` receives `suspicious: true`. The scored CSV preserves all original columns and appends `quality_score`, `suspicious`, `flag_reasons`, detector fields, and `data_quality` markers.
+
+Configuration and missing question columns fail fast. Missing or non-numeric values in an individual row remain in the output and receive `Missing_Value` or `Invalid_Value` markers; values are not imputed. Singular Mahalanobis covariance produces a controlled error. The console summary reports processed and suspicious counts, detector counts, data-quality counts, score statistics, and the output path.
+
+The repository uses synthetic or public anonymized data only. It does not perform NLP, unsupervised machine learning, GUI work, or automatic respondent deletion.
+
+Run tests with:
+
+```powershell
+python -m pytest -q
+```
+
 ## 1. The demo
 I open a terminal and run `python detect_anomalies.py data/wave1_raw.csv --rules config/scale_logic.json`. It processes 2,500 respondents and prints a summary to the console: "Flagged 142 suspicious records. Main drivers: Straightlining (80), Logical Contradiction (42), Multivariate Outlier (20)". I open the generated `output/wave1_scored.csv`, where every respondent has a new `quality_score` column (0-100) and a `flag_reasons` column detailing why they failed. I sort by the score and immediately see the worst offenders ready to be excluded.
 
