@@ -1,8 +1,8 @@
 ## 1. Project Setup
 
-- [ ] 1.1 Add the Python package/module layout for CLI orchestration, configuration validation, detectors, scoring, IO, and reporting; verify imports resolve from a clean checkout.
-- [ ] 1.2 Add `requirements.txt` with Python 3.10+ compatible pandas, numpy, scipy, and pytest dependencies; verify installation in a clean virtual environment.
-- [ ] 1.3 Add documented synthetic CSV and JSON fixtures under the test-data area; verify no fixture contains PII or proprietary data.
+- [x] 1.1 Add the Python package/module layout for CLI orchestration, configuration validation, detectors, scoring, IO, and reporting; verify imports resolve from a clean checkout.
+- [x] 1.2 Add `requirements.txt` with Python 3.10+ compatible pandas, numpy, scipy, and pytest dependencies; verify installation in a clean virtual environment.
+- [x] 1.3 Add documented synthetic CSV and JSON fixtures under the test-data area; verify no fixture contains PII or proprietary data.
 
 ## 2. Configuration and Input Validation
 

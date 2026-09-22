@@ -1,0 +1,21 @@
+{
+  "id_column": "respondent_id",
+  "blocks": {
+    "attitude_scale": {
+      "columns": ["Q1", "Q2", "Q3", "Q4"],
+      "min": 1,
+      "max": 5,
+      "high_min": 4,
+      "low_max": 2,
+      "irv_threshold": 0
+    }
+  },
+  "inverted_pairs": [["Q2", "Q3", "attitude_scale"]],
+  "weights": {
+    "straightlining": 1.0,
+    "logical_contradiction": 1.0,
+    "mahalanobis_outlier": 1.0
+  },
+  "thresholds": {"mahalanobis_outlier": 6},
+  "flag_threshold": 50
+}
