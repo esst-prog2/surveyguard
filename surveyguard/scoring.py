@@ -10,13 +10,17 @@ from .config import RulesConfig
 from .detectors import DetectorResult, logical_contradictions, mahalanobis, straightlining
 
 
-def aggregate_score(results: list[DetectorResult], weights: dict[str, float]) -> tuple[float, bool, list[str]]:
+def aggregate_score(
+    results: list[DetectorResult],
+    weights: dict[str, float],
+    flag_threshold: float = 50.0,
+) -> tuple[float, bool, list[str]]:
     active = [(result, weights.get(result.name, 1.0)) for result in results if weights.get(result.name, 1.0) > 0]
     denominator = sum(weight for _, weight in active)
     penalty = sum(result.penalty * weight for result, weight in active) / denominator
     score = max(0.0, min(100.0, 100.0 * (1.0 - penalty)))
     reasons = [reason for result in results for reason in result.reasons]
-    return score, bool(score < 50), reasons
+    return score, bool(score < flag_threshold), reasons
 
 
 def score_dataframe(frame: pd.DataFrame, rules: RulesConfig) -> pd.DataFrame:
@@ -32,7 +36,7 @@ def score_dataframe(frame: pd.DataFrame, rules: RulesConfig) -> pd.DataFrame:
         outlier_result.details["distance"] = distances.loc[index]
         outlier_result.penalty = 1.0 if outlier_result.triggered else 0.0
         results.append(outlier_result)
-        score, _, reasons = aggregate_score(results, rules.weights)
+        score, _, reasons = aggregate_score(results, rules.weights, rules.flag_threshold)
         data_quality = []
         for column in question_columns:
             value = pd.to_numeric(pd.Series([row[column]]), errors="coerce").iloc[0]

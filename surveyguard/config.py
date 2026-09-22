@@ -93,6 +93,8 @@ def load_rules(path: str | Path) -> RulesConfig:
         )
         if not isinstance(first, str) or not isinstance(second, str) or not isinstance(block, str):
             raise ConfigurationError(f"inverted_pairs[{index}] references an unknown block")
+        if block not in blocks or first not in blocks[block].columns or second not in blocks[block].columns:
+            raise ConfigurationError(f"inverted_pairs[{index}] columns must belong to block {block!r}")
         pairs.append(PairConfig(first, second, block))
 
     weights = data.get("weights", {})
