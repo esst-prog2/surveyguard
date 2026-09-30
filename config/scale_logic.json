@@ -16,6 +16,6 @@
     "logical_contradiction": 1.0,
     "mahalanobis_outlier": 1.0
   },
-  "thresholds": {"mahalanobis_outlier": 6},
+  "thresholds": {"mahalanobis_outlier": 23.843516},
   "flag_threshold": 50
 }

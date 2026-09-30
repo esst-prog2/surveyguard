@@ -20,3 +20,5 @@
 2026-09-22 - Repository demonstrations and tests use only synthetic or public anonymized data; real PII and proprietary data are excluded - User
 2026-09-22 - Each detector emits a normalized penalty from 0 to 1; quality_score is 100 times one minus the detector-weighted average penalty - Copilot
 2026-09-22 - The JSON configuration groups question columns into named blocks and stores block ranges, inverted pairs, detector weights, detector thresholds, flag_threshold, and optional id_column - Copilot
+2026-09-30 - The spike evaluation uses EXT1/EXT2 and EXT3/EXT4 as explicit test pairs because spike_data.csv has no semantic pair metadata - Copilot
+2026-09-30 - We measured it: the Mahalanobis D^2 threshold is 23.843516, because it flags exactly 50 of 1,000 spike respondents and therefore produces the requested 5% rate - User

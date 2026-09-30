@@ -47,10 +47,13 @@ Rules identify question columns by header name, not by physical CSV order. Each 
 		"logical_contradiction": 1.0,
 		"mahalanobis_outlier": 1.0
 	},
-	"thresholds": {"mahalanobis_outlier": 6},
+	"thresholds": {"mahalanobis_outlier": 23.843516},
 	"flag_threshold": 50
 }
 ```
+
+The Mahalanobis $D^2$ threshold of `23.843516` was measured on the 1,000-row
+spike dataset; it flags exactly 50 respondents, corresponding to a 5% rate.
 
 The quality score is calculated as:
 
