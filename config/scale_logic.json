@@ -13,9 +13,9 @@
   "inverted_pairs": [["Q2", "Q3", "attitude_scale"]],
   "weights": {
     "straightlining": 1.0,
-    "logical_contradiction": 1.0,
+    "logical_contradiction": 0.0,
     "mahalanobis_outlier": 1.0
   },
-  "thresholds": {"mahalanobis_outlier": 23.843516},
+  "thresholds": {"mahalanobis_outlier": 9.829530},
   "flag_threshold": 50
 }

@@ -22,3 +22,7 @@
 2026-09-22 - The JSON configuration groups question columns into named blocks and stores block ranges, inverted pairs, detector weights, detector thresholds, flag_threshold, and optional id_column - Copilot
 2026-09-30 - The spike evaluation uses EXT1/EXT2 and EXT3/EXT4 as explicit test pairs because spike_data.csv has no semantic pair metadata - Copilot
 2026-09-30 - We measured it: the Mahalanobis D^2 threshold is 23.843516, because it flags exactly 50 of 1,000 spike respondents and therefore produces the requested 5% rate - User
+2026-10-03 - Set logical-contradiction weight to zero pending validation against labeled clean responses; retain its diagnostic reasons - User
+2026-10-03 - The initial 10-item clean spike rates were 0.2% straightlining, 25.4% logical contradiction, and 71.9% Mahalanobis at D^2=6 - User
+2026-10-03 - Calibrate the deployed Mahalanobis threshold on the four-item EXT1-EXT4 spike slice; measured D^2=9.829530 for exactly 5% (50/1,000) - Copilot
+2026-10-03 - Set logical-contradiction weight to zero pending validation against labeled clean responses; retain its diagnostic reasons - User

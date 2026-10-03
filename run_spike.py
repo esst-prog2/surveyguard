@@ -50,7 +50,7 @@ def exact_five_percent_threshold(distances: pd.Series) -> float:
 
 def main() -> None:
     frame = pd.read_csv(DATA_PATH)
-    columns = tuple(frame.columns)
+    columns = ("EXT1", "EXT2", "EXT3", "EXT4")
     rules = build_spike_rules(columns)
 
     straightlining_flags = frame.apply(
@@ -68,14 +68,16 @@ def main() -> None:
     )
 
     threshold = exact_five_percent_threshold(distances)
+    calibrated_flags = distances > threshold
 
-    print(f"Straightlining fals positive rate: {straightlining_flags.mean() * 100:.1f}%")
-    print(f"Logical contradiction fals positive rate: {contradiction_flags.mean() * 100:.1f}%")
+    print(f"Straightlining false positive rate (4 items): {straightlining_flags.mean() * 100:.1f}%")
+    print(f"Logical contradiction false positive rate (4 items): {contradiction_flags.mean() * 100:.1f}%")
     print(
-        "Mahalanobis fals positive rate "
-        f"(threshold={MAHALANOBIS_THRESHOLD:g}): {mahalanobis_flags.mean() * 100:.1f}%"
+        "Mahalanobis false positive rate (4 items, "
+        f"legacy threshold={MAHALANOBIS_THRESHOLD:g}): {mahalanobis_flags.mean() * 100:.1f}%"
     )
-    print(f"Mahalanobis D^2 threshold for exactly 5%: {threshold:.6f}")
+    print(f"Mahalanobis D^2 threshold for exactly 5% (4 items): {threshold:.6f}")
+    print(f"Mahalanobis false positive rate at calibrated threshold: {calibrated_flags.mean() * 100:.1f}%")
 
 
 if __name__ == "__main__":
