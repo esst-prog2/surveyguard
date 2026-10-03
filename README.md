@@ -44,16 +44,23 @@ Rules identify question columns by header name, not by physical CSV order. Each 
 	"inverted_pairs": [["Q2", "Q3", "attitude_scale"]],
 	"weights": {
 		"straightlining": 1.0,
-		"logical_contradiction": 1.0,
+		"logical_contradiction": 0.0,
 		"mahalanobis_outlier": 1.0
 	},
-	"thresholds": {"mahalanobis_outlier": 23.843516},
+	"thresholds": {"mahalanobis_outlier": 9.829530},
 	"flag_threshold": 50
 }
 ```
 
-The Mahalanobis $D^2$ threshold of `23.843516` was measured on the 1,000-row
-spike dataset; it flags exactly 50 respondents, corresponding to a 5% rate.
+The initial 10-item spike run flagged 0.2% of clean respondents for straightlining,
+25.4% for logical contradictions, and 71.9% for Mahalanobis at $D^2=6$. Because
+the configured scale has four items, `run_spike.py` now evaluates `EXT1` through
+`EXT4` together. On those four items, the rates are 2.1% for straightlining,
+25.4% for logical contradictions, and 15.7% for Mahalanobis at the legacy $D^2=6$
+threshold. The recalibrated $D^2$ threshold is `9.829530`, which flags 50 of
+1,000 respondents (5%) on the four-item spike data. Logical contradictions remain
+visible in `flag_reasons` but have zero score weight pending validation against
+labeled clean responses.
 
 The quality score is calculated as:
 

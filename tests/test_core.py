@@ -82,6 +82,26 @@ def test_weighted_aggregate_uses_configured_threshold_at_call_site():
     assert reasons == ["x"]
 
 
+def test_zero_weighted_detector_remains_visible_without_affecting_score():
+    results = [
+        DetectorResult(
+            "logical_contradiction",
+            penalty=1.0,
+            triggered=True,
+            reasons=["Logical_Contradiction:Q2/Q3"],
+        ),
+        DetectorResult("straightlining", penalty=0.0),
+    ]
+    score, suspicious, reasons = aggregate_score(
+        results,
+        {"logical_contradiction": 0.0, "straightlining": 1.0},
+    )
+
+    assert score == 100.0
+    assert suspicious is False
+    assert reasons == ["Logical_Contradiction:Q2/Q3"]
+
+
 def test_custom_flag_threshold_is_used():
     results = [DetectorResult("straightlining", penalty=0.25)]
     score, suspicious, _ = aggregate_score(results, {"straightlining": 1.0}, flag_threshold=80)
