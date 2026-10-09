@@ -26,3 +26,42 @@
 2026-10-03 - The initial 10-item clean spike rates were 0.2% straightlining, 25.4% logical contradiction, and 71.9% Mahalanobis at D^2=6 - User
 2026-10-03 - Calibrate the deployed Mahalanobis threshold on the four-item EXT1-EXT4 spike slice; measured D^2=9.829530 for exactly 5% (50/1,000) - Copilot
 2026-10-03 - Set logical-contradiction weight to zero pending validation against labeled clean responses; retain its diagnostic reasons - User
+2026-10-09 - A test would go red if the Mahalanobis detector flags a number of clean respondents different from exactly 50 (5%) out of the 1000 rows in spike_data.csv at the **9.829530** threshold. The expected value (50) comes from last week's external Spike measurement, not from running the code - User
+2026-10-09 - Added a real-world regression test for Mahalanobis on EXT1-EXT4 in spike_data.csv and recorded the deliberate red run. Temporarily changed the configured threshold to 100.0; command: `python -m pytest -q tests/test_real_world.py`. Terminal output:
+	```text
+	F                                                                        [100%]
+	================================== FAILURES ===================================
+	___________ test_mahalanobis_flags_exactly_fifty_spike_respondents ____________
+
+			def test_mahalanobis_flags_exactly_fifty_spike_respondents():
+					responses = pd.read_csv(ROOT / "spike_data.csv")
+					rules = load_rules(ROOT / "config" / "scale_logic.json")
+					columns = ("EXT1", "EXT2", "EXT3", "EXT4")
+
+					_, flagged = mahalanobis(
+							responses,
+							columns,
+							threshold=rules.thresholds["mahalanobis_outlier"],
+					)
+
+					assert len(responses) == 1000
+	>       assert int(flagged.sum()) == 50
+	E       assert 0 == 50
+	E        +  where 0 = int(np.int64(0))
+	E        +    where np.int64(0) = sum()
+	E        +      where sum = 0      False\n1      False\n2      False\n3      Fal\n       ...  \n995    False\n996    False\n997    False\n998    False\n999    False\nLength: 1000, dtype: bool.sum
+
+	tests\\test_real_world.py:24: AssertionError
+	=========================== short test summary info ===========================
+	FAILED tests/test_real_world.py::test_mahalanobis_flags_exactly_fifty_spike_resp
+	ondents - assert 0 == 50
+	1 failed in 4.14s
+	```
+2026-10-09 - Restored the correct Mahalanobis threshold to 9.829530 and reran `python -m pytest -q tests/test_real_world.py`. Successful terminal result: `1 passed in 0.84s` - Copilot
+2026-10-09 - Repeated the deliberate red run with `python -m pytest -q --tb=line tests/test_real_world.py`; terminal output excerpt: `F [100%]`, `E assert 0 == 50`, `tests\test_real_world.py:24: assert 0 == 50`, `1 failed in 0.78s` - Copilot
+2026-10-09 - Final green verification with the calibrated threshold restored: `python -m pytest -q tests/test_real_world.py` -> `1 passed in 0.82s` - Copilot
+2026-10-09 - We expect the CLI to successfully process spike_data.csv and flag exactly 50 rows via the Mahalanobis detector based on our calibration. - User
+2026-10-09 - Ran `python detect_anomalies.py spike_data.csv --rules config/scale_logic.json`. Actual output: `Error: Missing configured id column: respondent_id`. The CLI stopped before scoring; `spike_scored.csv` was not created. The input contains EXT1-EXT10 but no respondent_id column - Copilot
+2026-10-09 - The CLI failed because spike_data.csv lacks the configured respondent_id column. Following instructions, I removed the id_column requirement from the config to allow execution. - User
+2026-10-09 - After removing id_column, the CLI reported missing configured question columns Q1-Q4. Updated the configured four-item block to EXT1-EXT4 and its inverted pair to EXT2/EXT3 to match the Spike dataset and the calibrated slice - Copilot
+2026-10-09 - Successful CLI run: `python detect_anomalies.py spike_data.csv --rules config/scale_logic.json`. Actual output: Processed 1000; Suspicious 3; Straightlining 21; Logical contradiction 143; Mahalanobis outlier 50; Missing/invalid 0; Average quality score 96.45; Minimum quality score 0.00; Output `spike_data_scored.csv`. Confirmed the output file exists - Copilot
