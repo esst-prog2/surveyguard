@@ -8,7 +8,7 @@ from typing import Iterable
 import numpy as np
 import pandas as pd
 
-from .config import BlockConfig, PairConfig, RulesConfig
+from .config import BlockConfig, RulesConfig
 from .errors import MathematicalError
 
 
@@ -19,6 +19,7 @@ class DetectorResult:
     triggered: bool = False
     reasons: list[str] = field(default_factory=list)
     details: dict[str, object] = field(default_factory=dict)
+    available: bool = True
 
 
 def irv(values: Iterable[float]) -> float:
@@ -27,12 +28,13 @@ def irv(values: Iterable[float]) -> float:
 
 
 def straightlining(row: pd.Series, blocks: dict[str, BlockConfig]) -> DetectorResult:
-    result = DetectorResult("straightlining")
+    result = DetectorResult("straightlining", available=False)
     block_irvs: dict[str, float] = {}
     for block in blocks.values():
         values = pd.to_numeric(row[list(block.columns)], errors="coerce").to_numpy(dtype=float)
         if np.isnan(values).any():
             continue
+        result.available = True
         value = irv(values)
         block_irvs[block.name] = value
         if value <= block.irv_threshold:
@@ -44,13 +46,14 @@ def straightlining(row: pd.Series, blocks: dict[str, BlockConfig]) -> DetectorRe
 
 
 def logical_contradictions(row: pd.Series, rules: RulesConfig) -> DetectorResult:
-    result = DetectorResult("logical_contradiction")
+    result = DetectorResult("logical_contradiction", available=False)
     for pair in rules.inverted_pairs:
         block = rules.blocks[pair.block]
         first = pd.to_numeric(pd.Series([row[pair.first]]), errors="coerce").iloc[0]
         second = pd.to_numeric(pd.Series([row[pair.second]]), errors="coerce").iloc[0]
         if pd.isna(first) or pd.isna(second):
             continue
+        result.available = True
         high = first >= block.high_min and second >= block.high_min
         low = first <= block.low_max and second <= block.low_max
         if high or low:

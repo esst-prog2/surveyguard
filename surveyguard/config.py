@@ -109,9 +109,11 @@ def load_rules(path: str | Path) -> RulesConfig:
     if sum(merged_weights.values()) == 0:
         raise ConfigurationError("At least one detector weight must be positive")
 
-    thresholds = data.get("thresholds", {})
+    thresholds = data.get("thresholds")
     if not isinstance(thresholds, dict):
-        raise ConfigurationError("thresholds must be an object")
+        raise ConfigurationError("thresholds must be an object containing 'mahalanobis_outlier'")
+    if "mahalanobis_outlier" not in thresholds:
+        raise ConfigurationError("thresholds.mahalanobis_outlier is required")
     parsed_thresholds = {name: _number(value, f"thresholds.{name}") for name, value in thresholds.items()}
     flag_threshold = _number(data.get("flag_threshold", 50), "flag_threshold")
     if not 0 <= flag_threshold <= 100:
