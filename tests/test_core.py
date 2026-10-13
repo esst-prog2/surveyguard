@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 import pandas as pd
 import pytest
@@ -30,6 +31,20 @@ def test_load_rules_and_reject_malformed_rules(tmp_path):
     }), encoding="utf-8")
     with pytest.raises(ConfigurationError, match="must belong"):
         load_rules(wrong_pair_path)
+
+
+@pytest.mark.parametrize("remove_thresholds", [False, True])
+def test_missing_mahalanobis_threshold_is_rejected(tmp_path, remove_thresholds):
+    rules_data = json.loads(Path(FIXTURE_RULES).read_text(encoding="utf-8"))
+    if remove_thresholds:
+        del rules_data["thresholds"]
+    else:
+        del rules_data["thresholds"]["mahalanobis_outlier"]
+    rules_path = tmp_path / "missing_threshold.json"
+    rules_path.write_text(json.dumps(rules_data), encoding="utf-8")
+
+    with pytest.raises(ConfigurationError, match="thresholds.*mahalanobis_outlier"):
+        load_rules(rules_path)
 
 
 def test_missing_configured_column_fails_before_scoring(tmp_path):

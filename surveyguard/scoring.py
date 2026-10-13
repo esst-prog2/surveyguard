@@ -26,7 +26,7 @@ def aggregate_score(
 def score_dataframe(frame: pd.DataFrame, rules: RulesConfig) -> pd.DataFrame:
     output = frame.copy()
     question_columns = rules.question_columns
-    distances, outliers = mahalanobis(frame, question_columns, rules.thresholds.get("mahalanobis_outlier", 0.0))
+    distances, outliers = mahalanobis(frame, question_columns, rules.thresholds["mahalanobis_outlier"])
     rows: list[dict[str, object]] = []
     for index, row in frame.iterrows():
         results = [straightlining(row, rules.blocks), logical_contradictions(row, rules)]
