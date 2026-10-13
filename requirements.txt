@@ -1,4 +1,7 @@
-pandas>=1.5,<3
-numpy>=1.23,<3
-scipy>=1.9,<2
-pytest>=7,<9
+# NumPy 2.4 requires Python 3.11; retain Python 3.10-3.13 support.
+numpy==2.2.6; python_version < "3.14"
+numpy==2.4.4; python_version >= "3.14"
+# pandas 3 requires Python 3.11.
+pandas==2.3.3; python_version < "3.11"
+pandas==3.0.2; python_version >= "3.11"
+pytest==9.1.1

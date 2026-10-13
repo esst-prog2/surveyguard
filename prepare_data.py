@@ -2,7 +2,6 @@ import pandas as pd
 import urllib.request
 import zipfile
 import io
-import os
 
 print("Letöltés az OpenPsychometrics szerveréről (ez eltarthat 1-2 percig)...")
 url = "https://openpsychometrics.org/_rawdata/IPIP-FFM-data-8Nov2018.zip"

@@ -8,7 +8,7 @@ from typing import Iterable
 import numpy as np
 import pandas as pd
 
-from .config import BlockConfig, PairConfig, RulesConfig
+from .config import BlockConfig, RulesConfig
 from .errors import MathematicalError
 
 
