@@ -18,7 +18,7 @@ The system SHALL read a CSV response file and a JSON rules file, identify survey
 - **THEN** the command exits with a clear structural error and does not write a scored output
 
 ### Requirement: Detect straightlining
-The system SHALL calculate intra-individual response variability for each configured question block and SHALL identify a straightlining response when its configured IRV rule is met.
+The system SHALL calculate population variance (IRV, divisor `n`) for each complete configured question block and SHALL identify a straightlining response when that variance is less than or equal to the block's `irv_threshold`.
 
 #### Scenario: Constant Likert block
 - **WHEN** a respondent answers every item in a configured ten-item block with `3`
@@ -29,7 +29,7 @@ The system SHALL calculate intra-individual response variability for each config
 - **THEN** the system SHALL not mark that block as straightlining solely because the block was evaluated
 
 ### Requirement: Detect multivariate outliers
-The system SHALL calculate Mahalanobis distance for valid rows across configured numeric question columns and SHALL convert the configured outlier rule into a normalized detector penalty.
+The rules SHALL provide a numeric `thresholds.mahalanobis_outlier`. The system SHALL calculate squared Mahalanobis distance using the sample covariance matrix (divisor `n-1`) for valid rows across configured numeric question columns and SHALL flag distances strictly greater than the configured threshold.
 
 #### Scenario: Centroid row
 - **WHEN** a valid respondent equals the sample centroid across the evaluated variables
@@ -100,3 +100,20 @@ The repository SHALL use only synthetic or public anonymized data in demonstrati
 #### Scenario: Public fixture policy
 - **WHEN** a developer adds a demonstration or test dataset
 - **THEN** the dataset is synthetic or publicly anonymized and contains no real private respondent information
+
+### Requirement: Define optional configuration defaults
+When omitted, `inverted_pairs` SHALL default to an empty list, `high_min` SHALL default to `max - 1`, `low_max` SHALL default to `min + 1`, and `irv_threshold` SHALL default to `0`. The `id_column` setting SHALL be optional.
+
+### Requirement: Define precise scoring defaults
+The high band SHALL include values equal to `high_min`, and the low band SHALL include values equal to `low_max`. The quality score SHALL equal `100 * (1 - weighted_mean_penalty)`, where the weighted mean is the sum of each detector penalty multiplied by its weight divided by the sum of the included weights. Omitted detector weights SHALL default to `1.0`, and omitted `flag_threshold` SHALL default to `50`.
+
+### Requirement: Exclude unavailable detector results from scoring
+The system SHALL exclude unavailable detector results from the respondent's weighted score and SHALL expose whether each detector result is available. If no positive-weight detector is available, `quality_score` and `suspicious` SHALL be unavailable and serialize as empty CSV values. The summary SHALL report the number of respondents not scored.
+
+#### Scenario: Partially available detector results
+- **WHEN** a respondent has an unavailable detector and another available detector
+- **THEN** only available positive-weight detectors contribute to that respondent's quality score
+
+#### Scenario: No available detector results
+- **WHEN** every detector is unavailable for a respondent
+- **THEN** the respondent remains in the output with empty `quality_score` and `suspicious` fields

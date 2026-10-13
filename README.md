@@ -66,9 +66,9 @@ The quality score is calculated as:
 
 `100 * (1 - weighted_average_detector_penalty)`
 
-where `100` is good quality and lower scores are more suspicious. A score below `flag_threshold` receives `suspicious: true`. The scored CSV preserves all original columns and appends `quality_score`, `suspicious`, `flag_reasons`, detector fields, and `data_quality` markers.
+where `100` is good quality and lower scores are more suspicious. A score below `flag_threshold` receives `suspicious: true`. The scored CSV preserves all original columns and appends `quality_score`, `suspicious`, `flag_reasons`, detector trigger and availability fields, and `data_quality` markers. If none of a respondent's positive-weight detectors can be evaluated, the score and suspicious status are blank.
 
-Configuration and missing question columns fail fast. Missing or non-numeric values in an individual row remain in the output and receive `Missing_Value` or `Invalid_Value` markers; values are not imputed. Singular Mahalanobis covariance produces a controlled error. The console summary reports processed and suspicious counts, detector counts, data-quality counts, score statistics, and the output path.
+Configuration and missing question columns fail fast. Missing or non-numeric values in an individual row remain in the output and receive `Missing_Value` or `Invalid_Value` markers; values are not imputed. Unavailable detector results are excluded from the weighted score. Singular Mahalanobis covariance produces a controlled error. The console summary reports processed, suspicious, and not-scored counts, detector counts, data-quality counts, score statistics, and the output path.
 
 The repository uses synthetic or public anonymized data only. It does not perform NLP, unsupervised machine learning, GUI work, or automatic respondent deletion.
 

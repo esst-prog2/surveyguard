@@ -23,6 +23,7 @@ def test_cli_creates_derived_scored_csv_and_summary(tmp_path):
     assert len(output) == 7
     assert "quality_score" in output.columns
     assert "Processed: 7" in result.stdout
+    assert "Not scored: 0" in result.stdout
     assert "Suspicious:" in result.stdout
     assert f"Output: {output_path}" in result.stdout
 

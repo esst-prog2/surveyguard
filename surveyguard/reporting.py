@@ -14,6 +14,7 @@ def print_summary(frame: pd.DataFrame, output_path: Path) -> None:
     print(f"Logical contradiction: {int(frame['logical_contradiction_triggered'].sum())}")
     print(f"Mahalanobis outlier: {int(frame['mahalanobis_outlier_triggered'].sum())}")
     print(f"Missing/invalid: {int(frame['data_quality'].ne('').sum())}")
+    print(f"Not scored: {int(frame['quality_score'].isna().sum())}")
     print(f"Average quality score: {frame['quality_score'].mean():.2f}")
     print(f"Minimum quality score: {frame['quality_score'].min():.2f}")
     print(f"Output: {output_path}")
