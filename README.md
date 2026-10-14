@@ -10,11 +10,15 @@ Install the Python dependencies in a Python 3.10+ environment:
 python -m pip install -r requirements.txt
 ```
 
-Run the detector with a CSV and JSON rules file:
+Run the detector with a `.csv`, `.xlsx`, or `.sav` response file and a JSON rules file:
 
 ```powershell
 python detect_anomalies.py data/wave1_raw.csv --rules config/scale_logic.json
 ```
+
+Excel files are read directly through `openpyxl`. SPSS files are read with
+raw numeric response codes (`convert_categoricals=False`), so value labels are
+not passed to the numeric detectors.
 
 Use `--output` to choose a result path. Without it, `wave1_raw.csv` becomes `wave1_scored.csv` beside the input:
 
@@ -22,6 +26,17 @@ Use `--output` to choose a result path. Without it, `wave1_raw.csv` becomes `wav
 python detect_anomalies.py data/wave1_raw.csv `
 	--rules config/scale_logic.json `
 	--output output/wave1_scored.csv
+```
+
+Use `--report` to also write a Markdown diagnostic report. It includes the
+processed and suspicious respondent counts, score statistics, detector counts
+and percentages, and the flagged respondents with their reasons:
+
+```powershell
+python detect_anomalies.py data/wave1_raw.xlsx `
+	--rules config/scale_logic.json `
+	--output output/wave1_scored.csv `
+	--report output/wave1_diagnostics.md
 ```
 
 ## Rules configuration
