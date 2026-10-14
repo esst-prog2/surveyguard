@@ -87,3 +87,5 @@
 2026-10-14 - Added testable scenarios for the pre-existing optional configuration defaults and precise scoring defaults so the main specification passes strict validation - Copilot
 2026-10-14 - Strict validation passed for the synchronized main spec and the complete change; all 7 implementation tasks were marked complete - Copilot
 2026-10-14 - Archived the completed OpenSpec change as `openspec/changes/archive/2026-10-14-extend-inputs-and-diagnostics`; the archive command confirmed the main specs were already synchronized and no active changes remain - Copilot
+2026-10-14 - Manually tested the CLI with `--report` on `.xlsx` and `.sav` files generated from `spike_data.csv`. Both runs processed exactly 1,000 respondents, marked 3 as suspicious, reported an average quality score of 96.45, and counted 50 Mahalanobis outliers (5.00%); the generated Markdown reports were byte-for-byte identical and contained the same results - Copilot
+2026-10-14 - Deleted the generated XLSX/SAV test data, scored CSV outputs, Markdown reports, and temporary validation directory after verification, in accordance with the lesson's data-cleanup requirement - Copilot
