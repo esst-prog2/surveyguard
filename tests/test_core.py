@@ -2,13 +2,14 @@ import json
 from pathlib import Path
 
 import pandas as pd
+import pyreadstat
 import pytest
 
 from surveyguard.config import load_rules
 from surveyguard.detectors import DetectorResult, irv, logical_contradictions, mahalanobis, straightlining
 from surveyguard.errors import ConfigurationError, DataValidationError, MathematicalError
-from surveyguard.io import load_csv
-from surveyguard.reporting import print_summary
+from surveyguard.io import load_csv, load_input
+from surveyguard.reporting import print_summary, write_report
 from surveyguard.scoring import aggregate_score, score_dataframe
 
 
@@ -78,6 +79,48 @@ def test_missing_configured_column_fails_before_scoring(tmp_path):
     pd.DataFrame({"respondent_id": ["r1"], "Q1": [1]}).to_csv(csv_path, index=False)
     with pytest.raises(DataValidationError, match="Missing configured question columns"):
         load_csv(csv_path, rules)
+
+
+def test_load_xlsx_and_uppercase_extension(tmp_path):
+    rules = load_rules(FIXTURE_RULES)
+    path = tmp_path / "survey.XLSX"
+    pd.read_csv(FIXTURE_CSV).to_excel(path, index=False)
+
+    loaded = load_input(path, rules)
+
+    assert pd.to_numeric(loaded["Q1"], errors="coerce").tolist()[:3] == [3, 1, 5]
+    assert loaded["respondent_id"].tolist() == ["r1", "r2", "r3", "r4", "r5", "r6", "r7"]
+
+
+def test_load_sav_preserves_numeric_codes_with_value_labels(tmp_path):
+    rules = load_rules(FIXTURE_RULES)
+    path = tmp_path / "survey.sav"
+    source = pd.DataFrame({
+        "respondent_id": ["r1", "r2", "r3"],
+        "Q1": [3, 1, 5],
+        "Q2": [3, 1, 5],
+        "Q3": [3, 1, 5],
+        "Q4": [3, 2, 4],
+    })
+    pyreadstat.write_sav(
+        source,
+        path,
+        variable_value_labels={"Q1": {1: "Disagree", 3: "Neutral", 5: "Agree"}},
+    )
+
+    loaded = load_input(path, rules)
+
+    assert loaded["Q1"].tolist()[:3] == [3.0, 1.0, 5.0]
+    assert all(isinstance(value, (int, float)) for value in loaded["Q1"])
+
+
+def test_load_input_rejects_unsupported_extension(tmp_path):
+    rules = load_rules(FIXTURE_RULES)
+    path = tmp_path / "survey.json"
+    path.write_text("{}", encoding="utf-8")
+
+    with pytest.raises(DataValidationError, match="Supported extensions"):
+        load_input(path, rules)
 
 
 def test_irv_and_straightlining():
@@ -258,3 +301,44 @@ def test_score_dataframe_does_not_dilute_available_detector_with_missing_values(
     assert scored.loc[0, "logical_contradiction_triggered"]
     assert scored.loc[0, "quality_score"] == 0
     assert scored.loc[0, "suspicious"]
+
+
+def test_write_report_has_deterministic_metrics_and_reason_order(tmp_path):
+    frame = pd.DataFrame({
+        "respondent_id": ["clean", "flagged", "tied"],
+        "quality_score": [100.0, 25.0, 25.0],
+        "suspicious": [False, True, True],
+        "flag_reasons": ["", "Straightlining_Error:scale", "Mahalanobis_Outlier"],
+        "straightlining_triggered": [False, True, False],
+        "logical_contradiction_triggered": [False, False, True],
+        "mahalanobis_outlier_triggered": [False, False, True],
+    })
+    path = tmp_path / "diagnostics.md"
+
+    write_report(frame, path, "respondent_id")
+    report = path.read_text(encoding="utf-8")
+
+    assert "- Processed respondents: 3" in report
+    assert "- Suspicious respondents: 2" in report
+    assert "| Straightlining | 1 | 33.33% |" in report
+    assert "| Contradiction | 1 | 33.33% |" in report
+    assert "| Mahalanobis | 1 | 33.33% |" in report
+    assert report.index("| flagged | 25.00 |") < report.index("| tied | 25.00 |")
+    assert "Straightlining_Error:scale" in report
+    assert "Mahalanobis_Outlier" in report
+
+
+def test_write_report_handles_empty_frame(tmp_path):
+    frame = pd.DataFrame({
+        "quality_score": pd.Series(dtype=float),
+        "suspicious": pd.Series(dtype="boolean"),
+        "flag_reasons": pd.Series(dtype=str),
+        "straightlining_triggered": pd.Series(dtype=bool),
+        "logical_contradiction_triggered": pd.Series(dtype=bool),
+        "mahalanobis_outlier_triggered": pd.Series(dtype=bool),
+    })
+
+    path = write_report(frame, tmp_path / "empty.md")
+
+    assert path.read_text(encoding="utf-8").count("N/A") == 3
+    assert "| None | N/A | No flagged respondents |" in path.read_text(encoding="utf-8")

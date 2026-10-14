@@ -7,15 +7,23 @@ SurveyGuard provides a reproducible, auditable way to identify suspicious numeri
 ## Requirements
 
 ### Requirement: Validate configured survey inputs
-The system SHALL read a CSV response file and a JSON rules file, identify survey questions by CSV header name, and fail fast with a clear error when the rules are invalid or a configured question column is missing.
+The system SHALL read a response file with a `.csv`, `.xlsx`, or `.sav` extension and a JSON rules file, identify survey questions by header name, and fail fast with a clear error when the rules are invalid, a configured question column is missing, or the input extension is unsupported. When reading an SPSS file, the system SHALL expose raw numeric response codes rather than value-label text.
 
 #### Scenario: Valid input and rules
-- **WHEN** the CSV contains all configured question columns and the JSON contains valid blocks, ranges, pairs, weights, and thresholds
-- **THEN** processing starts and the configured question columns are used regardless of their physical CSV order
+- **WHEN** a `.csv`, `.xlsx`, or `.sav` response file contains all configured question columns and the JSON contains valid blocks, ranges, pairs, weights, and thresholds
+- **THEN** processing starts and the configured question columns are used regardless of their physical input order
+
+#### Scenario: Raw numeric SPSS values
+- **WHEN** a valid `.sav` file contains numeric codes with SPSS value labels
+- **THEN** the loaded question values are the numeric codes and not the value-label strings
 
 #### Scenario: Missing configured question column
-- **WHEN** a question named in a configured block or inverted pair is absent from the CSV header
+- **WHEN** a question named in a configured block or inverted pair is absent from the input header
 - **THEN** the command exits with a clear structural error and does not write a scored output
+
+#### Scenario: Unsupported input extension
+- **WHEN** the input file has an extension other than `.csv`, `.xlsx`, or `.sav`
+- **THEN** the command exits with an explicit error naming the supported extensions and does not write a scored output
 
 ### Requirement: Detect straightlining
 The system SHALL calculate population variance (IRV, divisor `n`) for each complete configured question block and SHALL identify a straightlining response when that variance is less than or equal to the block's `irv_threshold`.
@@ -70,11 +78,11 @@ The system SHALL normalize each detector penalty to `0` through `1`, calculate a
 - **THEN** the output contains the detector-specific reasons even when the aggregate score remains at or above the suspicious threshold
 
 ### Requirement: Preserve and annotate scored output
-The system SHALL preserve every original CSV column and append auditable result fields including `quality_score`, `suspicious`, `flag_reasons`, detector results, and missing/invalid data markers.
+The system SHALL preserve every original input column and append auditable result fields including `quality_score`, `suspicious`, `flag_reasons`, detector results, and missing/invalid data markers.
 
 #### Scenario: Scored CSV creation
-- **WHEN** a valid run completes
-- **THEN** the command writes the scored CSV to the explicit `--output` path or to an automatically derived `_scored.csv` path when no output path is provided
+- **WHEN** a valid `.csv`, `.xlsx`, or `.sav` run completes
+- **THEN** the command writes the scored output as CSV to the explicit `--output` path or to an automatically derived `_scored.csv` path when no output path is provided
 
 #### Scenario: Respondent metadata
 - **WHEN** an optional `id_column` or other non-question metadata columns are present
@@ -86,6 +94,32 @@ The system SHALL print processed count, suspicious count, per-detector counts, m
 #### Scenario: Successful summary
 - **WHEN** processing completes for a fixture containing flagged, clean, and invalid rows
 - **THEN** the console summary reports each required aggregate and the exact scored-output location
+
+### Requirement: Generate an optional diagnostic Markdown report
+When the CLI receives `--report <path.md>`, the system SHALL write a readable Markdown report for the same successful run. The report SHALL contain the processed respondent count, the `is_suspicious` respondent count, average and minimum `quality_score`, each of the straightlining, contradiction, and Mahalanobis detector trigger counts and percentages, and a table of flagged or most suspicious respondents with their concrete `reasons` values. Without `--report`, no report file is required.
+
+#### Scenario: Diagnostic report is written
+- **WHEN** a valid run completes with `--report diagnostics.md`
+- **THEN** the command creates or replaces that path with Markdown containing all required aggregate metrics and a flagged-respondent table
+
+#### Scenario: Detector percentages use processed respondents
+- **WHEN** a detector triggers for a known number of respondents in a processed input
+- **THEN** its report percentage equals its trigger count divided by the processed respondent count, expressed as a percentage
+
+#### Scenario: Report includes concrete reasons
+- **WHEN** one or more respondents are marked suspicious or have detector reasons
+- **THEN** the report table includes their respondent identifier when available and the exact textual `reasons`/`flag_reasons` content
+
+#### Scenario: Report failure is explicit
+- **WHEN** the requested report path cannot be written
+- **THEN** the command exits with a clear error rather than silently omitting or claiming success for the report
+
+### Requirement: Deterministically verify extended input and reporting behavior
+The project SHALL include deterministic unit and CLI tests covering `.xlsx` loading, raw-code `.sav` loading, unsupported extensions, report metrics, report reason content, and report-path failures.
+
+#### Scenario: Test suite covers both features
+- **WHEN** the focused unit and CLI tests are run
+- **THEN** they verify the supported input behavior and the report's exact deterministic counts, percentages, and reason text
 
 ### Requirement: Handle row-level data quality issues
 The system SHALL continue processing when an individual respondent contains missing or non-numeric values, mark that row with a data-quality reason, and SHALL not silently impute values.
@@ -104,8 +138,16 @@ The repository SHALL use only synthetic or public anonymized data in demonstrati
 ### Requirement: Define optional configuration defaults
 When omitted, `inverted_pairs` SHALL default to an empty list, `high_min` SHALL default to `max - 1`, `low_max` SHALL default to `min + 1`, and `irv_threshold` SHALL default to `0`. The `id_column` setting SHALL be optional.
 
+#### Scenario: Omitted optional settings
+- **WHEN** a valid rules file omits inverted pairs, band boundaries, IRV threshold, and respondent identifier
+- **THEN** the documented defaults are applied and processing can start without an id column
+
 ### Requirement: Define precise scoring defaults
 The high band SHALL include values equal to `high_min`, and the low band SHALL include values equal to `low_max`. The quality score SHALL equal `100 * (1 - weighted_mean_penalty)`, where the weighted mean is the sum of each detector penalty multiplied by its weight divided by the sum of the included weights. Omitted detector weights SHALL default to `1.0`, and omitted `flag_threshold` SHALL default to `50`.
+
+#### Scenario: Default scoring settings
+- **WHEN** detector weights and the suspicious threshold are omitted and a response is evaluated at a band boundary
+- **THEN** weights default to `1.0`, the threshold defaults to `50`, and boundary values are included in their configured high or low bands
 
 ### Requirement: Exclude unavailable detector results from scoring
 The system SHALL exclude unavailable detector results from the respondent's weighted score and SHALL expose whether each detector result is available. If no positive-weight detector is available, `quality_score` and `suspicious` SHALL be unavailable and serialize as empty CSV values. The summary SHALL report the number of respondents not scored.
