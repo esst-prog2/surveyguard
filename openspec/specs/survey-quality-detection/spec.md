@@ -7,7 +7,7 @@ SurveyGuard provides a reproducible, auditable way to identify suspicious numeri
 ## Requirements
 
 ### Requirement: Validate configured survey inputs
-The system SHALL read a response file with a `.csv`, `.xlsx`, or `.sav` extension and a JSON rules file, identify survey questions by header name, and fail fast with a clear error when the rules are invalid, a configured question column is missing, or the input extension is unsupported. When reading an SPSS file, the system SHALL expose raw numeric response codes rather than value-label text.
+The system SHALL read a response file with a `.csv`, `.xlsx`, or `.sav` extension and a JSON rules file, identify survey questions by header name, and fail fast with a clear error when the rules are invalid, a configured question column is missing, or the input extension is unsupported. When reading an SPSS file, the system SHALL expose raw numeric response codes rather than value-label text. Each question block MAY define numeric `missing_values` codes. Configured missing codes SHALL remain in the preserved raw output, receive a `Missing_Value` marker, and be excluded from all detector calculations. Numeric values outside a block's configured `min`/`max` range SHALL receive an `Invalid_Value` marker and be excluded from all detector calculations.
 
 #### Scenario: Valid input and rules
 - **WHEN** a `.csv`, `.xlsx`, or `.sav` response file contains all configured question columns and the JSON contains valid blocks, ranges, pairs, weights, and thresholds
@@ -16,6 +16,14 @@ The system SHALL read a response file with a `.csv`, `.xlsx`, or `.sav` extensio
 #### Scenario: Raw numeric SPSS values
 - **WHEN** a valid `.sav` file contains numeric codes with SPSS value labels
 - **THEN** the loaded question values are the numeric codes and not the value-label strings
+
+#### Scenario: Configured missing response codes
+- **WHEN** a question block configures values such as `77`, `88`, or `99` as `missing_values`
+- **THEN** those raw values remain in the scored output, receive a `Missing_Value` marker, and are treated as missing by every detector
+
+#### Scenario: Out-of-range response value
+- **WHEN** a numeric response is outside its block's configured `min`/`max` range and is not a configured missing code
+- **THEN** the raw value remains in the scored output, receives an `Invalid_Value` marker, and is excluded from every detector calculation
 
 #### Scenario: Missing configured question column
 - **WHEN** a question named in a configured block or inverted pair is absent from the input header
@@ -89,14 +97,14 @@ The system SHALL preserve every original input column and append auditable resul
 - **THEN** those columns remain unchanged and are excluded from all statistical calculations
 
 ### Requirement: Report processing summary
-The system SHALL print processed count, suspicious count, per-detector counts, missing/invalid counts, score statistics, and the output path after a successful run.
+The system SHALL print processed count, suspicious count, detector-triggered count, per-detector counts, separate missing and invalid counts, not-scored count with its reason, score statistics, and the output path after a successful run.
 
 #### Scenario: Successful summary
 - **WHEN** processing completes for a fixture containing flagged, clean, and invalid rows
-- **THEN** the console summary reports each required aggregate and the exact scored-output location
+- **THEN** the console summary reports each required aggregate, distinguishes detector-triggered respondents from suspicious respondents, separates missing and invalid counts, explains not-scored rows, and reports the exact scored-output location
 
 ### Requirement: Generate an optional diagnostic Markdown report
-When the CLI receives `--report <path.md>`, the system SHALL write a readable Markdown report for the same successful run. The report SHALL contain the processed respondent count, the `is_suspicious` respondent count, average and minimum `quality_score`, each of the straightlining, contradiction, and Mahalanobis detector trigger counts and percentages, and a table of flagged or most suspicious respondents with their concrete `reasons` values. Without `--report`, no report file is required.
+When the CLI receives `--report <path.md>`, the system SHALL write a readable Markdown report for the same successful run. The report SHALL contain the processed respondent count, suspicious and detector-triggered respondent counts, separate missing and invalid counts, the not-scored count and its reason, average and minimum `quality_score`, each of the straightlining, contradiction, and Mahalanobis detector trigger counts and percentages, and a detector-triggered respondent table with concrete `reasons` values. Without `--report`, no report file is required.
 
 #### Scenario: Diagnostic report is written
 - **WHEN** a valid run completes with `--report diagnostics.md`

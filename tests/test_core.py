@@ -64,6 +64,7 @@ def test_optional_rule_settings_use_documented_defaults(tmp_path):
     assert rules.blocks["scale"].high_min == 4
     assert rules.blocks["scale"].low_max == 2
     assert rules.blocks["scale"].irv_threshold == 0
+    assert rules.blocks["scale"].missing_values == ()
     assert rules.weights == {
         "straightlining": 1.0,
         "logical_contradiction": 1.0,
@@ -257,6 +258,31 @@ def test_score_dataframe_marks_missing_value_without_imputation():
     assert scored.loc[0, "quality_score"] == 100
 
 
+def test_configured_missing_and_out_of_range_values_are_excluded_from_detectors(tmp_path):
+    rules_data = json.loads(Path(FIXTURE_RULES).read_text(encoding="utf-8"))
+    rules_data["blocks"]["attitude_scale"]["missing_values"] = [77, 88, 99]
+    rules_path = tmp_path / "ess-rules.json"
+    rules_path.write_text(json.dumps(rules_data), encoding="utf-8")
+    rules = load_rules(rules_path)
+    frame = pd.DataFrame({
+        "respondent_id": ["missing-code", "out-of-range"],
+        "Q1": [77, 6],
+        "Q2": [3, 3],
+        "Q3": [3, 3],
+        "Q4": [3, 3],
+    })
+
+    scored = score_dataframe(frame, rules)
+
+    assert scored.loc[0, "Q1"] == 77
+    assert scored.loc[0, "data_quality"] == "Missing_Value"
+    assert not bool(scored.loc[0, "straightlining_available"])
+    assert pd.isna(scored.loc[0, "mahalanobis_distance"])
+    assert scored.loc[1, "data_quality"] == "Invalid_Value"
+    assert not bool(scored.loc[1, "straightlining_available"])
+    assert pd.isna(scored.loc[1, "mahalanobis_distance"])
+
+
 def test_score_dataframe_returns_unavailable_score_when_no_detector_can_run(capsys):
     rules = load_rules(FIXTURE_RULES)
     frame = pd.DataFrame({
@@ -280,7 +306,9 @@ def test_score_dataframe_returns_unavailable_score_when_no_detector_can_run(caps
         ],
     ].any()
     print_summary(scored, Path("unscored.csv"))
-    assert "Not scored: 1" in capsys.readouterr().out
+    summary = capsys.readouterr().out
+    assert "Not scored: 1" in summary
+    assert "Not scored reason: no positive-weight detector had enough valid responses" in summary
 
 
 def test_score_dataframe_does_not_dilute_available_detector_with_missing_values():
@@ -320,12 +348,46 @@ def test_write_report_has_deterministic_metrics_and_reason_order(tmp_path):
 
     assert "- Processed respondents: 3" in report
     assert "- Suspicious respondents: 2" in report
+    assert "- Detector-triggered respondents: 2" in report
+    assert "- Missing-value respondents: 0" in report
+    assert "- Invalid-value respondents: 0" in report
+    assert "- Not-scored respondents: 0" in report
     assert "| Straightlining | 1 | 33.33% |" in report
     assert "| Contradiction | 1 | 33.33% |" in report
     assert "| Mahalanobis | 1 | 33.33% |" in report
     assert report.index("| flagged | 25.00 |") < report.index("| tied | 25.00 |")
     assert "Straightlining_Error:scale" in report
     assert "Mahalanobis_Outlier" in report
+
+
+def test_summary_and_report_separate_detector_and_data_quality_counts(tmp_path, capsys):
+    frame = pd.DataFrame({
+        "quality_score": [50.0, None, 100.0],
+        "suspicious": [False, None, False],
+        "flag_reasons": ["Straightlining_Error:scale", "", ""],
+        "data_quality": ["Missing_Value", "Invalid_Value", ""],
+        "straightlining_triggered": [True, False, False],
+        "logical_contradiction_triggered": [False, False, False],
+        "mahalanobis_outlier_triggered": [False, False, False],
+    })
+
+    print_summary(frame, tmp_path / "scored.csv")
+    summary = capsys.readouterr().out
+    assert "Suspicious: 0" in summary
+    assert "Detector-triggered: 1" in summary
+    assert "Missing: 1" in summary
+    assert "Invalid: 1" in summary
+    assert "Not scored: 1" in summary
+
+    report = tmp_path / "diagnostics.md"
+    write_report(frame, report)
+    content = report.read_text(encoding="utf-8")
+    assert "- Suspicious respondents: 0" in content
+    assert "- Detector-triggered respondents: 1" in content
+    assert "- Missing-value respondents: 1" in content
+    assert "- Invalid-value respondents: 1" in content
+    assert "- Not-scored respondents: 1" in content
+    assert "- Not-scored reason: no positive-weight detector had enough valid responses" in content
 
 
 def test_write_report_handles_empty_frame(tmp_path):
@@ -340,5 +402,5 @@ def test_write_report_handles_empty_frame(tmp_path):
 
     path = write_report(frame, tmp_path / "empty.md")
 
-    assert path.read_text(encoding="utf-8").count("N/A") == 3
-    assert "| None | N/A | No flagged respondents |" in path.read_text(encoding="utf-8")
+    assert path.read_text(encoding="utf-8").count("N/A") == 4
+    assert "| None | N/A | No detector-triggered respondents |" in path.read_text(encoding="utf-8")

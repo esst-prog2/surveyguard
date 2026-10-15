@@ -16,6 +16,7 @@ class BlockConfig:
     columns: tuple[str, ...]
     minimum: float
     maximum: float
+    missing_values: tuple[float, ...]
     high_min: float
     low_max: float
     irv_threshold: float
@@ -72,12 +73,28 @@ def load_rules(path: str | Path) -> RulesConfig:
             raise ConfigurationError(f"Block {name!r} contains invalid columns")
         minimum = _number(raw.get("min"), f"blocks.{name}.min")
         maximum = _number(raw.get("max"), f"blocks.{name}.max")
+        raw_missing_values = raw.get("missing_values", [])
+        if not isinstance(raw_missing_values, list):
+            raise ConfigurationError(f"blocks.{name}.missing_values must be a list")
+        missing_values = tuple(
+            _number(value, f"blocks.{name}.missing_values[{index}]")
+            for index, value in enumerate(raw_missing_values)
+        )
         high_min = _number(raw.get("high_min", maximum - 1), f"blocks.{name}.high_min")
         low_max = _number(raw.get("low_max", minimum + 1), f"blocks.{name}.low_max")
         irv_threshold = _number(raw.get("irv_threshold", 0), f"blocks.{name}.irv_threshold")
         if not minimum < maximum or not minimum <= low_max < high_min <= maximum:
             raise ConfigurationError(f"Block {name!r} has invalid scale bands")
-        blocks[name] = BlockConfig(name, columns, minimum, maximum, high_min, low_max, irv_threshold)
+        blocks[name] = BlockConfig(
+            name,
+            columns,
+            minimum,
+            maximum,
+            missing_values,
+            high_min,
+            low_max,
+            irv_threshold,
+        )
 
     raw_pairs = data.get("inverted_pairs", [])
     if not isinstance(raw_pairs, list):

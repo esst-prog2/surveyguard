@@ -51,6 +51,7 @@ Rules identify question columns by header name, not by physical CSV order. Each 
 			"columns": ["Q1", "Q2", "Q3", "Q4"],
 			"min": 1,
 			"max": 5,
+			"missing_values": [],
 			"high_min": 4,
 			"low_max": 2,
 			"irv_threshold": 0
@@ -83,7 +84,7 @@ The quality score is calculated as:
 
 where `100` is good quality and lower scores are more suspicious. A score below `flag_threshold` receives `suspicious: true`. The scored CSV preserves all original columns and appends `quality_score`, `suspicious`, `flag_reasons`, detector trigger and availability fields, and `data_quality` markers. If none of a respondent's positive-weight detectors can be evaluated, the score and suspicious status are blank.
 
-Configuration and missing question columns fail fast. Missing or non-numeric values in an individual row remain in the output and receive `Missing_Value` or `Invalid_Value` markers; values are not imputed. Unavailable detector results are excluded from the weighted score. Singular Mahalanobis covariance produces a controlled error. The console summary reports processed, suspicious, and not-scored counts, detector counts, data-quality counts, score statistics, and the output path.
+Configuration and missing question columns fail fast. Each block may define numeric `missing_values` codes, such as `[77, 88, 99]` for common SPSS survey codes. Configured missing codes are excluded from all detectors and receive a `Missing_Value` marker while the original raw value remains in the scored output. Numeric values outside the block's `min`/`max` range are excluded from all detectors and receive an `Invalid_Value` marker. Other missing or non-numeric values in an individual row receive `Missing_Value` or `Invalid_Value` markers; values are not imputed. Unavailable detector results are excluded from the weighted score. Singular Mahalanobis covariance produces a controlled error. The console summary and optional Markdown report distinguish detector-triggered respondents from respondents below the suspicious threshold, report missing and invalid rows separately, explain that not-scored rows had no positive-weight detector with enough valid responses, and label the reasons table as detector-triggered rather than automatically suspicious.
 
 The repository uses synthetic or public anonymized data only. It does not perform NLP, unsupervised machine learning, GUI work, or automatic respondent deletion.
 
