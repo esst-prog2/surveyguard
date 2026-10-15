@@ -21,6 +21,7 @@ def build_spike_rules(columns: tuple[str, ...]) -> RulesConfig:
         columns=columns,
         minimum=1.0,
         maximum=5.0,
+        missing_values=(),
         high_min=4.0,
         low_max=2.0,
         irv_threshold=0.0,
