@@ -39,6 +39,29 @@ python detect_anomalies.py data/wave1_raw.xlsx `
 	--report output/wave1_diagnostics.md
 ```
 
+## Web interface
+
+SurveyGuard also has a browser interface built with Streamlit. It uses the
+same rules validation, loading, scoring, and report code as the CLI, so the
+same files give the same results. The CLI is unchanged.
+
+```powershell
+python -m pip install -r requirements.txt
+python -m streamlit run app.py
+```
+
+In the page that opens:
+
+1. Upload the response file (`.csv`, `.xlsx`, or `.sav`) and the rules `.json` file.
+2. Click **Run SurveyGuard**.
+3. Review the processed, suspicious, and average-score metrics, the detector
+   results table, and the detector-flagged respondents table.
+4. Click **Download diagnostic report** to save `<input name>_diagnostics.md`,
+   the same report the CLI writes with `--report`.
+
+Uploaded files are only stored in a temporary folder while the run is in
+progress; the interface does not write a scored CSV.
+
 ## Rules configuration
 
 Rules identify question columns by header name, not by physical CSV order. Each block defines its columns and Likert range. `high_min` and `low_max` define the high-high and low-low contradiction bands for inverted pairs.
