@@ -23,7 +23,7 @@
   - `python -m compileall -q surveyguard detect_anomalies.py app.py` és `git diff --check` hibátlan.
 
   Az eredményt rögzítsd a PLANNING_LOG-ban.
-- [ ] 4.3 Kézi ellenőrzés a böngészőben (`streamlit run app.py`) a `spike_data.csv` + `config/scale_logic.json` párossal, valamint ugyanennek a scratchpadben előállított `.xlsx` és `.sav` változatával:
+- [x] 4.3 Kézi ellenőrzés a böngészőben (`streamlit run app.py`) a `spike_data.csv` + `config/scale_logic.json` párossal, valamint ugyanennek a scratchpadben előállított `.xlsx` és `.sav` változatával:
   - a metrikák egyeznek a CLI összegzésével;
   - a letöltött jelentés hash-e egyezik a 2.1 hash-ével;
   - a letöltés után az eredmények láthatók maradnak;
@@ -32,7 +32,7 @@
 
   Utána töröld a generált fájlokat (`git status` tiszta). Az eredményt rögzítsd a PLANNING_LOG-ban.
 
-  *Állapot (2026-10-23):* a fenti pontokat `AppTest`-tel, valódi feltöltéssel ellenőriztük mindhárom formátumon (1000 / 2 / 96.61, a jelentés hash-e egyezik a CLI-ével, letöltés után az eredmények megmaradnak). A `python -m streamlit run app.py` szerver elindul, és HTTP 200-at ad. A valódi böngészőben való végigkattintás még hátravan, ezért a feladat nyitott.
+  *Állapot (2026-10-23):* a fenti pontokat `AppTest`-tel, valódi feltöltéssel ellenőriztük mindhárom formátumon (1000 / 2 / 96.61, a jelentés hash-e egyezik a CLI-ével, letöltés után az eredmények megmaradnak). A `python -m streamlit run app.py` szerver elindul, és HTTP 200-at ad. A valódi böngészős végigkattintást a felhasználó elvégezte, és rendben találta (2026-10-23).
 
 ## 5. Dokumentáció és validálás
 

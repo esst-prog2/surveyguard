@@ -1,6 +1,6 @@
 ## 1. Előfeltétel
 
-- [ ] 1.1 Zárd le az `add-streamlit-gui` change-et: a felhasználó elvégzi a 4.3 kézi böngészős ellenőrzést, a változások egy új ágon (pl. `feat-streamlit-gui`) commitba kerülnek, majd a change archiválódik. Ellenőrzés: létezik az `openspec/specs/web-interface/spec.md`, és az `openspec validate enhance-gui-ux-and-export --strict` már nem ad „target spec does not exist” jelzést.
+- [x] 1.1 Zárd le az `add-streamlit-gui` change-et: a felhasználó elvégzi a 4.3 kézi böngészős ellenőrzést, a változások egy új ágon (`feat-streamlit-ui`) commitba kerülnek, majd a change archiválódik. Ellenőrzés: létezik az `openspec/specs/web-interface/spec.md`, és az `openspec validate enhance-gui-ux-and-export --strict` már nem ad „target spec does not exist” jelzést.
 - [ ] 1.2 Rögzítsd az alapállapotot: `python -m pytest -q` → 59 passed, és a CLI-jelentés hash-ei egyeznek a PLANNING_LOG-ban rögzítettekkel (`eac61674…`, `eacf48fc…`). Ellenőrzés: az eredmény bekerül a PLANNING_LOG-ba.
 
 ## 2. Tisztított adat (`run_surveyguard`)
