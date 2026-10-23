@@ -7,7 +7,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from surveyguard.config import BlockConfig, PairConfig, RulesConfig
+from surveyguard.config import Condition, ContradictionRule, RulesConfig, ScaleConfig
 from surveyguard.detectors import logical_contradictions, mahalanobis, straightlining
 
 
@@ -15,24 +15,27 @@ DATA_PATH = Path(__file__).with_name("spike_data.csv")
 MAHALANOBIS_THRESHOLD = 6.0
 
 
+def _pair_rules(first: str, second: str) -> tuple[ContradictionRule, ContradictionRule]:
+    """Express an inverted pair as high-high and low-low contradiction rules on the 1-5 scale."""
+    return (
+        ContradictionRule((Condition(first, ">=", 4.0), Condition(second, ">=", 4.0))),
+        ContradictionRule((Condition(first, "<=", 2.0), Condition(second, "<=", 2.0))),
+    )
+
+
 def build_spike_rules(columns: tuple[str, ...]) -> RulesConfig:
-    block = BlockConfig(
+    scale = ScaleConfig(
         name="extroversion",
         columns=columns,
-        minimum=1.0,
-        maximum=5.0,
-        missing_values=(),
-        high_min=4.0,
-        low_max=2.0,
+        valid_min=1.0,
+        valid_max=5.0,
+        missing_codes=(),
         irv_threshold=0.0,
+        mahalanobis_threshold=MAHALANOBIS_THRESHOLD,
     )
     return RulesConfig(
-        blocks={block.name: block},
-        inverted_pairs=(
-            PairConfig("EXT1", "EXT2", block.name),
-            PairConfig("EXT3", "EXT4", block.name),
-        ),
-        thresholds={"mahalanobis_outlier": MAHALANOBIS_THRESHOLD},
+        scales={scale.name: scale},
+        contradictions=_pair_rules("EXT1", "EXT2") + _pair_rules("EXT3", "EXT4"),
     )
 
 
@@ -55,11 +58,11 @@ def main() -> None:
     rules = build_spike_rules(columns)
 
     straightlining_flags = frame.apply(
-        lambda row: straightlining(row, rules.blocks).triggered,
+        lambda row: straightlining(row, rules.scales).triggered,
         axis=1,
     )
     contradiction_flags = frame.apply(
-        lambda row: logical_contradictions(row, rules).triggered,
+        lambda row: logical_contradictions(row, rules.contradictions).triggered,
         axis=1,
     )
     distances, mahalanobis_flags = mahalanobis(

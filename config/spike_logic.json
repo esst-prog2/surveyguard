@@ -1,0 +1,27 @@
+{
+  "scales": {
+    "Extraversion": {
+      "columns": ["EXT1", "EXT2", "EXT3", "EXT4"],
+      "valid_min": 1,
+      "valid_max": 5,
+      "irv_threshold": 0,
+      "mahalanobis_threshold": 9.829530
+    }
+  },
+  "contradictions": [
+    {"conditions": [
+      {"column": "EXT2", "op": ">=", "value": 4},
+      {"column": "EXT3", "op": ">=", "value": 4}
+    ]},
+    {"conditions": [
+      {"column": "EXT2", "op": "<=", "value": 2},
+      {"column": "EXT3", "op": "<=", "value": 2}
+    ]}
+  ],
+  "weights": {
+    "straightlining": 1.0,
+    "logical_contradiction": 0.0,
+    "mahalanobis_outlier": 1.0
+  },
+  "flag_threshold": 50
+}

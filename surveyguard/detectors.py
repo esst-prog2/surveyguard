@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
+import operator
 from dataclasses import dataclass, field
 from typing import Iterable
 
 import numpy as np
 import pandas as pd
 
-from .config import BlockConfig, RulesConfig
+from .config import ContradictionRule, ScaleConfig
 from .errors import MathematicalError
 
 
@@ -27,38 +28,46 @@ def irv(values: Iterable[float]) -> float:
     return float(np.var(array, ddof=0))
 
 
-def straightlining(row: pd.Series, blocks: dict[str, BlockConfig]) -> DetectorResult:
+def straightlining(row: pd.Series, scales: dict[str, ScaleConfig]) -> DetectorResult:
     result = DetectorResult("straightlining", available=False)
-    block_irvs: dict[str, float] = {}
-    for block in blocks.values():
-        values = pd.to_numeric(row[list(block.columns)], errors="coerce").to_numpy(dtype=float)
+    scale_irvs: dict[str, float] = {}
+    for scale in scales.values():
+        values = pd.to_numeric(row[list(scale.columns)], errors="coerce").to_numpy(dtype=float)
         if np.isnan(values).any():
             continue
         result.available = True
         value = irv(values)
-        block_irvs[block.name] = value
-        if value <= block.irv_threshold:
+        scale_irvs[scale.name] = value
+        if value <= scale.irv_threshold:
             result.triggered = True
-            result.reasons.append(f"Straightlining_Error:{block.name}")
+            result.reasons.append(f"Straightlining_{scale.name}")
     result.penalty = 1.0 if result.triggered else 0.0
-    result.details["irv"] = block_irvs
+    result.details["irv"] = scale_irvs
     return result
 
 
-def logical_contradictions(row: pd.Series, rules: RulesConfig) -> DetectorResult:
+_COMPARISONS = {
+    ">": operator.gt,
+    ">=": operator.ge,
+    "<": operator.lt,
+    "<=": operator.le,
+    "==": operator.eq,
+}
+
+
+def logical_contradictions(row: pd.Series, rules: Iterable[ContradictionRule]) -> DetectorResult:
     result = DetectorResult("logical_contradiction", available=False)
-    for pair in rules.inverted_pairs:
-        block = rules.blocks[pair.block]
-        first = pd.to_numeric(pd.Series([row[pair.first]]), errors="coerce").iloc[0]
-        second = pd.to_numeric(pd.Series([row[pair.second]]), errors="coerce").iloc[0]
-        if pd.isna(first) or pd.isna(second):
+    for rule in rules:
+        values = pd.to_numeric(row[list(rule.columns)], errors="coerce")
+        if values.isna().any():
             continue
         result.available = True
-        high = first >= block.high_min and second >= block.high_min
-        low = first <= block.low_max and second <= block.low_max
-        if high or low:
+        if all(
+            _COMPARISONS[condition.op](values.iloc[index], condition.value)
+            for index, condition in enumerate(rule.conditions)
+        ):
             result.triggered = True
-            result.reasons.append(f"Logical_Contradiction:{pair.first}/{pair.second}")
+            result.reasons.append(rule.label)
     result.penalty = 1.0 if result.triggered else 0.0
     return result
 

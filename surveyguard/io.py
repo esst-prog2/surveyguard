@@ -23,6 +23,18 @@ def _validate_frame(frame: pd.DataFrame, rules: RulesConfig) -> pd.DataFrame:
     return frame
 
 
+def _whole_number_ids(frame: pd.DataFrame, id_column: str | None) -> pd.DataFrame:
+    """SPSS stores every number as a double; show whole-number ids as 1026, not 1026.0."""
+    if not id_column or not pd.api.types.is_float_dtype(frame[id_column]):
+        return frame
+    ids = frame[id_column]
+    present = ids.dropna()
+    if not (present == present.round()).all():
+        return frame
+    frame[id_column] = ids.astype("Int64" if ids.isna().any() else "int64")
+    return frame
+
+
 def load_input(path: str | Path, rules: RulesConfig) -> pd.DataFrame:
     source = Path(path)
     extension = source.suffix.lower()
@@ -41,7 +53,10 @@ def load_input(path: str | Path, rules: RulesConfig) -> pd.DataFrame:
             frame = pd.read_spss(source, convert_categoricals=False)
     except (OSError, ValueError, pd.errors.ParserError, pyreadstat.PyreadstatError) as exc:
         raise DataValidationError(f"Could not read input {source}: {exc}") from exc
-    return _validate_frame(frame, rules)
+    frame = _validate_frame(frame, rules)
+    if extension == ".sav":
+        frame = _whole_number_ids(frame, rules.id_column)
+    return frame
 
 
 def load_csv(path: str | Path, rules: RulesConfig) -> pd.DataFrame:
