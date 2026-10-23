@@ -2,7 +2,7 @@
 
 ## MVP usage
 
-SurveyGuard is a deterministic Python CLI for flagging suspicious numeric survey response patterns. It calculates straightlining via intra-individual response variability (IRV), inverted-item contradictions, and Mahalanobis multivariate outliers.
+SurveyGuard is a deterministic Python CLI for flagging suspicious numeric survey response patterns. It calculates straightlining via intra-individual response variability (IRV), explicit contradiction rules, and Mahalanobis multivariate outliers, separately for each configured scale.
 
 Install the Python dependencies in a Python 3.10+ environment:
 
@@ -79,31 +79,108 @@ progress; the interface does not save a scored or cleaned CSV on disk.
 
 ## Rules configuration
 
-Rules identify question columns by header name, not by physical CSV order. Each block defines its columns and Likert range. `high_min` and `low_max` define the high-high and low-low contradiction bands for inverted pairs.
+Rules identify question columns by header name, not by physical CSV order. The
+shipped `config/scale_logic.json` is an ESS-style configuration for the European
+Social Survey institutional-trust and satisfaction items; you can try it on the
+synthetic `tests/fixtures/ess_mock.csv`:
+
+```powershell
+python detect_anomalies.py tests/fixtures/ess_mock.csv `
+	--rules config/scale_logic.json `
+	--output output/ess_scored.csv `
+	--report output/ess_diagnostics.md
+```
 
 ```json
 {
-	"id_column": "respondent_id",
-	"blocks": {
-		"attitude_scale": {
-			"columns": ["Q1", "Q2", "Q3", "Q4"],
-			"min": 1,
-			"max": 5,
-			"missing_values": [],
-			"high_min": 4,
-			"low_max": 2,
-			"irv_threshold": 0
+	"id_column": "idno",
+	"scales": {
+		"Trust_Institutions": {
+			"columns": ["trstprl", "trstlgl", "trstplc", "trstplt", "trstprt"],
+			"valid_min": 0,
+			"valid_max": 10,
+			"missing_codes": [77, 88, 99],
+			"irv_threshold": 0,
+			"mahalanobis_threshold": 11.070498
+		},
+		"Satisfaction": {
+			"columns": ["stflife", "stfeco", "stfgov", "stfdem"],
+			"valid_min": 0,
+			"valid_max": 10,
+			"missing_codes": [77, 88, 99],
+			"irv_threshold": 0,
+			"mahalanobis_threshold": 9.487729
 		}
 	},
-	"inverted_pairs": [["Q2", "Q3", "attitude_scale"]],
+	"contradictions": [
+		{"conditions": [
+			{"column": "trstplt", "op": ">", "value": 8},
+			{"column": "trstprl", "op": "<", "value": 2}
+		]}
+	],
 	"weights": {
 		"straightlining": 1.0,
-		"logical_contradiction": 0.0,
+		"logical_contradiction": 1.0,
 		"mahalanobis_outlier": 1.0
 	},
-	"thresholds": {"mahalanobis_outlier": 9.829530},
 	"flag_threshold": 50
 }
+```
+
+The shipped file has two more contradiction rules (`trstprt>8 vs trstplt<2` and
+`stfgov>8 vs stfdem<2`). They are heuristics and can be tuned freely.
+
+- `scales` (required): one entry per scale. A scale name may only contain
+  letters, digits, and underscores, and a column may belong to only one scale.
+  - `columns`, `valid_min`, `valid_max`, and `mahalanobis_threshold` are required.
+  - `missing_codes` defaults to `[]`; the codes must lie outside the valid range.
+  - `irv_threshold` defaults to `0`.
+- `contradictions` (default `[]`): each rule is an AND of at least two
+  conditions. A condition compares one scale column with a number using `>`,
+  `>=`, `<`, `<=`, or `==`. A rule is skipped for a respondent when any of its
+  columns is missing or invalid. With no rules, the contradiction detector is
+  unavailable and does not affect the score.
+- `weights` default to `1.0` per detector, `flag_threshold` defaults to `50`,
+  and `id_column` is optional.
+
+Detectors run per scale. Straightlining checks each complete scale. Mahalanobis
+uses each scale's own columns, valid respondents, covariance matrix, and
+threshold. The ESS thresholds are the chi-square 0.95 quantiles for 5 and 4
+items. The scored CSV has one `mahalanobis_distance_<scale>` column per scale.
+`flag_reasons` uses these labels, separated by `;`:
+
+| Reason | Meaning |
+| --- | --- |
+| `Straightlining_<scale>` | IRV of the scale is at or below its `irv_threshold` |
+| `Contradiction: trstplt>8 vs trstprl<2` | every condition of that rule holds |
+| `Mahalanobis_<scale>` | squared distance on the scale is above its threshold |
+
+Each detector adds a penalty of 1 when it triggers on at least one scale or rule,
+so two straightlining scales cost the same as one.
+
+### Migrating from the old rules format
+
+Rules files with `blocks`, `inverted_pairs`, or `thresholds` are rejected with an
+error. To convert one:
+
+- Rename `blocks` to `scales`, `min`/`max` to `valid_min`/`valid_max`, and
+  `missing_values` to `missing_codes`.
+- Move `thresholds.mahalanobis_outlier` into each scale as `mahalanobis_threshold`.
+- Replace each inverted pair with two rules: a high-high rule (both items
+  `>= high_min`) and a low-low rule (both items `<= low_max`).
+
+Reason labels changed from `Straightlining_Error:<block>`, `Mahalanobis_Outlier`,
+and `Logical_Contradiction:<a>/<b>` to the labels above. For automated
+processing, prefer the stable `*_triggered` columns.
+
+### Spike calibration
+
+The spike calibration rules live in `config/spike_logic.json`. They define one
+`Extraversion` scale over `EXT1`-`EXT4` (1-5), and the former `EXT2`/`EXT3`
+inverted pair as two rules with zero weight:
+
+```powershell
+python detect_anomalies.py spike_data.csv --rules config/spike_logic.json
 ```
 
 The initial 10-item spike run flagged 0.2% of clean respondents for straightlining,
@@ -122,7 +199,7 @@ The quality score is calculated as:
 
 where `100` is good quality and lower scores are more suspicious. A score below `flag_threshold` receives `suspicious: true`. The scored CSV preserves all original columns and appends `quality_score`, `suspicious`, `flag_reasons`, detector trigger and availability fields, and `data_quality` markers. If none of a respondent's positive-weight detectors can be evaluated, the score and suspicious status are blank.
 
-Configuration and missing question columns fail fast. Each block may define numeric `missing_values` codes, such as `[77, 88, 99]` for common SPSS survey codes. Configured missing codes are excluded from all detectors and receive a `Missing_Value` marker while the original raw value remains in the scored output. Numeric values outside the block's `min`/`max` range are excluded from all detectors and receive an `Invalid_Value` marker. Other missing or non-numeric values in an individual row receive `Missing_Value` or `Invalid_Value` markers; values are not imputed. Unavailable detector results are excluded from the weighted score. Singular Mahalanobis covariance produces a controlled error. The console summary and optional Markdown report distinguish detector-triggered respondents from respondents below the suspicious threshold, report missing and invalid rows separately, explain that not-scored rows had no positive-weight detector with enough valid responses, and label the reasons table as detector-triggered rather than automatically suspicious.
+Configuration and missing question columns fail fast. Each scale may define numeric `missing_codes`, such as `[77, 88, 99]` for the ESS refusal, don't-know, and no-answer codes. Configured missing codes are excluded from all detectors and receive a `Missing_Value` marker while the original raw value remains in the scored output; the respondent row is never dropped. Numeric values outside the scale's `valid_min`/`valid_max` range are excluded from all detectors and receive an `Invalid_Value` marker. Other missing or non-numeric values in an individual row receive `Missing_Value` or `Invalid_Value` markers; values are not imputed. Unavailable detector results are excluded from the weighted score. Singular Mahalanobis covariance produces a controlled error. The console summary and optional Markdown report distinguish detector-triggered respondents from respondents below the suspicious threshold, report missing and invalid rows separately, explain that not-scored rows had no positive-weight detector with enough valid responses, and label the reasons table as detector-triggered rather than automatically suspicious.
 
 The repository uses synthetic or public anonymized data only. It does not perform NLP, unsupervised machine learning, GUI work, or automatic respondent deletion.
 

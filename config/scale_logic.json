@@ -1,20 +1,41 @@
 {
-  "blocks": {
-    "attitude_scale": {
-      "columns": ["EXT1", "EXT2", "EXT3", "EXT4"],
-      "min": 1,
-      "max": 5,
-      "high_min": 4,
-      "low_max": 2,
-      "irv_threshold": 0
+  "id_column": "idno",
+  "scales": {
+    "Trust_Institutions": {
+      "columns": ["trstprl", "trstlgl", "trstplc", "trstplt", "trstprt"],
+      "valid_min": 0,
+      "valid_max": 10,
+      "missing_codes": [77, 88, 99],
+      "irv_threshold": 0,
+      "mahalanobis_threshold": 11.070498
+    },
+    "Satisfaction": {
+      "columns": ["stflife", "stfeco", "stfgov", "stfdem"],
+      "valid_min": 0,
+      "valid_max": 10,
+      "missing_codes": [77, 88, 99],
+      "irv_threshold": 0,
+      "mahalanobis_threshold": 9.487729
     }
   },
-  "inverted_pairs": [["EXT2", "EXT3", "attitude_scale"]],
+  "contradictions": [
+    {"conditions": [
+      {"column": "trstplt", "op": ">", "value": 8},
+      {"column": "trstprl", "op": "<", "value": 2}
+    ]},
+    {"conditions": [
+      {"column": "trstprt", "op": ">", "value": 8},
+      {"column": "trstplt", "op": "<", "value": 2}
+    ]},
+    {"conditions": [
+      {"column": "stfgov", "op": ">", "value": 8},
+      {"column": "stfdem", "op": "<", "value": 2}
+    ]}
+  ],
   "weights": {
     "straightlining": 1.0,
-    "logical_contradiction": 0.0,
+    "logical_contradiction": 1.0,
     "mahalanobis_outlier": 1.0
   },
-  "thresholds": {"mahalanobis_outlier": 9.829530},
   "flag_threshold": 50
 }
