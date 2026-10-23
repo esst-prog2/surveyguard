@@ -52,15 +52,30 @@ python -m streamlit run app.py
 
 In the page that opens:
 
-1. Upload the response file (`.csv`, `.xlsx`, or `.sav`) and the rules `.json` file.
-2. Click **Run SurveyGuard**.
+1. In the sidebar, upload the response file (`.csv`, `.xlsx`, or `.sav`) and
+   the rules `.json` file.
+2. Click **Run SurveyGuard**. A spinner shows while the data is processed and
+   "Analysis complete!" appears when it is done.
 3. Review the processed, suspicious, and average-score metrics, the detector
-   results table, and the detector-flagged respondents table.
+   results table with a bar chart of each detector's percentage, and the
+   detector-flagged respondents table. Turn on **Show suspicious respondents
+   only** to hide flagged respondents who are not suspicious.
 4. Click **Download diagnostic report** to save `<input name>_diagnostics.md`,
    the same report the CLI writes with `--report`.
+5. Click **Download cleaned data (CSV)** to save `<input name>_cleaned.csv`.
+
+The cleaned file is always CSV, whatever the input format. It contains the
+uploaded file's columns and rows in their original order, without the
+suspicious respondents (quality score below the rules' `flag_threshold`,
+50 by default) and without any scoring columns. Respondents that could not be
+scored are kept. The file is written by pandas, so values can be formatted
+differently from the original file: SPSS codes appear as raw numbers
+(e.g. `3.0`), and integer columns with missing values become decimals. Running
+SurveyGuard again on the cleaned file can give different results, because the
+Mahalanobis statistics are recalculated without the removed respondents.
 
 Uploaded files are only stored in a temporary folder while the run is in
-progress; the interface does not write a scored CSV.
+progress; the interface does not save a scored or cleaned CSV on disk.
 
 ## Rules configuration
 
