@@ -1,0 +1,66 @@
+{
+  "scales": {
+    "Civic_Norms": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["ctzhlpo", "scbevts", "ctzchtx"],
+      "valid_min": 1,
+      "valid_max": 5,
+      "missing_codes": [7, 8, 9],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Trust_Honest_Dealing": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["tstrprh", "tstfnch", "tstpboh"],
+      "valid_min": 1,
+      "valid_max": 5,
+      "missing_codes": [7, 8, 9],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Wrongness_Judgements": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["pyavtxw", "slcnflw", "flinsrw", "pbofvrw"],
+      "valid_min": 1,
+      "valid_max": 4,
+      "missing_codes": [7, 8, 9],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Law_Business_Attitudes": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["mnyacth", "olwmsop", "ignrlaw", "bsnprft", "frmwktg", "cmprcti"],
+      "valid_min": 1,
+      "valid_max": 5,
+      "missing_codes": [7, 8, 9],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    }
+  },
+  "contradictions": [
+    {"conditions": [
+      {"column": "olwmsop", "op": "==", "value": 1},
+      {"column": "ignrlaw", "op": "==", "value": 1}
+    ]},
+    {"conditions": [
+      {"column": "olwmsop", "op": "==", "value": 5},
+      {"column": "ignrlaw", "op": "==", "value": 5}
+    ]}
+  ]
+}

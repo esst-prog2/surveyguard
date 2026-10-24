@@ -15,8 +15,8 @@ from app import run_surveyguard
 from surveyguard.errors import ConfigurationError, DataValidationError
 
 
-FIXTURE_RULES = Path("tests/fixtures/rules.json")
-FIXTURE_CSV = Path("tests/fixtures/survey.csv")
+FIXTURE_RULES = Path("config/scale_logic.json")
+FIXTURE_CSV = Path("tests/fixtures/ess_mock.csv")
 APP_PATH = Path(__file__).resolve().parent.parent / "app.py"
 
 
@@ -55,13 +55,13 @@ def test_run_matches_cli_report_and_summary(tmp_path):
     assert f"Processed: {result.overview.processed}" in cli.stdout
     assert f"Suspicious: {result.overview.suspicious}" in cli.stdout
     assert f"Average quality score: {result.overview.average_score:.2f}" in cli.stdout
-    assert result.detectors["Triggered"].tolist() == [1, 2, 0]
-    assert result.flagged["Respondent"].tolist() == ["r1", "r2", "r3"]
+    assert result.detectors["Triggered"].tolist() == [4, 4, 4]
+    assert result.flagged["Respondent"].tolist() == FLAGGED_IDS
 
 
 def test_excel_and_spss_uploads_match_csv(tmp_path):
     source = pd.read_csv(FIXTURE_CSV)
-    source["Q1"] = pd.to_numeric(source["Q1"], errors="coerce").fillna(3)
+    source["stflife"] = pd.to_numeric(source["stflife"], errors="coerce").fillna(6)
     csv_path = tmp_path / "survey.csv"
     xlsx_path = tmp_path / "survey.xlsx"
     sav_path = tmp_path / "survey.sav"
@@ -70,7 +70,7 @@ def test_excel_and_spss_uploads_match_csv(tmp_path):
     pyreadstat.write_sav(
         source,
         sav_path,
-        variable_value_labels={"Q1": {1: "One", 2: "Two", 3: "Three", 4: "Four"}},
+        variable_value_labels={"trstprl": {0: "No trust at all", 10: "Complete trust"}},
     )
     rules = FIXTURE_RULES.read_bytes()
 
@@ -89,8 +89,8 @@ def test_invalid_rules_json_raises_user_facing_error(isolated_tempdir):
 
 
 def test_missing_configured_column_raises_user_facing_error(isolated_tempdir):
-    data = pd.read_csv(FIXTURE_CSV).drop(columns=["Q4"]).to_csv(index=False).encode("utf-8")
-    with pytest.raises(DataValidationError, match="Missing configured question columns: Q4"):
+    data = pd.read_csv(FIXTURE_CSV).drop(columns=["stfdem"]).to_csv(index=False).encode("utf-8")
+    with pytest.raises(DataValidationError, match="Missing configured question columns: stfdem"):
         run_surveyguard("survey.csv", data, FIXTURE_RULES.read_bytes())
     assert list(isolated_tempdir.iterdir()) == []
 
@@ -106,10 +106,19 @@ def test_successful_run_leaves_no_files(isolated_tempdir):
     assert list(isolated_tempdir.iterdir()) == []
 
 
-def _with_suspicious_rows(source: pd.DataFrame) -> pd.DataFrame:
-    # Straightlining plus a high-high or low-low Q2/Q3 contradiction: score 33.33, suspicious.
-    extra = pd.DataFrame([["r8", 5, 5, 5, 5, "A"], ["r9", 1, 1, 1, 1, "B"]], columns=source.columns)
-    return pd.concat([source, extra], ignore_index=True)
+SUSPICIOUS_IDS = [1026, 1027, 1032]
+FLAGGED_IDS = [1026, 1027, 1032, 1005, 1021, 1022, 1023, 1024, 1033]
+
+
+def _rules_without_suspicious() -> bytes:
+    # A score cannot fall below 0, so flag_threshold 0 marks nobody as suspicious.
+    rules = json.loads(FIXTURE_RULES.read_text(encoding="utf-8"))
+    rules["flag_threshold"] = 0
+    return json.dumps(rules).encode("utf-8")
+
+
+def _without_suspicious(source: pd.DataFrame) -> pd.DataFrame:
+    return source.loc[~source["idno"].isin(SUSPICIOUS_IDS)].reset_index(drop=True)
 
 
 def _read_cleaned(result) -> pd.DataFrame:
@@ -117,55 +126,52 @@ def _read_cleaned(result) -> pd.DataFrame:
 
 
 def test_cleaned_data_removes_suspicious_respondents(isolated_tempdir):
-    source = pd.read_csv(FIXTURE_CSV)
-    data = _with_suspicious_rows(source).to_csv(index=False).encode("utf-8")
+    result = run_surveyguard("wave1.csv", FIXTURE_CSV.read_bytes(), FIXTURE_RULES.read_bytes())
 
-    result = run_surveyguard("wave1.csv", data, FIXTURE_RULES.read_bytes())
-
-    assert result.overview.suspicious == 2
-    assert (result.removed_count, result.kept_count) == (2, 7)
+    assert result.overview.suspicious == 3
+    assert (result.removed_count, result.kept_count) == (3, 30)
     assert result.cleaned_file_name == "wave1_cleaned.csv"
-    pd.testing.assert_frame_equal(_read_cleaned(result), source)
+    pd.testing.assert_frame_equal(_read_cleaned(result), _without_suspicious(pd.read_csv(FIXTURE_CSV)))
     assert list(isolated_tempdir.iterdir()) == []
 
 
 def test_cleaned_data_keeps_all_rows_when_nothing_is_suspicious():
-    result = run_surveyguard("survey.csv", FIXTURE_CSV.read_bytes(), FIXTURE_RULES.read_bytes())
+    result = run_surveyguard("ess.csv", FIXTURE_CSV.read_bytes(), _rules_without_suspicious())
 
-    assert (result.removed_count, result.kept_count) == (0, 7)
+    assert (result.removed_count, result.kept_count) == (0, 33)
     pd.testing.assert_frame_equal(_read_cleaned(result), pd.read_csv(FIXTURE_CSV))
 
 
 def test_cleaned_data_keeps_unscored_respondents():
-    source = _with_suspicious_rows(pd.read_csv(FIXTURE_CSV))
-    unscored = pd.DataFrame([["r10", None, None, None, None, "A"]], columns=source.columns)
+    source = pd.read_csv(FIXTURE_CSV)
+    unscored = pd.DataFrame([[2001, "HU"] + [99] * 9], columns=source.columns)
     data = pd.concat([source, unscored], ignore_index=True).to_csv(index=False).encode("utf-8")
 
-    result = run_surveyguard("survey.csv", data, FIXTURE_RULES.read_bytes())
+    result = run_surveyguard("ess.csv", data, FIXTURE_RULES.read_bytes())
 
     assert result.overview.not_scored == 1
-    assert (result.removed_count, result.kept_count) == (2, 8)
-    assert _read_cleaned(result)["respondent_id"].tolist() == [f"r{n}" for n in (1, 2, 3, 4, 5, 6, 7, 10)]
+    assert (result.removed_count, result.kept_count) == (3, 31)
+    expected = [idno for idno in source["idno"] if idno not in SUSPICIOUS_IDS] + [2001]
+    assert _read_cleaned(result)["idno"].tolist() == expected
 
 
 def test_cleaned_data_from_excel_and_spss_matches_csv(tmp_path):
     source = pd.read_csv(FIXTURE_CSV)
-    source["Q1"] = pd.to_numeric(source["Q1"], errors="coerce").fillna(3)
-    source = _with_suspicious_rows(source)
-    csv_path = tmp_path / "survey.csv"
-    xlsx_path = tmp_path / "survey.xlsx"
-    sav_path = tmp_path / "survey.sav"
+    source["stflife"] = pd.to_numeric(source["stflife"], errors="coerce").fillna(6)
+    csv_path = tmp_path / "ess.csv"
+    xlsx_path = tmp_path / "ess.xlsx"
+    sav_path = tmp_path / "ess.sav"
     source.to_csv(csv_path, index=False)
     source.to_excel(xlsx_path, index=False)
     pyreadstat.write_sav(source, sav_path)
     rules = FIXTURE_RULES.read_bytes()
 
     expected = run_surveyguard(csv_path.name, csv_path.read_bytes(), rules)
-    assert expected.removed_count == 2
+    assert expected.removed_count == 3
     for path in (xlsx_path, sav_path):
         result = run_surveyguard(path.name, path.read_bytes(), rules)
-        assert result.cleaned_file_name == "survey_cleaned.csv"
-        assert (result.removed_count, result.kept_count) == (2, 7)
+        assert result.cleaned_file_name == "ess_cleaned.csv"
+        assert (result.removed_count, result.kept_count) == (3, 30)
         # SPSS codes load as floats (3 -> 3.0), so compare values, not dtypes.
         pd.testing.assert_frame_equal(_read_cleaned(result), _read_cleaned(expected), check_dtype=False)
 
@@ -173,10 +179,11 @@ def test_cleaned_data_from_excel_and_spss_matches_csv(tmp_path):
 MAIN_HINT = "Upload the response data and rules files in the sidebar, then click Run SurveyGuard."
 
 
-def _run_app(data: bytes, data_name: str = "survey.csv") -> AppTest:
+def _run_app(data: bytes, data_name: str = "survey.csv", rules: bytes | None = None) -> AppTest:
     app = AppTest.from_file(str(APP_PATH), default_timeout=30).run()
     app.sidebar.file_uploader[0].upload(data_name, data, "text/csv").run()
-    app.sidebar.file_uploader[1].upload("rules.json", FIXTURE_RULES.read_bytes(), "application/json").run()
+    rules = FIXTURE_RULES.read_bytes() if rules is None else rules
+    app.sidebar.file_uploader[1].upload("rules.json", rules, "application/json").run()
     app.sidebar.button[0].click().run()
     assert not app.exception
     return app
@@ -218,14 +225,14 @@ def test_app_upload_run_download_and_reset_flow():
         "Suspicious respondents",
         "Average quality score",
     ]
-    assert [metric.value for metric in app.metric] == ["7", "0", "85.71"]
-    assert len(app.dataframe) == 2
-    assert app.dataframe[0].value["Triggered"].tolist() == [1, 2, 0]
-    assert app.dataframe[1].value["Respondent"].tolist() == ["r1", "r2", "r3"]
+    assert [metric.value for metric in app.metric] == ["33", "3", "87.88"]
+    assert len(app.dataframe) == 3
+    assert app.dataframe[0].value["Triggered"].tolist() == [4, 4, 4]
+    assert app.dataframe[1].value["Respondent"].tolist() == [str(idno) for idno in FLAGGED_IDS]
     assert app.download_button[0].label == "Download diagnostic report"
 
     app.download_button[0].click().run()
-    assert [metric.value for metric in app.metric] == ["7", "0", "85.71"]
+    assert [metric.value for metric in app.metric] == ["33", "3", "87.88"]
     assert len(app.success) == 0
 
     app.sidebar.file_uploader[1].upload("rules.json", b"{not json", "application/json").run()
@@ -238,29 +245,29 @@ def test_app_upload_run_download_and_reset_flow():
 
 
 def test_app_suspicious_only_toggle_filters_flagged_table():
-    data = _with_suspicious_rows(pd.read_csv(FIXTURE_CSV)).to_csv(index=False).encode("utf-8")
-    app = _run_app(data)
-    all_flagged = ["r8", "r9", "r1", "r2", "r3", "r5"]
+    app = _run_app(FIXTURE_CSV.read_bytes())
+    # Arrow serialises the object-typed Respondent column as text.
+    all_flagged = [str(idno) for idno in FLAGGED_IDS]
 
     assert app.toggle[0].label == "Show suspicious respondents only"
     assert not app.toggle[0].value
     assert app.dataframe[1].value["Respondent"].tolist() == all_flagged
 
     app.toggle[0].set_value(True).run()
-    assert app.dataframe[1].value["Respondent"].tolist() == ["r8", "r9"]
-    assert app.dataframe[1].value["Suspicious"].tolist() == [True, True]
-    assert [metric.value for metric in app.metric] == ["9", "2", "70.37"]
+    assert app.dataframe[1].value["Respondent"].tolist() == [str(idno) for idno in SUSPICIOUS_IDS]
+    assert app.dataframe[1].value["Suspicious"].tolist() == [True, True, True]
+    assert [metric.value for metric in app.metric] == ["33", "3", "87.88"]
 
     app.toggle[0].set_value(False).run()
     assert app.dataframe[1].value["Respondent"].tolist() == all_flagged
 
 
 def test_app_suspicious_only_toggle_without_suspicious_respondents():
-    app = _run_app(FIXTURE_CSV.read_bytes())
+    app = _run_app(FIXTURE_CSV.read_bytes(), rules=_rules_without_suspicious())
 
     app.toggle[0].set_value(True).run()
 
-    assert len(app.dataframe) == 1
+    assert len(app.dataframe) == 2
     assert "No respondents are suspicious." in [info.value for info in app.main.info]
 
 
@@ -281,15 +288,14 @@ def test_app_bar_chart_shows_detector_percentages_in_table_order():
 
 
 def test_app_offers_report_and_cleaned_data_downloads():
-    data = _with_suspicious_rows(pd.read_csv(FIXTURE_CSV)).to_csv(index=False).encode("utf-8")
-    app = _run_app(data, "wave1.csv")
+    app = _run_app(FIXTURE_CSV.read_bytes(), "wave1.csv")
 
     assert [button.label for button in app.download_button] == [
         "Download diagnostic report",
         "Download cleaned data (CSV)",
     ]
-    assert "Cleaned data: removed 2 suspicious respondents, kept 7." in [
+    assert "Cleaned data: removed 3 suspicious respondents, kept 30." in [
         caption.value for caption in app.caption
     ]
     app.download_button[1].click().run()
-    assert [metric.value for metric in app.metric] == ["9", "2", "70.37"]
+    assert [metric.value for metric in app.metric] == ["33", "3", "87.88"]

@@ -1,0 +1,21 @@
+{
+  "include": ["ess/core.json", "ess/r2_health.json", "ess/r2_econ_morality.json", "ess/r2_family_work.json"],
+  "id_column": "idno",
+  "contradictions": [
+    {"conditions": [
+      {"column": "agea", "op": "<=", "value": 30},
+      {"column": "yrbrn", "op": "<=", "value": 1969}
+    ]},
+    {"conditions": [
+      {"column": "agea", "op": ">=", "value": 60},
+      {"column": "yrbrn", "op": ">=", "value": 1951}
+    ]}
+  ],
+  "weights": {
+    "straightlining": 1.0,
+    "logical_contradiction": 1.0,
+    "mahalanobis_outlier": 1.0
+  },
+  "mahalanobis_min_scales": 3,
+  "flag_threshold": 50
+}

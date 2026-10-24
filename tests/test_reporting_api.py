@@ -16,8 +16,8 @@ from surveyguard.reporting import (
 from surveyguard.scoring import score_dataframe
 
 
-FIXTURE_RULES = "tests/fixtures/rules.json"
-FIXTURE_CSV = "tests/fixtures/survey.csv"
+FIXTURE_RULES = "config/scale_logic.json"
+FIXTURE_CSV = "tests/fixtures/ess_mock.csv"
 
 
 def _scored_fixture() -> pd.DataFrame:
@@ -30,7 +30,13 @@ def _flagged_frame() -> pd.DataFrame:
         "respondent_id": ["clean", "unscored", "flagged", "tied", "borderline"],
         "quality_score": [100.0, None, 25.0, 25.0, 50.0],
         "suspicious": pd.array([False, None, True, True, False], dtype="boolean"),
-        "flag_reasons": ["", "Mahalanobis_Outlier", "Straightlining_Error:scale", "A|B", "Logical_Contradiction:Q2/Q3"],
+        "flag_reasons": [
+            "",
+            "Mahalanobis_Trust_Institutions",
+            "Straightlining_Satisfaction",
+            "A|B",
+            "Contradiction: trstplt>8 vs trstprl<2",
+        ],
         "data_quality": ["", "Invalid_Value", "", "Missing_Value", ""],
         "straightlining_triggered": [False, False, True, False, False],
         "logical_contradiction_triggered": [False, False, False, True, True],
@@ -39,7 +45,7 @@ def _flagged_frame() -> pd.DataFrame:
 
 
 def test_render_report_matches_written_report(tmp_path):
-    for frame, id_column in ((_scored_fixture(), "respondent_id"), (_flagged_frame(), None)):
+    for frame, id_column in ((_scored_fixture(), "idno"), (_flagged_frame(), None)):
         path = write_report(frame, tmp_path / "diagnostics.md", id_column)
         # write_text applies the platform line ending, so compare decoded text.
         with path.open(encoding="utf-8", newline="") as handle:
@@ -49,14 +55,15 @@ def test_render_report_matches_written_report(tmp_path):
 
 def test_report_overview_values():
     assert report_overview(_scored_fixture()) == ReportOverview(
-        processed=7,
-        suspicious=0,
-        detector_triggered=3,
-        missing=0,
-        invalid=1,
+        processed=33,
+        suspicious=3,
+        detector_triggered=9,
+        missing=2,
+        invalid=2,
         not_scored=0,
-        average_score=pytest.approx(600 / 7),
-        minimum_score=pytest.approx(200 / 3),
+        # 24 clean rows at 100, six at 200/3 (one detector), three at 100/3 (two detectors).
+        average_score=pytest.approx(2900 / 33),
+        minimum_score=pytest.approx(100 / 3),
     )
     overview = report_overview(_flagged_frame())
     assert (overview.processed, overview.suspicious, overview.detector_triggered) == (5, 2, 4)
@@ -109,10 +116,10 @@ def test_flagged_respondents_use_report_order_and_identifiers():
     assert flagged["Respondent"].tolist() == ["flagged", "tied", "borderline", "unscored"]
     assert flagged["Suspicious"].tolist() == [True, True, False, False]
     assert flagged["Reasons"].tolist() == [
-        "Straightlining_Error:scale",
+        "Straightlining_Satisfaction",
         "A|B",
-        "Logical_Contradiction:Q2/Q3",
-        "Mahalanobis_Outlier",
+        "Contradiction: trstplt>8 vs trstprl<2",
+        "Mahalanobis_Trust_Institutions",
     ]
     assert pd.isna(flagged["Quality score"].iloc[-1])
     report = render_report(frame, "respondent_id")

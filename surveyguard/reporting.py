@@ -4,10 +4,14 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING, Iterable
 
 import pandas as pd
 
 from .errors import DataValidationError
+
+if TYPE_CHECKING:
+    from .scoring import ScoringRun
 
 
 def _format_metric(value: float | None) -> str:
@@ -41,7 +45,7 @@ def _not_scored_reason(count: int) -> str:
     )
 
 
-def print_summary(frame: pd.DataFrame, output_path: Path) -> None:
+def print_summary(frame: pd.DataFrame, output_path: Path, skipped_scales: Iterable[str] = ()) -> None:
     print(f"Processed: {len(frame)}")
     print(f"Suspicious: {int(frame['suspicious'].sum())}")
     print(f"Detector-triggered: {_detector_trigger_count(frame)}")
@@ -53,6 +57,9 @@ def print_summary(frame: pd.DataFrame, output_path: Path) -> None:
     not_scored = int(frame["quality_score"].isna().sum())
     print(f"Not scored: {not_scored}")
     print(f"Not scored reason: {_not_scored_reason(not_scored)}")
+    skipped = list(skipped_scales)
+    if skipped:
+        print(f"Skipped scales: {', '.join(skipped)}")
     print(f"Average quality score: {frame['quality_score'].mean():.2f}")
     print(f"Minimum quality score: {frame['quality_score'].min():.2f}")
     print(f"Output: {output_path}")
@@ -100,6 +107,33 @@ def detector_results(frame: pd.DataFrame) -> pd.DataFrame:
     })
 
 
+def scale_results(run: ScoringRun) -> pd.DataFrame:
+    """Return one row per evaluated scale; "-" marks a detector that does not run on the scale."""
+    def count(value: int | None) -> object:
+        return "-" if value is None else value
+
+    return pd.DataFrame({
+        "Scale": [scale.name for scale in run.scales],
+        "Module": [scale.module or "-" for scale in run.scales],
+        "Items": [scale.items for scale in run.scales],
+        "Detectors": [", ".join(scale.detectors) for scale in run.scales],
+        "Threshold": [
+            "-" if scale.threshold is None else f"{scale.threshold:.6f} ({scale.threshold_source})"
+            for scale in run.scales
+        ],
+        "Valid rows": [scale.valid_rows for scale in run.scales],
+        "Straightlining": pd.Series([count(scale.straightlining_count) for scale in run.scales], dtype=object),
+        "Mahalanobis flags (scale-level)": pd.Series(
+            [count(scale.mahalanobis_count) for scale in run.scales], dtype=object
+        ),
+        "Status": [scale.mahalanobis_status for scale in run.scales],
+    })
+
+
+def mahalanobis_count_note(run: ScoringRun) -> str:
+    return f"Mahalanobis counts respondents flagged on at least {run.mahalanobis_min_scales} scale(s)."
+
+
 def flagged_respondents(frame: pd.DataFrame, id_column: str | None = None) -> pd.DataFrame:
     """Return suspicious or detector-flagged respondents in report order."""
     flagged = frame.loc[
@@ -125,7 +159,7 @@ def flagged_respondents(frame: pd.DataFrame, id_column: str | None = None) -> pd
     })
 
 
-def render_report(frame: pd.DataFrame, id_column: str | None = None) -> str:
+def render_report(frame: pd.DataFrame, id_column: str | None = None, run: ScoringRun | None = None) -> str:
     overview = report_overview(frame)
     lines = [
         "# SurveyGuard diagnostic report",
@@ -149,6 +183,27 @@ def render_report(frame: pd.DataFrame, id_column: str | None = None) -> str:
     ]
     for row in detector_results(frame).itertuples(index=False):
         lines.append(f"| {row.Detector} | {row.Triggered} | {row.Percentage:.2f}% |")
+    if run is not None:
+        lines.extend(["", mahalanobis_count_note(run)])
+        table = scale_results(run)
+        lines.extend([
+            "",
+            "## Scale results",
+            "",
+            "| " + " | ".join(table.columns) + " |",
+            "| --- | --- | ---: | --- | --- | ---: | ---: | ---: | --- |",
+        ])
+        for values in table.itertuples(index=False):
+            lines.append("| " + " | ".join(_escape_cell(value) for value in values) + " |")
+        skipped_scales = ", ".join(run.skipped_scales) or "None"
+        skipped_rules = "; ".join(rule.label for rule in run.skipped_rules) or "None"
+        lines.extend([
+            "",
+            "## Skipped scales and rules",
+            "",
+            f"- Skipped scales: {_escape_cell(skipped_scales)}",
+            f"- Skipped contradiction rules: {_escape_cell(skipped_rules)}",
+        ])
 
     flagged = flagged_respondents(frame, id_column)
     lines.extend([
@@ -170,9 +225,14 @@ def render_report(frame: pd.DataFrame, id_column: str | None = None) -> str:
     return "\n".join(lines)
 
 
-def write_report(frame: pd.DataFrame, report_path: str | Path, id_column: str | None = None) -> Path:
+def write_report(
+    frame: pd.DataFrame,
+    report_path: str | Path,
+    id_column: str | None = None,
+    run: ScoringRun | None = None,
+) -> Path:
     target = Path(report_path)
-    content = render_report(frame, id_column)
+    content = render_report(frame, id_column, run)
     try:
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(content, encoding="utf-8")
