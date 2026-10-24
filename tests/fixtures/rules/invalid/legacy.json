@@ -1,0 +1,18 @@
+{
+  "thresholds": {
+    "mahalanobis_outlier": 6
+  },
+  "scales": {
+    "S2": {
+      "columns": [
+        "b1",
+        "b2",
+        "b3"
+      ],
+      "valid_min": 1,
+      "valid_max": 9,
+      "irv_threshold": 0,
+      "mahalanobis_threshold": 8.0
+    }
+  }
+}

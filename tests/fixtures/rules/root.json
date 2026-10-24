@@ -1,0 +1,36 @@
+{
+  "include": [
+    "modules/a.json"
+  ],
+  "id_column": "id",
+  "mahalanobis_min_scales": 3,
+  "scales": {
+    "S3": {
+      "columns": [
+        "c1",
+        "c2",
+        "c3"
+      ],
+      "valid_min": 1,
+      "valid_max": 9,
+      "irv_threshold": 0,
+      "mahalanobis_threshold": 8.0
+    }
+  },
+  "contradictions": [
+    {
+      "conditions": [
+        {
+          "column": "a1",
+          "op": ">",
+          "value": 9
+        },
+        {
+          "column": "b1",
+          "op": "<",
+          "value": 1
+        }
+      ]
+    }
+  ]
+}

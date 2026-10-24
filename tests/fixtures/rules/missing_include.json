@@ -1,0 +1,18 @@
+{
+  "include": [
+    "invalid/does_not_exist.json"
+  ],
+  "scales": {
+    "S1": {
+      "columns": [
+        "a1",
+        "a2",
+        "a3"
+      ],
+      "valid_min": 1,
+      "valid_max": 9,
+      "irv_threshold": 0,
+      "mahalanobis_threshold": 8.0
+    }
+  }
+}

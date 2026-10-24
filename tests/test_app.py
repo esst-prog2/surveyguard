@@ -226,7 +226,7 @@ def test_app_upload_run_download_and_reset_flow():
         "Average quality score",
     ]
     assert [metric.value for metric in app.metric] == ["33", "3", "87.88"]
-    assert len(app.dataframe) == 2
+    assert len(app.dataframe) == 3
     assert app.dataframe[0].value["Triggered"].tolist() == [4, 4, 4]
     assert app.dataframe[1].value["Respondent"].tolist() == [str(idno) for idno in FLAGGED_IDS]
     assert app.download_button[0].label == "Download diagnostic report"
@@ -267,7 +267,7 @@ def test_app_suspicious_only_toggle_without_suspicious_respondents():
 
     app.toggle[0].set_value(True).run()
 
-    assert len(app.dataframe) == 1
+    assert len(app.dataframe) == 2
     assert "No respondents are suspicious." in [info.value for info in app.main.info]
 
 
