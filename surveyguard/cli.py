@@ -8,7 +8,7 @@ from .config import load_rules
 from .errors import SurveyGuardError
 from .io import load_input, write_scored
 from .reporting import print_summary, write_report
-from .scoring import score_dataframe
+from .scoring import score_run
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -25,11 +25,11 @@ def main(argv: list[str] | None = None) -> int:
     try:
         rules = load_rules(args.rules)
         frame = load_input(args.input_path, rules)
-        scored = score_dataframe(frame, rules)
-        output_path = write_scored(scored, args.input_path, args.output)
-        print_summary(scored, output_path)
+        run = score_run(frame, rules)
+        output_path = write_scored(run.scored, args.input_path, args.output)
+        print_summary(run.scored, output_path, run.skipped_scales)
         if args.report:
-            write_report(scored, args.report, rules.id_column)
+            write_report(run.scored, args.report, rules.id_column, run)
     except SurveyGuardError as exc:
         print(f"Error: {exc}")
         return 1

@@ -1,0 +1,19 @@
+{
+  "include": [
+    "conflicts/scale_s1_a.json",
+    "conflicts/scale_s1_b.json"
+  ],
+  "scales": {
+    "S3": {
+      "columns": [
+        "c1",
+        "c2",
+        "c3"
+      ],
+      "valid_min": 1,
+      "valid_max": 9,
+      "irv_threshold": 0,
+      "mahalanobis_threshold": 8.0
+    }
+  }
+}

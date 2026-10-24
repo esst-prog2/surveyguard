@@ -32,6 +32,8 @@ def straightlining(row: pd.Series, scales: dict[str, ScaleConfig]) -> DetectorRe
     result = DetectorResult("straightlining", available=False)
     scale_irvs: dict[str, float] = {}
     for scale in scales.values():
+        if not scale.runs_straightlining:
+            continue
         values = pd.to_numeric(row[list(scale.columns)], errors="coerce").to_numpy(dtype=float)
         if np.isnan(values).any():
             continue
@@ -72,11 +74,16 @@ def logical_contradictions(row: pd.Series, rules: Iterable[ContradictionRule]) -
     return result
 
 
-def mahalanobis(rows: pd.DataFrame, columns: tuple[str, ...], threshold: float) -> tuple[pd.Series, pd.Series]:
+def mahalanobis(
+    rows: pd.DataFrame,
+    columns: tuple[str, ...],
+    threshold: float,
+    min_rows: int = 2,
+) -> tuple[pd.Series, pd.Series]:
     values = rows.loc[:, list(columns)].apply(pd.to_numeric, errors="coerce")
     valid = ~values.isna().any(axis=1)
     valid_values = values.loc[valid]
-    if len(valid_values) < 2:
+    if len(valid_values) < max(2, min_rows):
         return pd.Series(np.nan, index=rows.index), pd.Series(False, index=rows.index)
     matrix = valid_values.to_numpy(dtype=float)
     centroid = matrix.mean(axis=0)

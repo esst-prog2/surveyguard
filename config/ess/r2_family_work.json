@@ -1,0 +1,122 @@
+{
+  "scales": {
+    "Wellbeing_Two_Weeks": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["gdsprt", "clmrlx", "actvgrs", "frshrst", "lfintr"],
+      "valid_min": 1,
+      "valid_max": 6,
+      "missing_codes": [7, 8, 9],
+      "detectors": ["mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Gender_Family_Attitudes": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["wmcpwrk", "mnrsphm", "mnrgtjb", "prntghr", "prrfmly"],
+      "valid_min": 1,
+      "valid_max": 5,
+      "missing_codes": [7, 8, 9],
+      "detectors": ["mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Housework_Feelings": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["tngdohm", "hwkmono", "chdohwk", "hwkstrs"],
+      "valid_min": 1,
+      "valid_max": 5,
+      "missing_codes": [6, 7, 8, 9],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Job_Characteristics": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["vrtywrk", "jbrqlrn", "jbscr", "wgdpeft", "hlpcowk", "dcsfwrk", "hlthrwk"],
+      "valid_min": 1,
+      "valid_max": 4,
+      "missing_codes": [6, 7, 8, 9],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Job_Demands": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["wrkhrd", "nevdnjb", "oprtad", "trndnjb", "wrkspv"],
+      "valid_min": 1,
+      "valid_max": 5,
+      "missing_codes": [6, 7, 8, 9],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Work_Family_Conflict": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["jbprtfp", "pfmfdjb", "dfcnswk"],
+      "valid_min": 1,
+      "valid_max": 5,
+      "missing_codes": [6, 66, 77, 88, 99],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Study_Conditions": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["prmpls", "quclss", "tchtruf", "stdtruf", "tchints", "tchlcrt", "stdask", "stpvtfm", "fmpvtst", "stdmcdo"],
+      "valid_min": 1,
+      "valid_max": 5,
+      "missing_codes": [6, 7, 8, 9],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Job_Choice_Importance": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["ipjbscr", "ipjbhin", "ipjbprm", "ipjbini", "ipjbwfm"],
+      "valid_min": 1,
+      "valid_max": 5,
+      "missing_codes": [6, 7, 8, 9],
+      "detectors": ["mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    }
+  },
+  "variables": {
+    "dsgrhwk": {"module": "rotating", "required": false, "valid_min": 1, "valid_max": 7, "missing_codes": [66, 77, 88, 99]},
+    "dsgrmny": {"module": "rotating", "required": false, "valid_min": 1, "valid_max": 7, "missing_codes": [66, 77, 88, 99]}
+  },
+  "contradictions": [
+    {"conditions": [
+      {"column": "partner", "op": "==", "value": 2},
+      {"column": "dsgrhwk", "op": ">=", "value": 1}
+    ]},
+    {"conditions": [
+      {"column": "partner", "op": "==", "value": 2},
+      {"column": "dsgrmny", "op": ">=", "value": 1}
+    ]}
+  ]
+}

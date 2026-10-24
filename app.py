@@ -21,10 +21,22 @@ from surveyguard.reporting import (
     _format_metric,
     detector_results,
     flagged_respondents,
+    mahalanobis_count_note,
     render_report,
     report_overview,
+    scale_results,
 )
-from surveyguard.scoring import score_dataframe
+from surveyguard.scoring import score_run
+
+
+CONFIG_DIR = Path(__file__).resolve().with_name("config")
+UPLOAD_RULES = "Upload a rules file"
+BUNDLED_RULES = "Bundled rules file"
+
+
+def bundled_rules_files() -> list[Path]:
+    """Top-level rules files shipped in config/; included module files live in subfolders."""
+    return sorted(CONFIG_DIR.glob("*.json"))
 
 
 @dataclass(frozen=True)
@@ -38,6 +50,10 @@ class RunResult:
     cleaned_file_name: str
     removed_count: int
     kept_count: int
+    scales: pd.DataFrame
+    mahalanobis_note: str
+    skipped_scales: tuple[str, ...]
+    skipped_rules: tuple[str, ...]
 
     @property
     def report_bytes(self) -> bytes:
@@ -45,20 +61,33 @@ class RunResult:
         return self.report_markdown.replace("\n", os.linesep).encode("utf-8")
 
 
-def run_surveyguard(data_name: str, data_bytes: bytes, rules_bytes: bytes) -> RunResult:
-    """Score uploaded files with the same pipeline as the CLI."""
+def run_surveyguard(
+    data_name: str,
+    data_bytes: bytes,
+    rules_bytes: bytes | None = None,
+    *,
+    rules_path: str | Path | None = None,
+) -> RunResult:
+    """Score uploaded data with uploaded rules bytes or a bundled rules file, using the CLI pipeline."""
+    if (rules_bytes is None) == (rules_path is None):
+        raise ValueError("Pass exactly one of rules_bytes or rules_path")
     extension = Path(data_name).suffix.lower()
     with tempfile.TemporaryDirectory(prefix="surveyguard-") as workdir:
-        rules_path = Path(workdir) / "rules.json"
-        rules_path.write_bytes(rules_bytes)
-        rules = load_rules(rules_path)
+        if rules_path is None:
+            # Relative include paths cannot be resolved from the temporary folder.
+            uploaded_rules = Path(workdir) / "rules.json"
+            uploaded_rules.write_bytes(rules_bytes)
+            rules = load_rules(uploaded_rules, allow_include=False)
+        else:
+            rules = load_rules(rules_path)
         if extension not in SUPPORTED_INPUT_EXTENSIONS:
             # load_input rejects the extension before touching the file system.
             load_input(data_name, rules)
         input_path = Path(workdir) / f"input{extension}"
         input_path.write_bytes(data_bytes)
         frame = load_input(input_path, rules)
-    scored = score_dataframe(frame, rules)
+    run = score_run(frame, rules)
+    scored = run.scored
     # Unscored respondents (<NA>) are not suspicious, so they stay in the cleaned data.
     keep = ~scored["suspicious"].fillna(False).to_numpy(dtype=bool)
     cleaned = frame.iloc[keep]
@@ -66,12 +95,16 @@ def run_surveyguard(data_name: str, data_bytes: bytes, rules_bytes: bytes) -> Ru
         overview=report_overview(scored),
         detectors=detector_results(scored),
         flagged=flagged_respondents(scored, rules.id_column),
-        report_markdown=render_report(scored, rules.id_column),
+        report_markdown=render_report(scored, rules.id_column, run),
         report_file_name=f"{Path(data_name).stem}_diagnostics.md",
         cleaned_csv=cleaned.to_csv(index=False).encode("utf-8"),
         cleaned_file_name=f"{Path(data_name).stem}_cleaned.csv",
         removed_count=int((~keep).sum()),
         kept_count=len(cleaned),
+        scales=scale_results(run),
+        mahalanobis_note=mahalanobis_count_note(run),
+        skipped_scales=run.skipped_scales,
+        skipped_rules=tuple(rule.label for rule in run.skipped_rules),
     )
 
 
@@ -97,6 +130,7 @@ def show_result(result: RunResult) -> None:
         y_label="Respondents triggered (%)",
         sort=False,
     )
+    st.caption(result.mahalanobis_note)
 
     st.subheader("Detector-flagged respondents")
     if result.flagged.empty:
@@ -112,6 +146,18 @@ def show_result(result: RunResult) -> None:
                 hide_index=True,
                 column_config={"Quality score": st.column_config.NumberColumn(format="%.2f")},
             )
+
+    st.subheader("Scale results")
+    # "-" marks a detector that does not run on the scale, so the count columns are shown as text.
+    st.dataframe(
+        result.scales.astype({"Straightlining": str, "Mahalanobis flags (scale-level)": str}),
+        hide_index=True,
+    )
+    if result.skipped_scales or result.skipped_rules:
+        st.info(
+            f"Skipped scales: {', '.join(result.skipped_scales) or 'None'}. "
+            f"Skipped contradiction rules: {'; '.join(result.skipped_rules) or 'None'}."
+        )
 
     report_column, cleaned_column = st.columns(2)
     report_column.download_button(
@@ -139,16 +185,31 @@ def main() -> None:
     with st.sidebar:
         st.header("Inputs")
         data_file = st.file_uploader("Response data", type=["csv", "xlsx", "sav"])
-        rules_file = st.file_uploader("Rules configuration", type=["json"])
+        rules_source = st.radio("Rules source", [UPLOAD_RULES, BUNDLED_RULES], key="rules_source")
+        rules_file = None
+        bundled_path = None
+        if rules_source == UPLOAD_RULES:
+            rules_file = st.file_uploader("Rules configuration", type=["json"])
+        else:
+            bundled_path = st.selectbox(
+                "Bundled rules file",
+                bundled_rules_files(),
+                format_func=lambda path: f"config/{path.name}",
+                key="bundled_rules",
+            )
         missing = [
             label
-            for label, upload in (("response data file", data_file), ("rules file", rules_file))
-            if upload is None
+            for label, provided in (
+                ("response data file", data_file is not None),
+                ("rules file", rules_file is not None or bundled_path is not None),
+            )
+            if not provided
         ]
         if missing:
             st.info(f"Upload the {' and the '.join(missing)} to run SurveyGuard.")
         run_clicked = st.button("Run SurveyGuard", type="primary", disabled=bool(missing))
-    run_key = None if missing else (data_file.file_id, rules_file.file_id)
+    rules_key = ("upload", rules_file.file_id) if rules_file is not None else ("bundled", str(bundled_path))
+    run_key = None if missing else (data_file.file_id, rules_key)
 
     # Streamlit reruns the script on every interaction, so keep the last result
     # while its uploads are unchanged and drop it as soon as either one changes.
@@ -159,7 +220,10 @@ def main() -> None:
     if run_clicked:
         try:
             with st.spinner("Processing data..."):
-                result = run_surveyguard(data_file.name, data_file.getvalue(), rules_file.getvalue())
+                if rules_file is not None:
+                    result = run_surveyguard(data_file.name, data_file.getvalue(), rules_file.getvalue())
+                else:
+                    result = run_surveyguard(data_file.name, data_file.getvalue(), rules_path=bundled_path)
         except SurveyGuardError as exc:
             st.session_state.pop("surveyguard_run", None)
             st.error(f"Error: {exc}")

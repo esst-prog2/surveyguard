@@ -52,14 +52,18 @@ python -m streamlit run app.py
 
 In the page that opens:
 
-1. In the sidebar, upload the response file (`.csv`, `.xlsx`, or `.sav`) and
-   the rules `.json` file.
+1. In the sidebar, upload the response file (`.csv`, `.xlsx`, or `.sav`). Under
+   **Rules source**, either upload a rules `.json` file or choose one of the
+   bundled rules files in `config/` (for example `config/ess2.json`). Uploaded
+   rules files cannot use `include`, because their relative paths cannot be
+   resolved; use a bundled file or the CLI for modular rules.
 2. Click **Run SurveyGuard**. A spinner shows while the data is processed and
    "Analysis complete!" appears when it is done.
 3. Review the processed, suspicious, and average-score metrics, the detector
    results table with a bar chart of each detector's percentage, and the
-   detector-flagged respondents table. Turn on **Show suspicious respondents
-   only** to hide flagged respondents who are not suspicious.
+   detector-flagged respondents table, and the scale results table (the same
+   table as in the report). Turn on **Show suspicious respondents only** to hide
+   flagged respondents who are not suspicious.
 4. Click **Download diagnostic report** to save `<input name>_diagnostics.md`,
    the same report the CLI writes with `--report`.
 5. Click **Download cleaned data (CSV)** to save `<input name>_cleaned.csv`.
@@ -202,6 +206,86 @@ where `100` is good quality and lower scores are more suspicious. A score below 
 Configuration and missing question columns fail fast. Each scale may define numeric `missing_codes`, such as `[77, 88, 99]` for the ESS refusal, don't-know, and no-answer codes. Configured missing codes are excluded from all detectors and receive a `Missing_Value` marker while the original raw value remains in the scored output; the respondent row is never dropped. Numeric values outside the scale's `valid_min`/`valid_max` range are excluded from all detectors and receive an `Invalid_Value` marker. Other missing or non-numeric values in an individual row receive `Missing_Value` or `Invalid_Value` markers; values are not imputed. Unavailable detector results are excluded from the weighted score. Singular Mahalanobis covariance produces a controlled error. The console summary and optional Markdown report distinguish detector-triggered respondents from respondents below the suspicious threshold, report missing and invalid rows separately, explain that not-scored rows had no positive-weight detector with enough valid responses, and label the reasons table as detector-triggered rather than automatically suspicious.
 
 The repository uses synthetic or public anonymized data only. It does not perform NLP, unsupervised machine learning, GUI work, or automatic respondent deletion.
+
+## Modular ESS configuration and scale-aware scoring
+
+A full ESS round has many scales in a fixed core and in rotating modules, so the
+rules can be split into several files. `config/ess2.json` is the ESS round 2
+configuration; it includes `config/ess/core.json`, `config/ess/r2_health.json`,
+`config/ess/r2_econ_morality.json`, and `config/ess/r2_family_work.json`. Try it
+on the synthetic `tests/fixtures/ess2_mock.csv`:
+
+```powershell
+python detect_anomalies.py tests/fixtures/ess2_mock.csv `
+	--rules config/ess2.json `
+	--output output/ess2_scored.csv `
+	--report output/ess2_diagnostics.md
+```
+
+### Included files and rule-only variables
+
+- `include` (default `[]`) lists rules files, relative to the file that lists
+  them. Included files are merged depth-first, in list order, before the
+  including file's own entries. An included file may only contain `include`,
+  `scales`, `variables`, and `contradictions`; `weights`, `flag_threshold`,
+  `mahalanobis_min_scales`, and `id_column` belong in the root file. Circular
+  includes, a file included twice, a scale or variable defined in two files, and
+  a column used by two scales or variables are errors that name both files.
+- `variables` (default `{}`) declares binary, categorical, count, and year
+  columns that contradiction rules need but that are not scales, for example
+  `"partner": {"valid_min": 1, "valid_max": 2, "missing_codes": [9]}`. Variables
+  are never used by straightlining or Mahalanobis and never produce
+  `Missing_Value` or `Invalid_Value` markers; a missing or invalid variable value
+  only skips the rules that use it.
+
+### Scale settings
+
+| Setting | Default | Meaning |
+| --- | --- | --- |
+| `module` | none | `"core"` or `"rotating"`; only shown in the report |
+| `required` | `true` | `false` skips the scale (and the rules on its columns) when none of its columns is in the data; a scale with only some columns present is an error |
+| `detectors` | both | `["straightlining", "mahalanobis_outlier"]` or one of them |
+| `min_items_straightlining` | none | straightlining does not run on scales with fewer items |
+| `mahalanobis_threshold` or `mahalanobis_alpha` | required with Mahalanobis | give exactly one; alpha uses the chi-square `(1 - alpha)` quantile with the item count as degrees of freedom |
+| `mahalanobis_min_rows_per_item` | `0` | Mahalanobis needs at least `max(2, ceil(value * items))` complete rows, otherwise it is not available on the scale |
+
+Skipped scales are printed as `Skipped scales: ...` in the console summary and
+listed, with the skipped rules, in the report.
+
+### Minimum number of flagged Mahalanobis scales
+
+With one Mahalanobis test per scale, "any scale flags the respondent" grows with
+the number of scales: with 22 ESS scales at alpha 0.01, 555 of 1,498 real ESS
+round 2 respondents (37%) are flagged on at least one scale. The root setting
+`mahalanobis_min_scales` (m, default `1`, which is the former behaviour)
+triggers the Mahalanobis detector only when a respondent is flagged on at least
+m scales; `config/ess2.json` uses `3` (65 respondents, 4.3%). The penalty of
+every detector stays `0` or `1`, so with three available detectors a respondent
+flagged on three scales and nothing else scores `66.67`, and a respondent
+flagged on two scales scores `100`. Below m, the scale-level flags still show in
+the distance columns, in `detector_details` (`flagged_scales`), and in the
+report's scale results, whose `Mahalanobis flags (scale-level)` column counts
+every scale-level flag; the detector table counts only respondents who reached
+m. A respondent with fewer than m scales that can be evaluated cannot get a
+Mahalanobis flag; m is not lowered for them, because that would again penalise
+respondents who completed fewer blocks.
+
+### ESS round 2 choices
+
+- Each of the 22 attitude scales uses `mahalanobis_alpha` 0.01,
+  `min_items_straightlining` 5, and `mahalanobis_min_rows_per_item` 10. The
+  missing codes were checked against the ESS round 2 SPSS metadata.
+- Straightlining is switched off on four five-item scales where giving the same
+  answer to every item is common in real data: Medicine_Approval,
+  Wellbeing_Two_Weeks, Gender_Family_Attitudes, and Job_Choice_Importance.
+- Behaviour and event-frequency blocks (media use, religious practice,
+  experienced and own dishonesty, partner disagreement, medicine habits) are not
+  scales, because their Mahalanobis outliers are real extremes rather than
+  careless answers. Columns that rules need are declared as variables.
+- The contradiction rules (opposite attitude pairs and household consistency)
+  are conservative heuristics and can be tuned.
+- Real ESS data has many `Missing_Value` markers, because filtered rotating
+  blocks and "not applicable" codes such as 6 and 66 count as missing.
 
 Run tests with:
 
