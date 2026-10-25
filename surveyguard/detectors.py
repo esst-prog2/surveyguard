@@ -74,6 +74,35 @@ def logical_contradictions(row: pd.Series, rules: Iterable[ContradictionRule]) -
     return result
 
 
+def straightlining_irvs(frame: pd.DataFrame, scales: dict[str, ScaleConfig]) -> dict[str, pd.Series]:
+    """IRV per straightlining scale, in scale order; NaN where any item of the scale is missing."""
+    irvs: dict[str, pd.Series] = {}
+    for scale in scales.values():
+        if not scale.runs_straightlining:
+            continue
+        values = frame.loc[:, list(scale.columns)].apply(pd.to_numeric, errors="coerce").to_numpy(dtype=float)
+        complete = ~np.isnan(values).any(axis=1)
+        scale_irv = np.full(len(frame), np.nan)
+        scale_irv[complete] = np.var(values[complete], axis=1, ddof=0)
+        irvs[scale.name] = pd.Series(scale_irv, index=frame.index)
+    return irvs
+
+
+def contradiction_matches(
+    frame: pd.DataFrame, rules: Iterable[ContradictionRule]
+) -> list[tuple[pd.Series, pd.Series]]:
+    """Per rule, in rule order: (evaluable, triggered) boolean masks."""
+    matches: list[tuple[pd.Series, pd.Series]] = []
+    for rule in rules:
+        values = frame.loc[:, list(rule.columns)].apply(pd.to_numeric, errors="coerce")
+        evaluable = values.notna().all(axis=1)
+        triggered = evaluable.copy()
+        for index, condition in enumerate(rule.conditions):
+            triggered &= _COMPARISONS[condition.op](values.iloc[:, index], condition.value)
+        matches.append((evaluable, triggered))
+    return matches
+
+
 def mahalanobis(
     rows: pd.DataFrame,
     columns: tuple[str, ...],

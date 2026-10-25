@@ -5,10 +5,11 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 
+import numpy as np
 import pandas as pd
 
 from .config import ContradictionRule, RulesConfig
-from .detectors import DetectorResult, logical_contradictions, mahalanobis, straightlining
+from .detectors import DetectorResult, contradiction_matches, mahalanobis, straightlining_irvs
 from .errors import MathematicalError
 from .io import resolve_rules
 
@@ -54,28 +55,31 @@ def _normalise_questions(frame: pd.DataFrame, rules: RulesConfig) -> pd.DataFram
     return normalised
 
 
-def _data_quality(row: pd.Series, rules: RulesConfig) -> list[str]:
-    markers: list[str] = []
+def _data_quality_markers(frame: pd.DataFrame, rules: RulesConfig) -> list[str]:
+    """The sorted `data_quality` markers of every row, from the raw question values."""
+    missing = np.zeros(len(frame), dtype=bool)
+    invalid = np.zeros(len(frame), dtype=bool)
     scales_by_column = {
         column: scale
         for scale in rules.scales.values()
         for column in scale.columns
     }
     for column in rules.question_columns:
-        raw_value = row[column]
-        value = pd.to_numeric(pd.Series([raw_value]), errors="coerce").iloc[0]
+        raw = frame[column]
+        value = pd.to_numeric(raw, errors="coerce")
         scale = scales_by_column[column]
-        if pd.isna(value):
-            markers.append(
-                "Missing_Value"
-                if pd.isna(raw_value) or raw_value == ""
-                else "Invalid_Value"
-            )
-        elif value in scale.missing_codes:
-            markers.append("Missing_Value")
-        elif value < scale.valid_min or value > scale.valid_max:
-            markers.append("Invalid_Value")
-    return sorted(set(markers))
+        blank = raw.isna() | raw.eq("")
+        coded = value.isin(scale.missing_codes)
+        out_of_range = value.notna() & ~coded & ((value < scale.valid_min) | (value > scale.valid_max))
+        missing |= ((value.isna() & blank) | coded).to_numpy(dtype=bool)
+        invalid |= ((value.isna() & ~blank) | out_of_range).to_numpy(dtype=bool)
+    labels = {
+        (False, False): "",
+        (True, False): "Invalid_Value",
+        (False, True): "Missing_Value",
+        (True, True): "Invalid_Value;Missing_Value",
+    }
+    return [labels[pair] for pair in zip(invalid.tolist(), missing.tolist())]
 
 
 def aggregate_score(
@@ -115,15 +119,14 @@ def _scale_runs(
     analysis_frame: pd.DataFrame,
     rules: RulesConfig,
     scale_distances: dict[str, tuple[pd.Series, pd.Series]],
-    straightlining_reasons: list[list[str]],
+    straightlining_counts: dict[str, int],
 ) -> tuple[ScaleRun, ...]:
     runs: list[ScaleRun] = []
     for scale in rules.scales.values():
         valid_rows = int(analysis_frame[list(scale.columns)].notna().all(axis=1).sum())
         straightlining_count = None
         if scale.runs_straightlining:
-            reason = f"Straightlining_{scale.name}"
-            straightlining_count = sum(reason in reasons for reasons in straightlining_reasons)
+            straightlining_count = straightlining_counts[scale.name]
         mahalanobis_count = None
         status = "-"
         if scale.runs_mahalanobis:
@@ -162,22 +165,56 @@ def score_run(frame: pd.DataFrame, rules: RulesConfig) -> ScoringRun:
     output = frame.copy()
     analysis_frame = _normalise_questions(frame, active)
     scale_distances = _scale_distances(analysis_frame, active)
+    # Column-wise detector results as plain lists, so the row loop below never indexes a pandas object.
+    straightlining_columns = [
+        (name, irvs.tolist(), (irvs <= active.scales[name].irv_threshold).tolist())
+        for name, irvs in straightlining_irvs(analysis_frame, active.scales).items()
+    ]
+    contradiction_columns = [
+        (rule.label, evaluable.tolist(), triggered.tolist())
+        for rule, (evaluable, triggered) in zip(
+            active.contradictions, contradiction_matches(analysis_frame, active.contradictions)
+        )
+    ]
+    distance_columns = [
+        (name, scale_distance.tolist(), scale_outliers.tolist())
+        for name, (scale_distance, scale_outliers) in scale_distances.items()
+    ]
+    data_quality = _data_quality_markers(frame, active)
     rows: list[dict[str, object]] = []
-    straightlining_reasons: list[list[str]] = []
-    for position, (_, row) in enumerate(analysis_frame.iterrows()):
-        raw_row = frame.iloc[position]
-        results = [straightlining(row, active.scales), logical_contradictions(row, active.contradictions)]
-        straightlining_reasons.append(results[0].reasons)
+    for position in range(len(frame)):
+        straightlining_result = DetectorResult("straightlining", available=False)
+        scale_irvs: dict[str, float] = {}
+        for name, irvs, flags in straightlining_columns:
+            if pd.isna(irvs[position]):
+                continue
+            straightlining_result.available = True
+            scale_irvs[name] = irvs[position]
+            if flags[position]:
+                straightlining_result.triggered = True
+                straightlining_result.reasons.append(f"Straightlining_{name}")
+        straightlining_result.penalty = 1.0 if straightlining_result.triggered else 0.0
+        straightlining_result.details["irv"] = scale_irvs
+        contradiction_result = DetectorResult("logical_contradiction", available=False)
+        for label, evaluable, triggered in contradiction_columns:
+            if not evaluable[position]:
+                continue
+            contradiction_result.available = True
+            if triggered[position]:
+                contradiction_result.triggered = True
+                contradiction_result.reasons.append(label)
+        contradiction_result.penalty = 1.0 if contradiction_result.triggered else 0.0
+        results = [straightlining_result, contradiction_result]
         outlier_result = DetectorResult("mahalanobis_outlier", available=False)
         distances: dict[str, float] = {}
         flagged_scales: list[str] = []
-        for name, (scale_distance, scale_outliers) in scale_distances.items():
-            distance = scale_distance.iloc[position]
+        for name, scale_distance, scale_outliers in distance_columns:
+            distance = scale_distance[position]
             distances[name] = distance
             if pd.isna(distance):
                 continue
             outlier_result.available = True
-            if bool(scale_outliers.iloc[position]):
+            if scale_outliers[position]:
                 flagged_scales.append(name)
         # Below mahalanobis_min_scales the scale-level flags only show in the details and distances.
         if len(flagged_scales) >= active.mahalanobis_min_scales:
@@ -193,7 +230,7 @@ def score_run(frame: pd.DataFrame, rules: RulesConfig) -> ScoringRun:
             "quality_score": score,
             "suspicious": suspicious,
             "flag_reasons": ";".join(reasons),
-            "data_quality": ";".join(_data_quality(raw_row, active)),
+            "data_quality": data_quality[position],
             "straightlining_triggered": results[0].triggered,
             "straightlining_available": results[0].available,
             "logical_contradiction_triggered": results[1].triggered,
@@ -213,7 +250,12 @@ def score_run(frame: pd.DataFrame, rules: RulesConfig) -> ScoringRun:
     scored["suspicious"] = pd.array(scored["suspicious"], dtype="boolean")
     return ScoringRun(
         scored=scored,
-        scales=_scale_runs(analysis_frame, active, scale_distances, straightlining_reasons),
+        scales=_scale_runs(
+            analysis_frame,
+            active,
+            scale_distances,
+            {name: sum(flags) for name, _, flags in straightlining_columns},
+        ),
         skipped_scales=resolved.skipped_scales,
         skipped_rules=resolved.skipped_rules,
         mahalanobis_min_scales=active.mahalanobis_min_scales,
