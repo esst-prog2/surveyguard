@@ -99,6 +99,8 @@ def load_input(path: str | Path, rules: RulesConfig) -> pd.DataFrame:
             frame = pd.read_spss(source, convert_categoricals=False)
     except (OSError, ValueError, pd.errors.ParserError, pyreadstat.PyreadstatError) as exc:
         raise DataValidationError(f"Could not read input {source}: {exc}") from exc
+    # pandas deep-copies attrs on every indexing step; read_spss leaves the whole SPSS metadata there.
+    frame.attrs = {}
     resolve_rules(rules, frame.columns)
     if extension == ".sav":
         frame = _whole_number_ids(frame, rules.id_column)
