@@ -69,6 +69,31 @@ def resolve_rules(rules: RulesConfig, columns: Iterable[str]) -> ResolvedRules:
     )
 
 
+def _round_label(value: object) -> str:
+    number = pd.to_numeric(value, errors="coerce")
+    if pd.isna(number):
+        return str(value)
+    return f"{number:g}"
+
+
+def _check_essround(frame: pd.DataFrame, rules: RulesConfig) -> None:
+    """Reject data from another ESS round than the rules file declares; rules without essround are not checked."""
+    if rules.essround is None:
+        return
+    expected = f"Rules file expects ESS round {rules.essround}, but the data"
+    if "essround" not in frame.columns:
+        raise DataValidationError(f"{expected} has no essround column")
+    values = frame["essround"].dropna()
+    if values.empty:
+        raise DataValidationError(f"{expected} contains no essround value")
+    numbers = pd.to_numeric(values, errors="coerce")
+    if (numbers != rules.essround).any():
+        # Numbers first in numeric order, then any non-numeric text; 4 and 4.0 are one round.
+        found = {_round_label(value): (pd.isna(number), 0 if pd.isna(number) else number) for value, number in zip(values, numbers)}
+        labels = ", ".join(sorted(found, key=lambda label: (*found[label], label)))
+        raise DataValidationError(f"{expected} contains essround {labels}")
+
+
 def _whole_number_ids(frame: pd.DataFrame, id_column: str | None) -> pd.DataFrame:
     """SPSS stores every number as a double; show whole-number ids as 1026, not 1026.0."""
     if not id_column or not pd.api.types.is_float_dtype(frame[id_column]):
@@ -102,6 +127,7 @@ def load_input(path: str | Path, rules: RulesConfig) -> pd.DataFrame:
     # pandas deep-copies attrs on every indexing step; read_spss leaves the whole SPSS metadata there.
     frame.attrs = {}
     resolve_rules(rules, frame.columns)
+    _check_essround(frame, rules)
     if extension == ".sav":
         frame = _whole_number_ids(frame, rules.id_column)
     return frame

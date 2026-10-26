@@ -1,0 +1,26 @@
+{
+  "include": ["ess/common_core.json", "ess/r7_core.json", "ess/r7_immigration.json", "ess/r7_health.json"],
+  "id_column": "idno",
+  "essround": 7,
+  "contradictions": [
+    {"conditions": [
+      {"column": "icpart1", "op": "==", "value": 1},
+      {"column": "hhmmb", "op": "==", "value": 1}
+    ]},
+    {"conditions": [
+      {"column": "agea", "op": "<=", "value": 30},
+      {"column": "yrbrn", "op": "<=", "value": 1979}
+    ]},
+    {"conditions": [
+      {"column": "agea", "op": ">=", "value": 60},
+      {"column": "yrbrn", "op": ">=", "value": 1961}
+    ]}
+  ],
+  "weights": {
+    "straightlining": 1.0,
+    "logical_contradiction": 1.0,
+    "mahalanobis_outlier": 1.0
+  },
+  "mahalanobis_min_scales": 3,
+  "flag_threshold": 50
+}

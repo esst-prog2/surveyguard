@@ -1,0 +1,73 @@
+{
+  "scales": {
+    "Trust_Institutions": {
+      "module": "core",
+      "required": true,
+      "columns": ["trstprl", "trstlgl", "trstplc", "trstplt", "trstprt", "trstep", "trstun"],
+      "valid_min": 0,
+      "valid_max": 10,
+      "missing_codes": [77, 88, 99],
+      "detectors": ["mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Political_Efficacy": {
+      "module": "core",
+      "required": true,
+      "columns": ["psppsgva", "actrolga", "psppipla", "cptppola"],
+      "valid_min": 1,
+      "valid_max": 5,
+      "missing_codes": [7, 8, 9],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Policy_Attitudes": {
+      "module": "core",
+      "required": true,
+      "columns": ["gincdif", "freehms", "hmsfmlsh", "hmsacld"],
+      "valid_min": 1,
+      "valid_max": 5,
+      "missing_codes": [7, 8, 9],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Human_Values": {
+      "module": "core",
+      "required": true,
+      "columns": ["ipcrtiv", "imprich", "ipeqopt", "ipshabt", "impsafe", "impdiff", "ipfrule", "ipudrst", "ipmodst", "ipgdtim", "impfree", "iphlppl", "ipsuces", "ipstrgv", "ipadvnt", "ipbhprp", "iprspot", "iplylfr", "impenv", "imptrad", "impfun"],
+      "valid_min": 1,
+      "valid_max": 6,
+      "missing_codes": [7, 8, 9],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    }
+  },
+  "variables": {
+    "rshipa2": {"module": "core", "required": true, "valid_min": 1, "valid_max": 6, "missing_codes": [66, 77, 88, 99]},
+    "rshipa3": {"module": "core", "required": true, "valid_min": 1, "valid_max": 6, "missing_codes": [66, 77, 88, 99]},
+    "rshipa4": {"module": "core", "required": true, "valid_min": 1, "valid_max": 6, "missing_codes": [66, 77, 88, 99]},
+    "rshipa5": {"module": "core", "required": true, "valid_min": 1, "valid_max": 6, "missing_codes": [66, 77, 88, 99]},
+    "rshipa6": {"module": "core", "required": true, "valid_min": 1, "valid_max": 6, "missing_codes": [66, 77, 88, 99]}
+  },
+  "contradictions": [
+    {"conditions": [
+      {"column": "trstplt", "op": ">", "value": 8},
+      {"column": "trstprl", "op": "<", "value": 2}
+    ]},
+    {"conditions": [
+      {"column": "trstprt", "op": ">", "value": 8},
+      {"column": "trstplt", "op": "<", "value": 2}
+    ]}
+  ]
+}

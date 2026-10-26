@@ -16,7 +16,7 @@ from .errors import ConfigurationError
 
 
 LEGACY_KEYS = ("blocks", "inverted_pairs", "thresholds")
-ROOT_ONLY_KEYS = ("weights", "flag_threshold", "mahalanobis_min_scales", "id_column")
+ROOT_ONLY_KEYS = ("weights", "flag_threshold", "mahalanobis_min_scales", "id_column", "essround")
 INCLUDABLE_KEYS = ("include", "scales", "variables", "contradictions")
 SCALE_DETECTORS = ("straightlining", "mahalanobis_outlier")
 OPERATORS = (">", ">=", "<", "<=", "==")
@@ -106,6 +106,7 @@ class RulesConfig:
     id_column: str | None = None
     variables: dict[str, VariableConfig] = field(default_factory=dict)
     mahalanobis_min_scales: int = 1
+    essround: int | None = None
 
     @property
     def question_columns(self) -> tuple[str, ...]:
@@ -403,6 +404,9 @@ def load_rules(path: str | Path, *, allow_include: bool = True) -> RulesConfig:
     id_column = root.get("id_column")
     if id_column is not None and not isinstance(id_column, str):
         raise ConfigurationError("id_column must be a string or null")
+    essround = root.get("essround")
+    if essround is not None:
+        essround = _positive_int(essround, "essround")
     return RulesConfig(
         scales,
         contradictions,
@@ -411,4 +415,5 @@ def load_rules(path: str | Path, *, allow_include: bool = True) -> RulesConfig:
         id_column,
         variables,
         mahalanobis_min_scales,
+        essround,
     )

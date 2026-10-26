@@ -6,6 +6,7 @@ Run with: python -m streamlit run app.py
 from __future__ import annotations
 
 import os
+import re
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
@@ -34,9 +35,14 @@ UPLOAD_RULES = "Upload a rules file"
 BUNDLED_RULES = "Bundled rules file"
 
 
+def _natural_key(path: Path) -> list[int | str]:
+    """Compare digit runs as numbers so ess2.json sorts before ess10.json."""
+    return [int(part) if part.isdigit() else part.lower() for part in re.split(r"(\d+)", path.name)]
+
+
 def bundled_rules_files() -> list[Path]:
     """Top-level rules files shipped in config/; included module files live in subfolders."""
-    return sorted(CONFIG_DIR.glob("*.json"))
+    return sorted(CONFIG_DIR.glob("*.json"), key=_natural_key)
 
 
 @dataclass(frozen=True)

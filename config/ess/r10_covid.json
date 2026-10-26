@@ -1,0 +1,30 @@
+{
+  "scales": {
+    "Pandemic_Restriction_Attitudes": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["panfolru", "panclobo", "panresmo"],
+      "valid_min": 0,
+      "valid_max": 10,
+      "missing_codes": [77, 88, 99],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Covid_Government_Satisfaction": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["gvhanc19", "gvjobc19", "gveldc19", "gvfamc19", "hscopc19"],
+      "valid_min": 0,
+      "valid_max": 10,
+      "missing_codes": [77, 88, 99],
+      "detectors": ["mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "scales": {
+    "Democracy_Importance": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["fairelc", "dspplvt", "dfprtal", "oppcrgv", "medcrgv", "meprinf", "rghmgpr", "votedir", "imvtctz", "cttresa", "ctstogv", "gptpelc", "gvctzpv", "gvexpdc", "grdfinc", "pltavie"],
+      "valid_min": 0,
+      "valid_max": 10,
+      "missing_codes": [77, 88, 99],
+      "detectors": ["mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Democracy_Evaluation": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["fairelcc", "dspplvtc", "dfprtalc", "oppcrgvc", "medcrgvc", "meprinfc", "rghmgprc", "votedirc", "cttresac", "gptpelcc", "gvctzpvc", "gvexpdcc", "grdfincc", "pltaviec"],
+      "valid_min": 0,
+      "valid_max": 10,
+      "missing_codes": [77, 88, 99],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    }
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "scales": {
+    "Political_Fairness": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["frprtpl", "gvintcz", "poltran"],
+      "valid_min": 1,
+      "valid_max": 5,
+      "missing_codes": [7, 8, 9],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Opportunity_Fairness": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["ifrjob", "evfredu", "evfrjob"],
+      "valid_min": 0,
+      "valid_max": 10,
+      "missing_codes": [77, 88, 99],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Income_Fairness": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["occinfr", "topinfr", "btminfr", "wltdffr"],
+      "valid_min": -4,
+      "valid_max": 4,
+      "missing_codes": [6, 7, 8, 9],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Recruitment_Influence": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["recskil", "recexp", "recknow", "recimg", "recgndr"],
+      "valid_min": 1,
+      "valid_max": 4,
+      "missing_codes": [7, 8, 9],
+      "detectors": ["mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Fair_Society_Principles": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["sofrdst", "sofrwrk", "sofrpr", "sofrprv"],
+      "valid_min": 1,
+      "valid_max": 5,
+      "missing_codes": [7, 8, 9],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Just_World_Beliefs": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["ppldsrv", "jstprev", "pcmpinj"],
+      "valid_min": 1,
+      "valid_max": 5,
+      "missing_codes": [7, 8, 9],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    }
+  }
+}

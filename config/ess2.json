@@ -1,6 +1,7 @@
 {
   "include": ["ess/core.json", "ess/r2_health.json", "ess/r2_econ_morality.json", "ess/r2_family_work.json"],
   "id_column": "idno",
+  "essround": 2,
   "contradictions": [
     {"conditions": [
       {"column": "agea", "op": "<=", "value": 30},

@@ -31,7 +31,20 @@ def _choose_bundled(app: AppTest, name: str) -> AppTest:
 
 
 def test_bundled_rules_files_are_the_top_level_configs():
-    assert [path.name for path in bundled_rules_files()] == ["ess2.json", "scale_logic.json", "spike_logic.json"]
+    assert [path.name for path in bundled_rules_files()] == [
+        *(f"ess{round_number}.json" for round_number in range(1, 12)), "scale_logic.json", "spike_logic.json",
+    ]
+
+
+def test_app_offers_every_ess_round_in_natural_order():
+    app = _app()
+    app.sidebar.radio[0].set_value(BUNDLED_RULES).run()
+
+    assert app.sidebar.selectbox[0].options == [
+        *(f"config/ess{round_number}.json" for round_number in range(1, 12)),
+        "config/scale_logic.json",
+        "config/spike_logic.json",
+    ]
 
 
 def test_bundled_rules_match_uploaded_rules():

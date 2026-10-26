@@ -1,0 +1,30 @@
+{
+  "scales": {
+    "Democracy_Importance": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["fairelc", "dfprtal", "medcrgv", "rghmgpr", "votedir", "cttresa", "gptpelc", "gvctzpv", "grdfinc", "viepol", "wpestop", "keydec"],
+      "valid_min": 0,
+      "valid_max": 10,
+      "missing_codes": [77, 88, 99],
+      "detectors": ["mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Democracy_Evaluation": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["fairelcc", "dfprtalc", "medcrgvc", "rghmgprc", "votedirc", "cttresac", "gptpelcc", "gvctzpvc", "grdfincc", "viepolc", "wpestopc", "keydecc"],
+      "valid_min": 0,
+      "valid_max": 10,
+      "missing_codes": [77, 88, 99],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    }
+  }
+}

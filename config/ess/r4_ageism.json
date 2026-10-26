@@ -1,0 +1,43 @@
+{
+  "scales": {
+    "Age_Group_Status": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["stsp20", "stsp40", "stsp70"],
+      "valid_min": 0,
+      "valid_max": 10,
+      "missing_codes": [77, 88, 99],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Age_Stereotypes": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["v20frnd", "v20comp", "v20mrst", "v20resp", "v70frnd", "v70comp", "v70mrst", "v70resp"],
+      "valid_min": 0,
+      "valid_max": 4,
+      "missing_codes": [7, 8, 9],
+      "detectors": ["mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Age_Emotions": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["v20envy", "v20pity", "v20adm", "v20cntm", "v70envy", "v70pity", "v70adm", "v70cntm"],
+      "valid_min": 0,
+      "valid_max": 4,
+      "missing_codes": [7, 8, 9],
+      "detectors": ["mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    }
+  }
+}

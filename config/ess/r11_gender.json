@@ -1,0 +1,69 @@
+{
+  "scales": {
+    "Gendered_Traits": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["likrisk", "liklead", "sothnds", "actcomp"],
+      "valid_min": 0,
+      "valid_max": 6,
+      "missing_codes": [7, 8, 9],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Gender_Identity": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["mascfel", "femifel", "impbemw"],
+      "valid_min": 0,
+      "valid_max": 6,
+      "missing_codes": [7, 8, 9, 66, 77, 88, 99],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Gender_Equality_Consequences": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["eqwrkbg", "eqpolbg", "eqmgmbg", "eqpaybg"],
+      "valid_min": 0,
+      "valid_max": 6,
+      "missing_codes": [7, 8, 9],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Gender_Equality_Policies": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["eqparep", "eqparlv", "freinsw", "fineqpy"],
+      "valid_min": 1,
+      "valid_max": 5,
+      "missing_codes": [7, 8, 9],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Sexism_Beliefs": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["wsekpwr", "weasoff", "wlespdm", "wexashr"],
+      "valid_min": 1,
+      "valid_max": 5,
+      "missing_codes": [7, 8, 9],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    }
+  }
+}

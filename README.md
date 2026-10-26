@@ -54,7 +54,9 @@ In the page that opens:
 
 1. In the sidebar, upload the response file (`.csv`, `.xlsx`, or `.sav`). Under
    **Rules source**, either upload a rules `.json` file or choose one of the
-   bundled rules files in `config/` (for example `config/ess2.json`). Uploaded
+   bundled rules files in `config/` (`config/ess1.json` to `config/ess11.json`,
+   listed in natural order, then `config/scale_logic.json` and
+   `config/spike_logic.json`). Uploaded
    rules files cannot use `include`, because their relative paths cannot be
    resolved; use a bundled file or the CLI for modular rules.
 2. Click **Run SurveyGuard**. A spinner shows while the data is processed and
@@ -228,7 +230,7 @@ python detect_anomalies.py tests/fixtures/ess2_mock.csv `
   them. Included files are merged depth-first, in list order, before the
   including file's own entries. An included file may only contain `include`,
   `scales`, `variables`, and `contradictions`; `weights`, `flag_threshold`,
-  `mahalanobis_min_scales`, and `id_column` belong in the root file. Circular
+  `mahalanobis_min_scales`, `id_column`, and `essround` belong in the root file. Circular
   includes, a file included twice, a scale or variable defined in two files, and
   a column used by two scales or variables are errors that name both files.
 - `variables` (default `{}`) declares binary, categorical, count, and year
@@ -286,6 +288,48 @@ respondents who completed fewer blocks.
   are conservative heuristics and can be tuned.
 - Real ESS data has many `Missing_Value` markers, because filtered rotating
   blocks and "not applicable" codes such as 6 and 66 count as missing.
+
+### ESS rounds 1 to 11
+
+`config/ess1.json` to `config/ess11.json` cover every ESS round. Apart from
+`config/ess2.json`, which keeps its own `config/ess/core.json`, each root file
+includes `config/ess/common_core.json` (the scales and variables that every
+round has with the same columns), `config/ess/rN_core.json` (the round's own
+core scales, household variables, and rules), and the round's rotating modules
+`config/ess/rN_<topic>.json`. The files were derived from the Hungarian SPSS
+files of each round:
+
+- Ranges and missing codes come from the value labels, because these files
+  declare no SPSS user-missing values; codes labelled Refusal, Don't know, No
+  answer, Not applicable, or Not available are missing codes.
+- Every scale has at least three items with the same answer range; a core scale
+  with fewer items in a round is left out of that round. Every scale uses
+  `mahalanobis_alpha` 0.01, `min_items_straightlining` 5, and
+  `mahalanobis_min_rows_per_item` 10, and straightlining is switched off where
+  more than 5% of complete real answers are straightlined.
+- The contradiction rules follow ESS round 2 and use only variables the round
+  has. The age rules use the fieldwork year Y of the round: `agea <= 30` with
+  `yrbrn <= Y-36`, and `agea >= 60` with `yrbrn >= Y-54`.
+
+Each ESS root file sets `essround`. A rules file with `essround` only accepts
+data whose `essround` column has that value in every non-empty cell; data from
+another round, data without an `essround` column, and an empty `essround` column
+stop with a structural error such as
+`Rules file expects ESS round 3, but the data contains essround 4`, on the
+command line and in the web interface. Rules files without `essround` do not
+check the round. `essround` must be a positive integer and may only be set in
+the root file.
+
+The real ESS files stay out of the repository: `.gitignore` ignores
+`ess_sav_files/` and every `*.sav` file. Keep the files there to run a round,
+for example:
+
+```powershell
+python detect_anomalies.py ess_sav_files/ESS7_HU_weighted_raw.sav `
+	--rules config/ess7.json `
+	--output output/ess7_scored.csv `
+	--report output/ess7_diagnostics.md
+```
 
 Run tests with:
 
