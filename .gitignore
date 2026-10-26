@@ -16,3 +16,7 @@ dist/
 
 # Generated scored datasets; source and fixture CSV files remain trackable.
 *_scored.csv
+
+# Real ESS SPSS files stay local; they hold respondent-level data.
+ess_sav_files/
+*.sav

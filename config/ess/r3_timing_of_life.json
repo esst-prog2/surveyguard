@@ -1,0 +1,43 @@
+{
+  "scales": {
+    "Life_Course_Markers": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["adllvhm", "adftjob", "adlvptn", "adpnt", "oldfrl", "oldgpnt", "oldhlpo"],
+      "valid_min": 1,
+      "valid_max": 5,
+      "missing_codes": [7, 8, 9],
+      "detectors": ["mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Family_Norms_Approval": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["anvcld", "alvgptn", "acldnmr", "aftjbyc", "advcyc"],
+      "valid_min": 1,
+      "valid_max": 5,
+      "missing_codes": [7, 8, 9],
+      "detectors": ["mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Family_Norms_Reactions": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["rpntyng", "rwkold", "rnvcld", "rlvgptn", "rcldnmr", "rftjbyc", "rdvcyc"],
+      "valid_min": 1,
+      "valid_max": 4,
+      "missing_codes": [7, 8, 9],
+      "detectors": ["mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    }
+  }
+}

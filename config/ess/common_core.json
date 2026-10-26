@@ -1,0 +1,72 @@
+{
+  "scales": {
+    "Social_Trust": {
+      "module": "core",
+      "required": true,
+      "columns": ["ppltrst", "pplfair", "pplhlp"],
+      "valid_min": 0,
+      "valid_max": 10,
+      "missing_codes": [77, 88, 99],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Satisfaction": {
+      "module": "core",
+      "required": true,
+      "columns": ["stflife", "stfeco", "stfgov", "stfdem", "stfedu", "stfhlth"],
+      "valid_min": 0,
+      "valid_max": 10,
+      "missing_codes": [77, 88, 99],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Immigration_Policy": {
+      "module": "core",
+      "required": true,
+      "columns": ["imsmetn", "imdfetn", "impcntr"],
+      "valid_min": 1,
+      "valid_max": 4,
+      "missing_codes": [7, 8, 9],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Immigration_Effects": {
+      "module": "core",
+      "required": true,
+      "columns": ["imbgeco", "imueclt", "imwbcnt"],
+      "valid_min": 0,
+      "valid_max": 10,
+      "missing_codes": [77, 88, 99],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    }
+  },
+  "variables": {
+    "agea": {"module": "core", "required": true, "valid_min": 14, "valid_max": 120, "missing_codes": [999]},
+    "yrbrn": {"module": "core", "required": true, "valid_min": 1880, "valid_max": 2010, "missing_codes": [7777, 8888, 9999]},
+    "hhmmb": {"module": "core", "required": true, "valid_min": 1, "valid_max": 30, "missing_codes": [77, 88, 99]},
+    "gndr2": {"module": "core", "required": true, "valid_min": 1, "valid_max": 2, "missing_codes": [6, 7, 9]}
+  },
+  "contradictions": [
+    {"conditions": [
+      {"column": "stfgov", "op": ">", "value": 8},
+      {"column": "stfdem", "op": "<", "value": 2}
+    ]},
+    {"conditions": [
+      {"column": "hhmmb", "op": "==", "value": 1},
+      {"column": "gndr2", "op": ">=", "value": 1}
+    ]}
+  ]
+}

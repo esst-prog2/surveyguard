@@ -1,0 +1,108 @@
+{
+  "scales": {
+    "Immigration_Policy_Europe": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["eimrcnt", "eimpcnt", "imrcntr"],
+      "valid_min": 1,
+      "valid_max": 4,
+      "missing_codes": [7, 8, 9],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Immigration_Qualifications": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["qfimedu", "qfimfml", "qfimlng", "qfimchr", "qfimwht", "qfimwlt", "qfimwsk", "qfimcmt"],
+      "valid_min": 0,
+      "valid_max": 10,
+      "missing_codes": [77, 88, 99],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Immigration_Economic_Beliefs": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["imwgdwn", "imhecop", "imfljob"],
+      "valid_min": 1,
+      "valid_max": 5,
+      "missing_codes": [7, 8, 9],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Immigrant_Rights_Deportation": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["imunplv", "imsmrgt", "imscrlv", "imacrlv"],
+      "valid_min": 1,
+      "valid_max": 5,
+      "missing_codes": [7, 8, 9],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Immigration_Impact": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["imtcjob", "imbleco", "imwbcrm", "imbghct"],
+      "valid_min": 0,
+      "valid_max": 10,
+      "missing_codes": [77, 88, 99],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Immigrant_Social_Distance": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["imsetbs", "imsetmr", "imdetbs", "imdetmr"],
+      "valid_min": 0,
+      "valid_max": 10,
+      "missing_codes": [77, 88, 99],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Cultural_Diversity": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["pplstrd", "vrtrlg", "comnlng", "alwspsc", "stimrdt"],
+      "valid_min": 1,
+      "valid_max": 5,
+      "missing_codes": [7, 8, 9],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Refugee_Policy": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["shrrfg", "rfgawrk", "gvrfgap", "rfgfrpc", "rfgdtcn", "rfggvfn", "rfgbfml"],
+      "valid_min": 1,
+      "valid_max": 5,
+      "missing_codes": [7, 8, 9],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    }
+  }
+}

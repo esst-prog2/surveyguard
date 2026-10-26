@@ -1,0 +1,26 @@
+{
+  "include": ["ess/common_core.json", "ess/r1_core.json", "ess/r1_immigration.json", "ess/r1_citizenship.json"],
+  "id_column": "idno",
+  "essround": 1,
+  "contradictions": [
+    {"conditions": [
+      {"column": "partner", "op": "==", "value": 1},
+      {"column": "hhmmb", "op": "==", "value": 1}
+    ]},
+    {"conditions": [
+      {"column": "agea", "op": "<=", "value": 30},
+      {"column": "yrbrn", "op": "<=", "value": 1966}
+    ]},
+    {"conditions": [
+      {"column": "agea", "op": ">=", "value": 60},
+      {"column": "yrbrn", "op": ">=", "value": 1948}
+    ]}
+  ],
+  "weights": {
+    "straightlining": 1.0,
+    "logical_contradiction": 1.0,
+    "mahalanobis_outlier": 1.0
+  },
+  "mahalanobis_min_scales": 3,
+  "flag_threshold": 50
+}

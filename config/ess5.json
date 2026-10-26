@@ -1,0 +1,26 @@
+{
+  "include": ["ess/common_core.json", "ess/r5_core.json", "ess/r5_justice.json", "ess/r5_work_family.json"],
+  "id_column": "idno",
+  "essround": 5,
+  "contradictions": [
+    {"conditions": [
+      {"column": "icpart1", "op": "==", "value": 1},
+      {"column": "hhmmb", "op": "==", "value": 1}
+    ]},
+    {"conditions": [
+      {"column": "agea", "op": "<=", "value": 30},
+      {"column": "yrbrn", "op": "<=", "value": 1974}
+    ]},
+    {"conditions": [
+      {"column": "agea", "op": ">=", "value": 60},
+      {"column": "yrbrn", "op": ">=", "value": 1956}
+    ]}
+  ],
+  "weights": {
+    "straightlining": 1.0,
+    "logical_contradiction": 1.0,
+    "mahalanobis_outlier": 1.0
+  },
+  "mahalanobis_min_scales": 3,
+  "flag_threshold": 50
+}

@@ -531,6 +531,7 @@ def test_ess2_configuration_loads_with_documented_settings():
     assert rules.flag_threshold == 50
     assert rules.mahalanobis_min_scales == 3
     assert rules.id_column == "idno"
+    assert rules.essround == 2
     assert len(rules.contradictions) == 24
     for scale in rules.scales.values():
         assert scale.module == ("rotating" if scale.name in ROTATING_SCALES else "core")

@@ -1,0 +1,30 @@
+{
+  "scales": {
+    "Life_Domain_Importance": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["impfml", "impfrds", "implsrt", "imppol", "impwrk", "imprlg", "impvo"],
+      "valid_min": 0,
+      "valid_max": 10,
+      "missing_codes": [77, 88, 99],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Good_Citizen_Norms": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["impsppl", "impvote", "impoblw", "impopin", "impavo", "impapol"],
+      "valid_min": 0,
+      "valid_max": 10,
+      "missing_codes": [77, 88, 99],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    }
+  }
+}

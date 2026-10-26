@@ -1,0 +1,56 @@
+{
+  "scales": {
+    "Government_Responsibility": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["gvslvol", "gvslvue", "gvcldcr"],
+      "valid_min": 0,
+      "valid_max": 10,
+      "missing_codes": [77, 88, 99],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Welfare_Consequences": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["sbstrec", "sbprvpv", "sbeqsoc", "sbbsntx", "sblazy", "sblwcoa"],
+      "valid_min": 1,
+      "valid_max": 5,
+      "missing_codes": [7, 8, 9],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Welfare_Abuse_Beliefs": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["uentrjb", "lbenent", "bennent"],
+      "valid_min": 1,
+      "valid_max": 5,
+      "missing_codes": [7, 8, 9],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Welfare_Policy_Support": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["wrkprbf", "basinc", "eusclbf"],
+      "valid_min": 1,
+      "valid_max": 4,
+      "missing_codes": [7, 8, 9],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    }
+  }
+}

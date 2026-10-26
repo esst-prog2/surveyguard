@@ -1,0 +1,22 @@
+{
+  "include": ["ess/common_core.json", "ess/r9_core.json", "ess/r9_timing_of_life.json", "ess/r9_justice_fairness.json"],
+  "id_column": "idno",
+  "essround": 9,
+  "contradictions": [
+    {"conditions": [
+      {"column": "agea", "op": "<=", "value": 30},
+      {"column": "yrbrn", "op": "<=", "value": 1983}
+    ]},
+    {"conditions": [
+      {"column": "agea", "op": ">=", "value": 60},
+      {"column": "yrbrn", "op": ">=", "value": 1965}
+    ]}
+  ],
+  "weights": {
+    "straightlining": 1.0,
+    "logical_contradiction": 1.0,
+    "mahalanobis_outlier": 1.0
+  },
+  "mahalanobis_min_scales": 3,
+  "flag_threshold": 50
+}

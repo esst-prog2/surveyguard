@@ -1,0 +1,82 @@
+{
+  "scales": {
+    "Offence_Wrongness": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["insclwr", "bystlwr", "trfowr"],
+      "valid_min": 1,
+      "valid_max": 4,
+      "missing_codes": [7, 8, 9],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Offence_Detection_Risk": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["insclct", "bystlct", "trfoct"],
+      "valid_min": 1,
+      "valid_max": 4,
+      "missing_codes": [7, 8, 9],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Police_Duty_To_Obey": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["bplcdc", "doplcsy", "dpcstrb"],
+      "valid_min": 0,
+      "valid_max": 10,
+      "missing_codes": [77, 88, 99],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Police_Legitimacy": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["plcrgwr", "plcipvl", "gsupplc", "plciplt"],
+      "valid_min": 1,
+      "valid_max": 5,
+      "missing_codes": [7, 8, 9],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Courts_And_Law": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["ctprpwr", "hrshsnta", "dbctvrd", "lwstrob", "rgbrklw", "ctinplt"],
+      "valid_min": 1,
+      "valid_max": 5,
+      "missing_codes": [7, 8, 9],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    },
+    "Cooperation_With_Police": {
+      "module": "rotating",
+      "required": false,
+      "columns": ["caplcst", "widprsn", "wevdct"],
+      "valid_min": 1,
+      "valid_max": 4,
+      "missing_codes": [7, 8, 9],
+      "detectors": ["straightlining", "mahalanobis_outlier"],
+      "irv_threshold": 0,
+      "min_items_straightlining": 5,
+      "mahalanobis_alpha": 0.01,
+      "mahalanobis_min_rows_per_item": 10
+    }
+  }
+}
