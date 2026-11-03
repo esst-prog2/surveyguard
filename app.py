@@ -8,15 +8,16 @@ from __future__ import annotations
 import os
 import re
 import tempfile
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 import pandas as pd
 import streamlit as st
 
-from surveyguard.config import load_rules
+from surveyguard import visualization
+from surveyguard.config import RulesConfig, load_rules
 from surveyguard.errors import SurveyGuardError
-from surveyguard.io import SUPPORTED_INPUT_EXTENSIONS, load_input
+from surveyguard.io import SUPPORTED_INPUT_EXTENSIONS, load_input, resolve_rules
 from surveyguard.reporting import (
     ReportOverview,
     _format_metric,
@@ -60,6 +61,21 @@ class RunResult:
     mahalanobis_note: str
     skipped_scales: tuple[str, ...]
     skipped_rules: tuple[str, ...]
+    # Inputs of the visual analytics; the scoring results above stay the source of every number.
+    scored: pd.DataFrame
+    rules: RulesConfig
+    analysis: pd.DataFrame
+    flagged_positions: tuple[int, ...]
+    # PCA figures per scale, filled on first view; dropped together with the run.
+    pca_cache: dict = field(default_factory=dict, compare=False, repr=False)
+
+    @property
+    def flag_threshold(self) -> float:
+        return self.rules.flag_threshold
+
+    @property
+    def id_column(self) -> str | None:
+        return self.rules.id_column
 
     @property
     def report_bytes(self) -> bytes:
@@ -111,7 +127,95 @@ def run_surveyguard(
         mahalanobis_note=mahalanobis_count_note(run),
         skipped_scales=run.skipped_scales,
         skipped_rules=tuple(rule.label for rule in run.skipped_rules),
+        scored=scored,
+        rules=resolve_rules(rules, frame.columns).rules,
+        analysis=visualization.analysis_frame(frame, rules),
+        flagged_positions=tuple(visualization.flagged_positions(scored)),
     )
+
+
+def selected_position(rows: list[int], positions: list[int]) -> int | None:
+    """The scored-table row of the selected flagged-table row, as displayed (after the filter)."""
+    if not rows or not 0 <= rows[0] < len(positions):
+        return None
+    return positions[rows[0]]
+
+
+def show_chart(chart: visualization.Chart) -> None:
+    if chart.figure is None:
+        st.info(chart.message)
+    else:
+        # theme=None keeps the chart colours set in surveyguard.visualization.
+        st.plotly_chart(chart.figure, theme=None)
+
+
+def show_straightlining_heatmap(result: RunResult, position: int | None) -> None:
+    st.markdown("**Straightlining heatmap**")
+    if position is None:
+        st.caption("Select a flagged respondent in the table to see the straightlining heatmap.")
+        return
+    show_chart(visualization.straightlining_heatmap(result.analysis, result.scored, result.rules, position))
+
+
+def show_visual_analytics(result: RunResult) -> None:
+    st.subheader("Visual analytics")
+    distribution_tab, pca_tab = st.tabs(["Score distribution", "Mahalanobis PCA map"])
+    with distribution_tab:
+        # Log by default: a few suspicious respondents stay visible next to a bin of a thousand.
+        y_axis = st.radio("Y axis", ["Log", "Linear"], horizontal=True, key="histogram_scale")
+        chart = visualization.score_histogram(result.scored, result.flag_threshold, log_scale=y_axis == "Log")
+        show_chart(chart)
+        if chart.figure is not None:
+            st.caption(visualization.histogram_caption(result.scored))
+        left_out = visualization.unscored_count(result.scored)
+        st.caption(
+            f"{len(result.scored) - left_out} scored respondents; "
+            f"{left_out} left out because they were not scored."
+        )
+    with pca_tab:
+        scales = visualization.mahalanobis_scales(result.rules)
+        if not scales:
+            st.info("No PCA map: no scale in this run uses the Mahalanobis detector.")
+            return
+        scale = st.selectbox("Mahalanobis scale", scales, key="pca_scale")
+        if scale not in result.pca_cache:
+            result.pca_cache[scale] = visualization.pca_map(
+                result.analysis,
+                result.scored,
+                result.rules.scales[scale],
+                result.rules.mahalanobis_min_scales,
+                result.id_column,
+            )
+        chart = result.pca_cache[scale]
+        show_chart(chart)
+        if chart.figure is not None:
+            st.caption(visualization.PCA_CAPTION)
+
+
+def show_drilldown(result: RunResult, options: list[int], suspicious_only: bool) -> None:
+    st.subheader("Respondent drill-down")
+    if not options:
+        st.info("There is no respondent to inspect.")
+        return
+    index = visualization.drilldown_index(options, st.session_state.get("drilldown_position"))
+    position = st.selectbox(
+        "Respondent",
+        options,
+        index=index,
+        format_func=lambda row: visualization.drilldown_label(result.scored, row, result.id_column),
+        # The switch is part of the key, so a changed option list never restores a removed choice.
+        key=f"drilldown_{suspicious_only}",
+    )
+    st.session_state["drilldown_position"] = position
+    score = result.scored["quality_score"].iloc[position]
+    st.markdown(f"**Quality score:** {'N/A' if pd.isna(score) else f'{score:.2f}'}")
+    for detector, reasons in visualization.grouped_reasons(result.scored, position).items():
+        st.markdown(f"**{detector}:** {', '.join(f'`{reason}`' for reason in reasons) or 'none'}")
+    details = visualization.contradiction_details(result.analysis, result.rules, result.scored, position)
+    if details.empty:
+        st.caption("This respondent has no logical contradictions.")
+    else:
+        st.table(visualization.highlight_contradictions(details))
 
 
 def show_result(result: RunResult) -> None:
@@ -139,19 +243,28 @@ def show_result(result: RunResult) -> None:
     st.caption(result.mahalanobis_note)
 
     st.subheader("Detector-flagged respondents")
+    suspicious_only = False
+    shown_positions: list[int] = []
     if result.flagged.empty:
         st.info("No respondents were flagged.")
     else:
         suspicious_only = st.toggle("Show suspicious respondents only", key="suspicious_only")
-        flagged = result.flagged[result.flagged["Suspicious"]] if suspicious_only else result.flagged
+        # One mask filters both the table and the drill-down choices, so they cannot differ.
+        mask = result.flagged["Suspicious"].to_numpy(dtype=bool) if suspicious_only else [True] * len(result.flagged)
+        flagged = result.flagged[mask]
+        shown_positions = [position for position, keep in zip(result.flagged_positions, mask) if keep]
         if flagged.empty:
             st.info("No respondents are suspicious.")
         else:
-            st.dataframe(
+            event = st.dataframe(
                 flagged.astype({"Respondent": str}),
                 hide_index=True,
                 column_config={"Quality score": st.column_config.NumberColumn(format="%.2f")},
+                on_select="rerun",
+                selection_mode="single-row",
+                key=f"flagged_table_{suspicious_only}",
             )
+            show_straightlining_heatmap(result, selected_position(list(event.selection.rows), shown_positions))
 
     st.subheader("Scale results")
     # "-" marks a detector that does not run on the scale, so the count columns are shown as text.
@@ -164,6 +277,10 @@ def show_result(result: RunResult) -> None:
             f"Skipped scales: {', '.join(result.skipped_scales) or 'None'}. "
             f"Skipped contradiction rules: {'; '.join(result.skipped_rules) or 'None'}."
         )
+
+    show_visual_analytics(result)
+    if not result.flagged.empty:
+        show_drilldown(result, shown_positions, suspicious_only)
 
     report_column, cleaned_column = st.columns(2)
     report_column.download_button(
@@ -222,6 +339,7 @@ def main() -> None:
     stored = st.session_state.get("surveyguard_run")
     if stored is not None and stored[0] != run_key:
         del st.session_state["surveyguard_run"]
+        st.session_state.pop("drilldown_position", None)
 
     if run_clicked:
         try:
@@ -235,6 +353,7 @@ def main() -> None:
             st.error(f"Error: {exc}")
         else:
             st.session_state["surveyguard_run"] = (run_key, result)
+            st.session_state.pop("drilldown_position", None)
             # Only shown in the rerun that ran the analysis, not after later interactions.
             st.success("Analysis complete!")
 

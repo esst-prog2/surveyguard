@@ -66,9 +66,48 @@ In the page that opens:
    detector-flagged respondents table, and the scale results table (the same
    table as in the report). Turn on **Show suspicious respondents only** to hide
    flagged respondents who are not suspicious.
-4. Click **Download diagnostic report** to save `<input name>_diagnostics.md`,
+4. Use the visual analytics (see below): click a row of the flagged table to see
+   its straightlining heatmap, look at the **Score distribution** and
+   **Mahalanobis PCA map** tabs, and choose a respondent under
+   **Respondent drill-down**.
+5. Click **Download diagnostic report** to save `<input name>_diagnostics.md`,
    the same report the CLI writes with `--report`.
-5. Click **Download cleaned data (CSV)** to save `<input name>_cleaned.csv`.
+6. Click **Download cleaned data (CSV)** to save `<input name>_cleaned.csv`.
+
+### Visual analytics
+
+The charts use Plotly (`plotly` in `requirements.txt`). Only the web interface
+loads it; the CLI never imports the charts, and none of them changes a score,
+flag, report, or cleaned file.
+
+- **Straightlining heatmap** (under the flagged table): select one row. If that
+  respondent was flagged for straightlining, each flagged scale is a row and
+  each item a cell with the respondent's answer; equal answers have equal
+  colours. Other respondents get a short note instead.
+- **Score distribution**: a histogram of the quality scores in 5-point bins from
+  0 to 100, with a red dashed line at the rules' `flag_threshold`. The **Y axis**
+  switch above it starts on **Log**, so a few suspicious respondents stay
+  visible next to a bin of a thousand; **Linear** shows the plain counts. Bins
+  entirely below the threshold are red, the others blue, and the caption gives
+  the number and share of suspicious respondents. Every non-empty bar shows
+  its count. Respondents that could not be scored are left out, and
+  the caption says how many.
+- **Mahalanobis PCA map**: choose a Mahalanobis scale. Each point is a
+  respondent with a Mahalanobis distance on that scale, placed on the first two
+  principal components of its items (computed with NumPy). Red points are
+  outliers on this scale (distance above the scale's threshold, the same count
+  as the scale table); diamonds with a black outline are respondents flagged by
+  the Mahalanobis detector (outliers on at least `mahalanobis_min_scales`
+  scales). The tooltip shows the identifier, distance, threshold, and both
+  flags. Because the map shows only the two directions of largest variance, an
+  outlier can sit near the centre. Identical answers would land on one spot, so
+  the points are drawn with a small fixed offset (at most 2% of each axis'
+  spread); the tooltip shows the exact component values.
+- **Respondent drill-down**: the choices are the rows of the flagged table, in
+  the same order, and follow **Show suspicious respondents only**; suspicious
+  respondents are marked `suspicious`. It shows the score, the reasons per
+  detector, and a highlighted table of the triggered contradiction rules with
+  the respondent's values and each condition written out (e.g. `trstprt > 8`).
 
 The cleaned file is always CSV, whatever the input format. It contains the
 uploaded file's columns and rows in their original order, without the
