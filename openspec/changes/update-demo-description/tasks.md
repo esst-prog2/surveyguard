@@ -8,4 +8,4 @@
 
 - [x] 2.1 Validálás és adatvédelem; ellenőrzés: `openspec validate --strict` hibátlan, a commitban nincs `.sav`, `ess_valtozas.txt` és `program_osszefoglalo.txt`
 - [ ] 2.2 Commit, push, PR a `main`-be; ellenőrzés: a PR URL-je és a commit hash-e a PLANNING_LOG-ban
-- [ ] 2.3 A végleges szöveg átadása a Canvashoz; ellenőrzés: a kiadott szöveg szó szerint egyezik a README 1. szakaszával a `main`-re szánt commitban
+- [x] 2.3 A végleges szöveg átadása a Canvashoz; ellenőrzés: a kiadott szöveg szó szerint egyezik a README 1. szakaszával a `main`-re szánt commitban
