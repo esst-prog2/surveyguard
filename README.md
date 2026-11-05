@@ -377,12 +377,12 @@ python -m pytest -q
 ```
 
 ## 1. The demo
-I open a terminal and run `python detect_anomalies.py data/wave1_raw.csv --rules config/scale_logic.json`. It processes 2,500 respondents and prints a summary to the console: "Flagged 142 suspicious records. Main drivers: Straightlining (80), Logical Contradiction (42), Multivariate Outlier (20)". I open the generated `output/wave1_scored.csv`, where every respondent has a new `quality_score` column (0-100) and a `flag_reasons` column detailing why they failed. I sort by the score and immediately see the worst offenders ready to be excluded.
+I run `python -m streamlit run app.py`, upload the real Hungarian survey file `ESS2_HU_weighted_raw.sav` in the sidebar, choose `config/ess2.json` from the "Bundled rules file" list, and click "Run SurveyGuard". Within seconds, the "Overview" shows 1,498 processed respondents, 10 of them suspicious (0.67%), and an average quality score of 96.22. Under "Visual analytics", the score histogram shows those 10 as a red bar left of the dashed threshold line at 50, and the "Mahalanobis PCA map" marks in red who stands out on the chosen scale. I select a suspicious respondent in the flagged table to see their straightlining heatmap, then choose the same person under "Respondent drill-down" to see their logical contradiction highlighted next to their actual answers. Finally, I download `ESS2_HU_weighted_raw_cleaned.csv`, which removes those 10 respondents and keeps the other 1,488, together with the report `ESS2_HU_weighted_raw_diagnostics.md`.
 
 ## 2. The shape
-in     a CSV of numeric survey responses and a JSON metadata file defining Likert grids and inverted item pairs.
-out    a scored CSV with appended quality metrics, and a short summary printed to the console.
-in between   calculates Intra-individual Response Variability (IRV) for straightlining, Mahalanobis distance for multivariate outliers, and cross-checks reversed items for logical consistency based on the JSON rules.
+in     a numeric survey response file (`.csv`, `.xlsx`, or `.sav`) and a JSON rules file defining scales, contradiction rules, detector weights, and the flag threshold.
+out    in the web interface: metrics, tables, charts, a downloadable diagnostic report, and a cleaned CSV; on the command line: a scored CSV with appended quality metrics, a short console summary, and an optional Markdown report.
+in between   calculates Intra-individual Response Variability (IRV) for straightlining, Mahalanobis distance for multivariate outliers, and checks the explicit contradiction rules from the JSON file.
 
 ## 3. The size
 **What the first useful version does:**
@@ -394,8 +394,7 @@ in between   calculates Intra-individual Response Variability (IRV) for straight
 **What it explicitly does NOT do this term:**
 * Any form of Natural Language Processing (NLP) or text analysis for open-ended questions.
 * Unsupervised Machine Learning (e.g., Isolation Forests). The scoring remains strictly deterministic and based on classical survey statistics.
-* A graphical user interface (GUI) or browser dashboard.
-* Automated deletion of respondents (it only flags them).
+* Automated deletion of respondents from the source data (it flags them; the cleaned CSV is a separate file the researcher chooses to download).
 
 ## 4. How we would know it works
 * Given a mock respondent row containing the exact same value (e.g., '3') across a 10-item Likert grid, it flags the row with `Straightlining_Error` and an IRV of 0.
