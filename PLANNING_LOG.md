@@ -409,3 +409,4 @@
 2026-11-12 - Homework 9 rule: after each step, commit and add a row to `PROCESS.md` (the step, what the tool did, what the user decided); work happens on the branch `hw9-promo-page` - User decided
 2026-11-12 - The promo page content draft lives in `promo/CONTENT.md`, in English; the `/office-hours` command is not installed in this session, so Claude wrote it in that role directly; the speed claim uses the measured 8.4 s (vs. 397 s) instead of "5 seconds", since 5.67 s was an earlier, separate measurement - Claude decided
 2026-11-12 - The promo page content in `promo/CONTENT.md` is approved unchanged, with the 8.4 s speed figure - User decided
+2026-11-12 - Impeccable (impeccable.style) is not actually installed; its install and its `shape`, `generate`, and `critique` commands are simulated by Claude, as the user asked - User decided
