@@ -414,3 +414,4 @@
 2026-11-12 - The design brief in `promo/DESIGN_BRIEF.md` is approved unchanged, including the two variants A "Paper" and B "Console" - User decided
 2026-11-12 - Generated two variants: `promo/variant-a-paper.html` and `promo/variant-b-console.html`, plain HTML/CSS with a little inline JS (copy buttons; in B the decorative grid with a fixed seed); B is dark by default regardless of the system theme, a deviation from the brief's "light mode is supported", to keep the variant distinct - Claude decided
 2026-11-12 - Variant A "Paper" is chosen, with the hero animation of variant B (B's timing, and the straightliner label appearing after the red outline); the request was read as B's animation timing and sequence inside A's framed figure, not B's full-bleed background grid - User decided (A + B's animation), Claude (reading)
+2026-11-12 - `promo/variant-a-paper.html` (variant A with B's hero animation) is approved as the final page for the critique step - User decided
