@@ -121,6 +121,22 @@ section.block + section.block { border-top: 1px solid var(--rule); }
 @media (max-width: 719px) { .live img { width: 560px; max-width: none; } } /* stays legible on phones; scrolls inside its own box */
 .live figcaption { font-size: .88rem; color: var(--muted); margin-top: 8px; }
 .detectors-note { font-size: .88rem; color: var(--muted); }
+/* "One flag is a warning, not a verdict": text column beside an example ledger */
+.verdict { margin-top: 48px; display: grid; gap: 20px 56px; }
+.verdict .v-text h3 { font-size: clamp(1.3rem, 2.4vw, 1.6rem); margin-bottom: 14px; }
+.verdict .v-text p { max-width: 60ch; }
+.v-ledger { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); align-self: start; }
+.v-row { display: grid; grid-template-columns: auto 1fr auto; align-items: baseline; gap: 4px 18px; padding: 16px 0; border-bottom: 1px solid var(--rule); }
+.v-marks { display: flex; gap: 5px; align-self: center; }
+.v-marks i { width: 18px; height: 18px; border-radius: 3px; background: var(--rule); }
+.v-marks i.on { background: var(--v4); }
+.is-flag .v-marks i.on { background: var(--flag); }
+.v-label { color: var(--muted); font-size: .95rem; }
+.v-score { font: 600 2rem/1 var(--serif); font-variant-numeric: tabular-nums; }
+.v-out { grid-column: 2 / 4; font-size: .95rem; }
+.is-flag .v-score, .is-flag .v-out { color: var(--flag); }
+.v-closing { grid-column: 1 / -1; max-width: 72ch; margin: 0; }
+@media (min-width: 800px) { .verdict { grid-template-columns: 1.15fr 1fr; } }
 
 .visuals { display: grid; gap: 32px; margin-top: 32px; }
 @media (min-width: 720px) { .visuals { grid-template-columns: 1fr 1fr; gap: 40px 48px; } }
@@ -264,7 +280,27 @@ footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: s
         </li>
       </ol>
       <p class="detectors-note">The pictures are SurveyGuard's own charts, drawn by its code from the synthetic sample <code>tests/fixtures/ess2_mock.csv</code> with <code>config/ess2.json</code>. Click one to see it full size.</p>
-      <p>The three results are combined into a 0 to 100 quality score. Below the threshold (50 by default), a respondent is marked suspicious, and the report says exactly which rule or scale caused it. No black box, no machine learning: same input, same output.</p>
+      <div class="verdict">
+        <div class="v-text">
+          <h3 id="verdict-title">One flag is a warning, not a verdict</h3>
+          <p>The three results are combined into a 0 to 100 quality score. One detector alone can be wrong: some people really do agree with every item. So with the bundled ESS rules and all three detectors available, it takes two of them to mark someone suspicious (a score below 50).</p>
+        </div>
+        <ul class="v-ledger" aria-label="Two example respondents">
+          <li class="v-row">
+            <span class="v-marks" aria-hidden="true"><i class="on"></i><i></i><i></i></span>
+            <span class="v-label">1 of 3 detectors</span>
+            <span class="v-score">66.7</span>
+            <span class="v-out">Stays in</span>
+          </li>
+          <li class="v-row is-flag">
+            <span class="v-marks" aria-hidden="true"><i class="on"></i><i class="on"></i><i></i></span>
+            <span class="v-label">2 of 3 detectors</span>
+            <span class="v-score">33.3</span>
+            <span class="v-out">Suspicious</span>
+          </li>
+        </ul>
+        <p class="v-closing">Every flag names the rule or scale behind it, so the report can go straight into your methods section. The R package careless computes indices like these for you to combine; SurveyGuard turns them into one verdict, a cleaned file, and a report. No black box, no machine learning: same input, same output.</p>
+      </div>
     </div>
   </section>
 
