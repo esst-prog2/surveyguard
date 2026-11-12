@@ -65,7 +65,7 @@ nav a:hover { color: var(--ok); }
   display: inline-block; background: var(--ink); color: var(--bg); text-decoration: none;
   font-weight: 500; padding: 12px 20px; border-radius: 6px;
 }
-.btn:hover { background: var(--ok); color: #fff; }
+.btn:hover { background: var(--ok); color: var(--bg); }
 
 /* Answer grid figure */
 .figure { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 24px 20px 18px; }
@@ -111,27 +111,36 @@ section.block + section.block { border-top: 1px solid var(--rule); }
 .detectors li { display: grid; grid-template-columns: 44px 1fr; gap: 16px; align-items: start; }
 .glyph { width: 44px; height: 44px; border: 1px solid var(--rule); border-radius: 8px; display: grid; place-items: center; background: var(--surface); }
 .detectors strong { display: block; font-weight: 600; }
-.detectors li > div { min-width: 0; }
-/* "See it in the app": real SurveyGuard charts, folded away by default */
-.live { margin-top: 8px; }
-.live summary { cursor: pointer; color: var(--ok); font-size: .92rem; font-weight: 500; width: fit-content; }
-.live figure { margin: 12px 0 4px; }
-.live img { display: block; width: 100%; height: auto; border: 1px solid var(--rule); border-radius: 6px; background: #fff; }
-.live figure a { display: block; overflow-x: auto; }
-@media (max-width: 719px) { .live img { width: 560px; max-width: none; } } /* stays legible on phones; scrolls inside its own box */
-.live figcaption { font-size: .88rem; color: var(--muted); margin-top: 8px; }
-.detectors-note { font-size: .88rem; color: var(--muted); }
+/* "One flag is a warning, not a verdict": text column beside an example ledger */
+.verdict { margin-top: 48px; display: grid; gap: 20px 56px; }
+.verdict .v-text h3 { font-size: clamp(1.3rem, 2.4vw, 1.6rem); margin-bottom: 14px; }
+.verdict .v-text p { max-width: 60ch; }
+.v-ledger { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); align-self: start; }
+.v-row { display: grid; grid-template-columns: auto 1fr auto; align-items: baseline; gap: 4px 18px; padding: 16px 0; border-bottom: 1px solid var(--rule); }
+.v-marks { display: flex; gap: 5px; align-self: center; }
+.v-marks i { width: 18px; height: 18px; border-radius: 3px; background: var(--rule); }
+.v-marks i.on { background: var(--v4); }
+.is-flag .v-marks i.on { background: var(--flag); }
+.v-label { color: var(--muted); font-size: .95rem; }
+.v-score { font: 600 2rem/1 var(--serif); font-variant-numeric: tabular-nums; }
+.v-out { grid-column: 2 / 4; font-size: .95rem; }
+.is-flag .v-score, .is-flag .v-out { color: var(--flag); }
+.v-closing { grid-column: 1 / -1; max-width: 72ch; margin: 0; }
+@media (min-width: 800px) { .verdict { grid-template-columns: 1.15fr 1fr; } }
 
-.visuals { display: grid; gap: 32px; margin-top: 32px; }
-@media (min-width: 720px) { .visuals { grid-template-columns: 1fr 1fr; gap: 40px 48px; } }
-.visual { display: grid; grid-template-columns: 88px 1fr; gap: 18px; align-items: start; }
-.thumb { width: 88px; height: 66px; background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; }
-.visual h3 { font-size: 1.15rem; margin-bottom: 6px; }
-.visual p { font-size: .97rem; color: var(--muted); margin: 0; }
-
+.see-lede { color: var(--muted); }
+.shots { display: grid; gap: 40px; margin-top: 32px; }
+@media (min-width: 720px) { .shots { grid-template-columns: 1fr 1fr; gap: 48px 40px; } }
+.shot { margin: 0; min-width: 0; }
+.shot a { display: block; overflow-x: auto; border-radius: 6px; }
+.shot img { display: block; width: 100%; height: auto; border: 1px solid var(--rule); border-radius: 6px; background: #fff; }
+@media (max-width: 719px) { .shot img { width: 560px; max-width: none; } }
+.shot figcaption { margin-top: 14px; }
+.shot h3 { font-size: 1.15rem; margin-bottom: 6px; }
+.shot p { font-size: .97rem; color: var(--muted); margin: 0; }
 .audience { margin: 28px 0 0; padding: 0; list-style: none; display: grid; gap: 18px; max-width: 72ch; }
 .audience b { font-weight: 600; }
-.note { margin-top: 28px; padding-left: 16px; border-left: 3px solid var(--ok); }
+.note { margin-top: 28px; color: var(--muted); }
 
 /* How to try */
 .steps { counter-reset: s; list-style: none; padding: 0; margin: 28px 0 0; display: grid; gap: 24px; max-width: 760px; }
@@ -144,7 +153,7 @@ section.block + section.block { border-top: 1px solid var(--rule); }
 .steps > li > div { min-width: 0; } /* lets long commands scroll inside their block instead of widening the page */
 .steps p { margin: 4px 0 10px; }
 .steps .hint code { overflow-wrap: anywhere; }
-.steps .hint { margin-top: 12px; padding: 10px 14px; background: var(--surface); border-left: 3px solid var(--ok); border-radius: 0 6px 6px 0; font-size: .95rem; }
+.steps .hint { margin-top: 12px; padding: 10px 14px; background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; font-size: .95rem; }
 .code {
   display: flex; align-items: center; gap: 12px; background: var(--surface);
   border: 1px solid var(--rule); border-radius: 6px; padding: 10px 10px 10px 14px; min-width: 0;
@@ -187,12 +196,12 @@ footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: s
         <h1>Find the careless respondents before they find their way into your results.</h1>
         <p class="lede">SurveyGuard scans numeric survey data for straightlining, contradictory answers, and multivariate outliers, then hands you a cleaned file and a report that explains every flag.</p>
         <div class="actions">
-          <a class="btn" href="#try">Try it in 3 commands</a>
+          <a class="btn" href="#try">Try it in 4 steps</a>
           <a href="https://github.com/esst-prog2/surveyguard">View on GitHub</a>
         </div>
       </div>
 
-      <figure class="figure" role="img" aria-label="A grid of eight respondents' answers to six trust items. Seven rows vary in colour; respondent 1044 gave the same answer to every item and is outlined in red as a straightliner.">
+      <figure class="figure" role="img" aria-label="Illustration: a grid of eight made-up respondents' answers to six trust items. Seven rows vary in colour; respondent 1044 gave the same answer to every item and is outlined in red as a straightliner.">
         <p class="grid-title" aria-hidden="true">Trust in … <span>(answers from 0 to 10)</span></p>
         <div class="grid-head" aria-hidden="true"><span></span><span>Parliament</span><span>Legal system</span><span>Police</span><span>Politicians</span><span>Parties</span><span>EU Parliament</span></div>
         <div class="row" style="--i:0"><span class="id">1017</span><i class="c v2"></i><i class="c v4"></i><i class="c v3"></i><i class="c v5"></i><i class="c v1"></i><i class="c v4"></i></div>
@@ -204,7 +213,7 @@ footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: s
         <div class="row" style="--i:5"><span class="id">1068</span><i class="c v2"></i><i class="c v1"></i><i class="c v3"></i><i class="c v2"></i><i class="c v4"></i><i class="c v1"></i></div>
         <div class="row" style="--i:6"><span class="id">1071</span><i class="c v5"></i><i class="c v4"></i><i class="c v5"></i><i class="c v3"></i><i class="c v4"></i><i class="c v5"></i></div>
         <div class="row" style="--i:7"><span class="id">1089</span><i class="c v3"></i><i class="c v2"></i><i class="c v4"></i><i class="c v1"></i><i class="c v3"></i><i class="c v2"></i></div>
-        <figcaption>Each row is a respondent. Spot the one who didn't read.</figcaption>
+        <figcaption>Illustration: each row is a respondent. Spot the one who didn't read.</figcaption>
       </figure>
     </div>
   </section>
@@ -228,66 +237,62 @@ footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: s
       <ol class="detectors">
         <li>
           <span class="glyph" aria-hidden="true"><svg width="26" height="14" viewBox="0 0 26 14"><rect x="0" y="3" width="26" height="8" rx="2" fill="var(--v3)"/></svg></span>
-          <div><strong>Straightlining</strong>Zero response variability (IRV) inside a scale.
-            <details class="live">
-              <summary>See it in the app</summary>
-              <figure>
-                <a href="img/live-straightlining.png"><img src="img/live-straightlining.png" width="760" height="300" loading="lazy" alt="SurveyGuard's straightlining heatmap: one row, Job_Demands, with five items all answered 3, so every cell has the same colour."></a>
-                <figcaption>The straightlining heatmap for one respondent: the same answer (3) to all five Job Demands items, so every cell has the same colour and the variability is zero.</figcaption>
-              </figure>
-            </details>
-          </div>
+          <div><strong>Straightlining</strong>Zero response variability (IRV) inside a scale: the same answer to every item.</div>
         </li>
         <li>
           <span class="glyph" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linecap="round"><path d="M5 9h14M5 15h14M16 4 8 20"/></svg></span>
-          <div><strong>Logical contradictions</strong>Rules you write in plain JSON, for example <code>trstplt &gt; 8</code> and <code>trstprl &lt; 2</code>.
-            <details class="live">
-              <summary>See it in the app</summary>
-              <figure>
-                <a href="img/live-contradiction.png"><img src="img/live-contradiction.png" width="760" height="206" loading="lazy" alt="SurveyGuard's respondent drill-down: a red-highlighted table of two triggered contradiction rules, each condition shown with the respondent's actual value of 5."></a>
-                <figcaption>The respondent drill-down for the same person: two rules triggered. They gave the most extreme answer, 5, to two opposite statements about doctors (keeping the truth from patients vs. admitting mistakes), and to two opposite statements about obeying the law.</figcaption>
-              </figure>
-            </details>
-          </div>
+          <div><strong>Logical contradictions</strong>Rules you write in plain JSON, for example <code>trstplt &gt; 8</code> and <code>trstprl &lt; 2</code>.</div>
         </li>
         <li>
           <span class="glyph" aria-hidden="true"><svg width="28" height="24" viewBox="0 0 28 24"><g fill="var(--v4)"><circle cx="6" cy="14" r="2"/><circle cx="10" cy="11" r="2"/><circle cx="9" cy="17" r="2"/><circle cx="13" cy="15" r="2"/></g><circle cx="23" cy="5" r="2.6" fill="var(--flag)"/></svg></span>
-          <div><strong>Mahalanobis outliers</strong>Answer patterns far from the rest of the sample, scale by scale.
-            <details class="live">
-              <summary>See it in the app</summary>
-              <figure>
-                <a href="img/live-mahalanobis.png"><img src="img/live-mahalanobis.png" width="760" height="460" loading="lazy" alt="SurveyGuard's Mahalanobis PCA map for the institutional trust scale: about 280 grey points and two red outliers."></a>
-                <figcaption>The Mahalanobis PCA map for the trust in institutions scale: each point is a respondent, and the two red points are outliers on its seven items. The map shows only the two main directions, so an outlier can sit near the middle; the distance itself uses all seven items.</figcaption>
-              </figure>
-            </details>
-          </div>
+          <div><strong>Mahalanobis outliers</strong>Answer patterns far from the rest of the sample, scale by scale. With the bundled ESS rules, a respondent counts only when they stand out on at least three scales.</div>
         </li>
       </ol>
-      <p class="detectors-note">The pictures are SurveyGuard's own charts, drawn by its code from the synthetic sample <code>tests/fixtures/ess2_mock.csv</code> with <code>config/ess2.json</code>. Click one to see it full size.</p>
-      <p>The three results are combined into a 0 to 100 quality score. Below the threshold (50 by default), a respondent is marked suspicious, and the report says exactly which rule or scale caused it. No black box, no machine learning: same input, same output.</p>
+      <div class="verdict">
+        <div class="v-text">
+          <h3 id="verdict-title">One flag is a warning, not a verdict</h3>
+          <p>The three results are combined into a 0 to 100 quality score. One detector alone can be wrong: some people really do agree with every item. So with the bundled ESS rules and all three detectors available, it takes two of them to mark someone suspicious (a score below 50).</p>
+        </div>
+        <ul class="v-ledger" aria-label="Two example respondents">
+          <li class="v-row">
+            <span class="v-marks" aria-hidden="true"><i class="on"></i><i></i><i></i></span>
+            <span class="v-label">1 of 3 detectors</span>
+            <span class="v-score">66.7</span>
+            <span class="v-out">Stays in</span>
+          </li>
+          <li class="v-row is-flag">
+            <span class="v-marks" aria-hidden="true"><i class="on"></i><i class="on"></i><i></i></span>
+            <span class="v-label">2 of 3 detectors</span>
+            <span class="v-score">33.3</span>
+            <span class="v-out">Suspicious</span>
+          </li>
+        </ul>
+        <p class="v-closing">Every flag names the rule or scale behind it, so the report can go straight into your methods section. The R package careless computes indices like these for you to combine; SurveyGuard turns them into one verdict, a cleaned file, and a report. No black box, no machine learning: same input, same output.</p>
+      </div>
     </div>
   </section>
 
   <section class="block" id="see">
     <div class="wrap">
       <h2>See it, don't just trust it</h2>
-      <div class="visuals">
-        <div class="visual">
-          <svg class="thumb" viewBox="0 0 88 66" aria-hidden="true"><g transform="translate(10 12)"><rect width="10" height="10" fill="var(--v2)"/><rect x="12" width="10" height="10" fill="var(--v4)"/><rect x="24" width="10" height="10" fill="var(--v1)"/><rect x="36" width="10" height="10" fill="var(--v5)"/><rect x="48" width="10" height="10" fill="var(--v3)"/><rect x="60" width="10" height="10" fill="var(--v2)"/><g transform="translate(0 16)"><rect width="10" height="10" fill="var(--v3)"/><rect x="12" width="10" height="10" fill="var(--v3)"/><rect x="24" width="10" height="10" fill="var(--v3)"/><rect x="36" width="10" height="10" fill="var(--v3)"/><rect x="48" width="10" height="10" fill="var(--v3)"/><rect x="60" width="10" height="10" fill="var(--v3)"/><rect x="-3" y="-3" width="76" height="16" rx="3" fill="none" stroke="var(--flag)" stroke-width="1.5"/></g></g></svg>
-          <div><h3>Straightlining heatmap</h3><p>Click a flagged respondent and see their answers cell by cell; a single-colour row is a straightliner.</p></div>
-        </div>
-        <div class="visual">
-          <svg class="thumb" viewBox="0 0 88 66" aria-hidden="true"><g fill="var(--v4)"><circle cx="30" cy="36" r="2.5"/><circle cx="36" cy="30" r="2.5"/><circle cx="40" cy="38" r="2.5"/><circle cx="45" cy="33" r="2.5"/><circle cx="34" cy="42" r="2.5"/><circle cx="48" cy="40" r="2.5"/><circle cx="42" cy="27" r="2.5"/></g><circle cx="16" cy="50" r="2.8" fill="var(--flag)"/><path d="M72 9l6 6-6 6-6-6z" fill="var(--flag)" stroke="var(--ink)" stroke-width="1.2"/></svg>
-          <div><h3>Mahalanobis PCA map</h3><p>Every respondent as a point on the first two principal components; outliers in red, flagged respondents as outlined diamonds.</p></div>
-        </div>
-        <div class="visual">
-          <svg class="thumb" viewBox="0 0 88 66" aria-hidden="true"><rect x="12" y="46" width="8" height="8" fill="var(--flag)"/><rect x="22" y="48" width="8" height="6" fill="var(--flag)"/><rect x="40" y="38" width="8" height="16" fill="var(--v4)"/><rect x="50" y="26" width="8" height="28" fill="var(--v4)"/><rect x="60" y="14" width="8" height="40" fill="var(--v4)"/><rect x="70" y="20" width="8" height="34" fill="var(--v4)"/><line x1="35" y1="8" x2="35" y2="58" stroke="var(--flag)" stroke-width="1.5" stroke-dasharray="3 3"/></svg>
-          <div><h3>Score distribution</h3><p>A histogram of quality scores with the threshold line, on a log scale so the few suspicious cases stay visible.</p></div>
-        </div>
-        <div class="visual">
-          <svg class="thumb" viewBox="0 0 88 66" aria-hidden="true"><g font-family="IBM Plex Mono, monospace" font-size="8"><rect x="8" y="12" width="72" height="16" rx="2" fill="color-mix(in srgb, var(--flag) 16%, transparent)"/><text x="12" y="23" fill="var(--ink)">trstprt &gt; 8</text><text x="12" y="43" fill="var(--muted)">trstplt &lt; 2</text></g><line x1="8" y1="50" x2="80" y2="50" stroke="var(--rule)"/></svg>
-          <div><h3>Respondent drill-down</h3><p>The triggered contradiction rules written out next to the person's actual answers.</p></div>
-        </div>
+      <p class="see-lede">These are SurveyGuard's own charts, drawn by its code from the synthetic sample <code>tests/fixtures/ess2_mock.csv</code> (284 respondents) with <code>config/ess2.json</code>. Click a chart to see it full size.</p>
+      <div class="shots">
+        <figure class="shot">
+          <a href="img/live-histogram.png"><img src="img/live-histogram.png" width="760" height="400" loading="lazy" alt="SurveyGuard's score histogram on a log scale: 8 respondents in the 30 to 35 bin in red, left of the dashed flag threshold at 50; 55 in the 65 to 70 bin and 221 in the 95 to 100 bin in blue."></a>
+          <figcaption><h3>Score distribution</h3><p>Every quality score, on a log scale so the few suspicious cases stay visible. 8 respondents caught by two detectors sit at 33.3, left of the threshold; 55 caught by one sit at 66.7 and stay in.</p></figcaption>
+        </figure>
+        <figure class="shot">
+          <a href="img/live-straightlining.png"><img src="img/live-straightlining.png" width="760" height="300" loading="lazy" alt="SurveyGuard's straightlining heatmap: one row, Job_Demands, with five items all answered 3, so every cell has the same colour."></a>
+          <figcaption><h3>Straightlining heatmap</h3><p>Click a flagged respondent to see their answers cell by cell. This one answered 3 to all five Job Demands items: one colour, zero variability.</p></figcaption>
+        </figure>
+        <figure class="shot">
+          <a href="img/live-contradiction.png"><img src="img/live-contradiction.png" width="760" height="206" loading="lazy" alt="SurveyGuard's respondent drill-down: a red-highlighted table of two triggered contradiction rules, each condition shown with the respondent's actual value of 5."></a>
+          <figcaption><h3>Respondent drill-down</h3><p>The triggered rules, written out next to the person's actual answers. The same respondent gave the most extreme answer, 5, to two opposite statements about doctors, and to two about obeying the law.</p></figcaption>
+        </figure>
+        <figure class="shot">
+          <a href="img/live-mahalanobis.png"><img src="img/live-mahalanobis.png" width="760" height="460" loading="lazy" alt="SurveyGuard's Mahalanobis PCA map for the institutional trust scale: about 280 grey points and two red outliers inside the cloud."></a>
+          <figcaption><h3>Mahalanobis PCA map</h3><p>Each point is a respondent on the first two principal components of one scale; red points are outliers on it. The distance uses all seven items, so on this flat map an outlier can sit near the middle. In this sample nobody is an outlier on three scales, so this detector flags no one.</p></figcaption>
+        </figure>
       </div>
     </div>
   </section>
@@ -307,13 +312,14 @@ footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: s
   <section class="block" id="try">
     <div class="wrap">
       <h2>How to try it</h2>
+      <p>You need Python 3.10 or newer and git on your computer. The commands go into a terminal; SurveyGuard then runs in your browser, on your machine.</p>
       <ol class="steps">
         <li><div><p>Get the code:</p>
           <div class="code"><pre><code>git clone https://github.com/esst-prog2/surveyguard.git
 cd surveyguard</code></pre><button class="copy" type="button">Copy</button></div></div></li>
         <li><div><p>Install the dependencies (Python 3.10+):</p>
           <div class="code"><pre><code>python -m pip install -r requirements.txt</code></pre><button class="copy" type="button">Copy</button></div></div></li>
-        <li><div><p>Start the web interface:</p>
+        <li><div><p>Start the web interface. Streamlit opens it in your browser, usually at <code>http://localhost:8501</code>:</p>
           <div class="code"><pre><code>python -m streamlit run app.py</code></pre><button class="copy" type="button">Copy</button></div></div></li>
         <li><div><p>In the browser, upload your <code>.csv</code>, <code>.xlsx</code>, or <code>.sav</code> file, choose a bundled rules file, and click <b>Run SurveyGuard</b>.</p>
           <p class="hint"><b>No survey file at hand?</b> Upload <code>tests/fixtures/ess2_mock.csv</code> from the folder you just cloned, a synthetic ESS round 2 sample, and choose <code>config/ess2.json</code>. You should see 284 respondents, 8 of them suspicious.</p></div></li>
