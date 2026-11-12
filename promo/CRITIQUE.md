@@ -39,3 +39,7 @@ Checked: a fresh `git clone` of the public repository into a temporary folder co
 - No machine context next to "8.4 s".
 - "vectorised rewrite" could become "rewrite" for non-programmers.
 - Cryptic item codes in the hero figure.
+
+## Follow-up (2026-11-12, after the user's feedback)
+- The item codes in the hero figure are replaced by full names (Parliament, Legal system, Police, Politicians, Parties, EU Parliament), set vertically above the columns, with the title "Trust in … (answers from 0 to 10)"; checked at 1280 px and 360 px.
+- No machine context for "8.4 s" and the word "vectorised" stay as they are, by the user's decision.

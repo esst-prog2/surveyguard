@@ -70,7 +70,11 @@ nav a:hover { color: var(--ok); }
 /* Answer grid figure */
 .figure { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 24px 20px 18px; }
 .grid-head, .row { display: grid; grid-template-columns: 34px repeat(6, 1fr); gap: 5px; align-items: center; }
-.grid-head { font: 500 .72rem var(--mono); color: var(--muted); margin-bottom: 8px; text-align: center; }
+.grid-title { font-size: .88rem; color: var(--ink); margin: 0 0 10px; }
+.grid-title span { color: var(--muted); }
+.grid-head { font: 500 .78rem/1.1 var(--sans); color: var(--muted); margin-bottom: 8px; align-items: end; }
+/* full item names, set vertically so they fit above the narrow columns */
+.grid-head span { writing-mode: vertical-rl; transform: rotate(180deg); justify-self: center; white-space: nowrap; }
 .row { position: relative; margin-bottom: 5px; animation: rowIn .4s ease-out both; animation-delay: calc(var(--i) * 45ms); }
 .row .id { font: 400 .72rem var(--mono); color: var(--muted); }
 .c { aspect-ratio: 1; border-radius: 3px; max-height: 34px; }
@@ -179,7 +183,8 @@ footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: s
       </div>
 
       <figure class="figure" role="img" aria-label="A grid of eight respondents' answers to six trust items. Seven rows vary in colour; respondent 1044 gave the same answer to every item and is outlined in red as a straightliner.">
-        <div class="grid-head" aria-hidden="true"><span></span><span>prl</span><span>lgl</span><span>plc</span><span>plt</span><span>prt</span><span>ep</span></div>
+        <p class="grid-title" aria-hidden="true">Trust in … <span>(answers from 0 to 10)</span></p>
+        <div class="grid-head" aria-hidden="true"><span></span><span>Parliament</span><span>Legal system</span><span>Police</span><span>Politicians</span><span>Parties</span><span>EU Parliament</span></div>
         <div class="row" style="--i:0"><span class="id">1017</span><i class="c v2"></i><i class="c v4"></i><i class="c v3"></i><i class="c v5"></i><i class="c v1"></i><i class="c v4"></i></div>
         <div class="row" style="--i:1"><span class="id">1023</span><i class="c v5"></i><i class="c v3"></i><i class="c v4"></i><i class="c v2"></i><i class="c v4"></i><i class="c v3"></i></div>
         <div class="row" style="--i:2"><span class="id">1031</span><i class="c v1"></i><i class="c v2"></i><i class="c v1"></i><i class="c v3"></i><i class="c v2"></i><i class="c v2"></i></div>
