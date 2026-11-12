@@ -71,7 +71,7 @@ nav a:hover { color: var(--ok); }
 .figure { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 24px 20px 18px; }
 .grid-head, .row { display: grid; grid-template-columns: 34px repeat(6, 1fr); gap: 5px; align-items: center; }
 .grid-head { font: 500 .72rem var(--mono); color: var(--muted); margin-bottom: 8px; text-align: center; }
-.row { position: relative; margin-bottom: 5px; animation: rowIn .45s ease-out both; animation-delay: calc(var(--i) * 60ms); }
+.row { position: relative; margin-bottom: 5px; animation: rowIn .4s ease-out both; animation-delay: calc(var(--i) * 45ms); }
 .row .id { font: 400 .72rem var(--mono); color: var(--muted); }
 .c { aspect-ratio: 1; border-radius: 3px; max-height: 34px; }
 .v1 { background: var(--v1); } .v2 { background: var(--v2); } .v3 { background: var(--v3); }
@@ -79,11 +79,12 @@ nav a:hover { color: var(--ok); }
 .row.flagged::after {
   content: ""; position: absolute; inset: -4px -5px -4px 30px;
   border: 2px solid var(--flag); border-radius: 6px;
-  animation: draw .5s .55s ease-out both;
+  animation: draw .5s .7s ease-out both;
 }
 .flag-label {
   display: flex; justify-content: flex-end; margin: 2px 0 6px;
   font: 500 .75rem var(--mono); color: var(--flag);
+  animation: rowIn .3s 1.1s both; /* appears once the red outline has drawn, as in variant B */
 }
 .figure figcaption { font-size: .88rem; color: var(--muted); margin-top: 14px; border-top: 1px solid var(--rule); padding-top: 12px; }
 @keyframes rowIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
