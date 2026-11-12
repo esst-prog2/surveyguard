@@ -127,7 +127,10 @@ section.block + section.block { border-top: 1px solid var(--rule); }
   border: 1px solid var(--ink); display: grid; place-items: center;
   font: 500 .9rem var(--mono);
 }
+.steps > li > div { min-width: 0; } /* lets long commands scroll inside their block instead of widening the page */
 .steps p { margin: 4px 0 10px; }
+.steps .hint code { overflow-wrap: anywhere; }
+.steps .hint { margin-top: 12px; padding: 10px 14px; background: var(--surface); border-left: 3px solid var(--ok); border-radius: 0 6px 6px 0; font-size: .95rem; }
 .code {
   display: flex; align-items: center; gap: 12px; background: var(--surface);
   border: 1px solid var(--rule); border-radius: 6px; padding: 10px 10px 10px 14px; min-width: 0;
@@ -265,16 +268,20 @@ footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: s
     <div class="wrap">
       <h2>How to try it</h2>
       <ol class="steps">
+        <li><div><p>Get the code:</p>
+          <div class="code"><pre><code>git clone https://github.com/esst-prog2/surveyguard.git
+cd surveyguard</code></pre><button class="copy" type="button">Copy</button></div></div></li>
         <li><div><p>Install the dependencies (Python 3.10+):</p>
           <div class="code"><pre><code>python -m pip install -r requirements.txt</code></pre><button class="copy" type="button">Copy</button></div></div></li>
         <li><div><p>Start the web interface:</p>
           <div class="code"><pre><code>python -m streamlit run app.py</code></pre><button class="copy" type="button">Copy</button></div></div></li>
-        <li><div><p>In the browser, upload a <code>.csv</code>, <code>.xlsx</code>, or <code>.sav</code> file, choose a bundled rules file (for example <code>config/ess2.json</code>), and click <b>Run SurveyGuard</b>.</p></div></li>
+        <li><div><p>In the browser, upload your <code>.csv</code>, <code>.xlsx</code>, or <code>.sav</code> file, choose a bundled rules file, and click <b>Run SurveyGuard</b>.</p>
+          <p class="hint"><b>No survey file at hand?</b> Upload <code>tests/fixtures/ess2_mock.csv</code> from the folder you just cloned, a synthetic ESS round 2 sample, and choose <code>config/ess2.json</code>. You should see 284 respondents, 8 of them suspicious.</p></div></li>
       </ol>
       <p class="result">You get a cleaned CSV without the suspicious respondents and a Markdown diagnostic report you can attach to your methods section.</p>
       <details>
         <summary>Prefer the command line?</summary>
-        <div class="code"><pre><code>python detect_anomalies.py data.sav --rules config/ess2.json --report report.md</code></pre><button class="copy" type="button">Copy</button></div>
+        <div class="code"><pre><code>python detect_anomalies.py tests/fixtures/ess2_mock.csv --rules config/ess2.json --output scored.csv --report report.md</code></pre><button class="copy" type="button">Copy</button></div>
       </details>
     </div>
   </section>
