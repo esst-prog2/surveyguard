@@ -423,3 +423,4 @@
 2026-11-12 - The "See it in the app" folds are approved as they are, including the original ESS codes in the contradiction table image - User decided
 2026-11-12 - The promo page is published from `main` / `docs` on GitHub Pages: the final page moves to `docs/index.html` with `docs/img/` and `docs/.nojekyll`, so only the page goes public; expected address https://esst-prog2.github.io/surveyguard/ - User decided (publish on Pages), Claude (folder, layout)
 2026-11-12 - Pushed `hw9-promo-page` to `origin`; the PR to `main` and the Pages source setting are done by the user on github.com, as `gh` is not installed - Claude (push), User (PR, Pages setting)
+2026-11-12 - Live check: https://esst-prog2.github.io/surveyguard/ is served from `main` / `docs` (PR #23, c2f3beb), identical to `docs/index.html`, all images load; this is the link to submit - User (PR, Pages), Claude (check)
