@@ -111,6 +111,16 @@ section.block + section.block { border-top: 1px solid var(--rule); }
 .detectors li { display: grid; grid-template-columns: 44px 1fr; gap: 16px; align-items: start; }
 .glyph { width: 44px; height: 44px; border: 1px solid var(--rule); border-radius: 8px; display: grid; place-items: center; background: var(--surface); }
 .detectors strong { display: block; font-weight: 600; }
+.detectors li > div { min-width: 0; }
+/* "See it in the app": real SurveyGuard charts, folded away by default */
+.live { margin-top: 8px; }
+.live summary { cursor: pointer; color: var(--ok); font-size: .92rem; font-weight: 500; width: fit-content; }
+.live figure { margin: 12px 0 4px; }
+.live img { display: block; width: 100%; height: auto; border: 1px solid var(--rule); border-radius: 6px; background: #fff; }
+.live figure a { display: block; overflow-x: auto; }
+@media (max-width: 719px) { .live img { width: 560px; max-width: none; } } /* stays legible on phones; scrolls inside its own box */
+.live figcaption { font-size: .88rem; color: var(--muted); margin-top: 8px; }
+.detectors-note { font-size: .88rem; color: var(--muted); }
 
 .visuals { display: grid; gap: 32px; margin-top: 32px; }
 @media (min-width: 720px) { .visuals { grid-template-columns: 1fr 1fr; gap: 40px 48px; } }
@@ -218,17 +228,42 @@ footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: s
       <ol class="detectors">
         <li>
           <span class="glyph" aria-hidden="true"><svg width="26" height="14" viewBox="0 0 26 14"><rect x="0" y="3" width="26" height="8" rx="2" fill="var(--v3)"/></svg></span>
-          <div><strong>Straightlining</strong>Zero response variability (IRV) inside a scale.</div>
+          <div><strong>Straightlining</strong>Zero response variability (IRV) inside a scale.
+            <details class="live">
+              <summary>See it in the app</summary>
+              <figure>
+                <a href="img/live-straightlining.png"><img src="img/live-straightlining.png" width="760" height="300" loading="lazy" alt="SurveyGuard's straightlining heatmap: one row, Job_Demands, with five items all answered 3, so every cell has the same colour."></a>
+                <figcaption>The straightlining heatmap for one respondent: the same answer (3) to all five Job Demands items, so every cell has the same colour and the variability is zero.</figcaption>
+              </figure>
+            </details>
+          </div>
         </li>
         <li>
           <span class="glyph" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linecap="round"><path d="M5 9h14M5 15h14M16 4 8 20"/></svg></span>
-          <div><strong>Logical contradictions</strong>Rules you write in plain JSON, for example <code>trstplt &gt; 8</code> and <code>trstprl &lt; 2</code>.</div>
+          <div><strong>Logical contradictions</strong>Rules you write in plain JSON, for example <code>trstplt &gt; 8</code> and <code>trstprl &lt; 2</code>.
+            <details class="live">
+              <summary>See it in the app</summary>
+              <figure>
+                <a href="img/live-contradiction.png"><img src="img/live-contradiction.png" width="760" height="206" loading="lazy" alt="SurveyGuard's respondent drill-down: a red-highlighted table of two triggered contradiction rules, each condition shown with the respondent's actual value of 5."></a>
+                <figcaption>The respondent drill-down for the same person: two rules triggered. They gave the most extreme answer, 5, to two opposite statements about doctors (keeping the truth from patients vs. admitting mistakes), and to two opposite statements about obeying the law.</figcaption>
+              </figure>
+            </details>
+          </div>
         </li>
         <li>
           <span class="glyph" aria-hidden="true"><svg width="28" height="24" viewBox="0 0 28 24"><g fill="var(--v4)"><circle cx="6" cy="14" r="2"/><circle cx="10" cy="11" r="2"/><circle cx="9" cy="17" r="2"/><circle cx="13" cy="15" r="2"/></g><circle cx="23" cy="5" r="2.6" fill="var(--flag)"/></svg></span>
-          <div><strong>Mahalanobis outliers</strong>Answer patterns far from the rest of the sample, scale by scale.</div>
+          <div><strong>Mahalanobis outliers</strong>Answer patterns far from the rest of the sample, scale by scale.
+            <details class="live">
+              <summary>See it in the app</summary>
+              <figure>
+                <a href="img/live-mahalanobis.png"><img src="img/live-mahalanobis.png" width="760" height="460" loading="lazy" alt="SurveyGuard's Mahalanobis PCA map for the institutional trust scale: about 280 grey points and two red outliers."></a>
+                <figcaption>The Mahalanobis PCA map for the trust in institutions scale: each point is a respondent, and the two red points are outliers on its seven items. The map shows only the two main directions, so an outlier can sit near the middle; the distance itself uses all seven items.</figcaption>
+              </figure>
+            </details>
+          </div>
         </li>
       </ol>
+      <p class="detectors-note">The pictures are SurveyGuard's own charts, drawn by its code from the synthetic sample <code>tests/fixtures/ess2_mock.csv</code> with <code>config/ess2.json</code>. Click one to see it full size.</p>
       <p>The three results are combined into a 0 to 100 quality score. Below the threshold (50 by default), a respondent is marked suspicious, and the report says exactly which rule or scale caused it. No black box, no machine learning: same input, same output.</p>
     </div>
   </section>
