@@ -411,3 +411,4 @@
 2026-11-12 - The promo page content in `promo/CONTENT.md` is approved unchanged, with the 8.4 s speed figure - User decided
 2026-11-12 - Impeccable (impeccable.style) is not actually installed; its install and its `shape`, `generate`, and `critique` commands are simulated by Claude, as the user asked - User decided
 2026-11-12 - Design brief draft in `promo/DESIGN_BRIEF.md`: red only for "suspicious", blue for "fine"; Source Serif 4 headings, IBM Plex Sans body, IBM Plex Mono code; one column, max 1,080 px; hero figure is a CSS answer grid with one straightliner row; two variants planned for `generate`: A "Paper" (light, editorial) and B "Console" (dark, analyst tool) - Claude decided (proposal, approval pending)
+2026-11-12 - The design brief in `promo/DESIGN_BRIEF.md` is approved unchanged, including the two variants A "Paper" and B "Console" - User decided
