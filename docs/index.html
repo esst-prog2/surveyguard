@@ -107,6 +107,14 @@ nav a:hover { color: var(--ok); }
 section.block { padding: 72px 0; }
 @media (min-width: 720px) { section.block { padding: 96px 0; } }
 section.block + section.block { border-top: 1px solid var(--rule); }
+/* The 30-second film (HyperFrames render) */
+section.block.film { padding-top: 56px; }
+.film-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px 24px; margin-bottom: 20px; }
+.film-head h2 { margin: 0; }
+.film-note { color: var(--muted); margin: 0; }
+.film-frame { margin: 0; }
+.film-frame video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); }
+.film-frame figcaption { margin-top: 12px; font-size: .92rem; color: var(--muted); max-width: 68ch; }
 .detectors { list-style: none; padding: 0; margin: 28px 0 24px; display: grid; gap: 22px; max-width: 72ch; }
 .detectors li { display: grid; grid-template-columns: 44px 1fr; gap: 16px; align-items: start; }
 .glyph { width: 44px; height: 44px; border: 1px solid var(--rule); border-radius: 8px; display: grid; place-items: center; background: var(--surface); }
@@ -226,6 +234,22 @@ footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: s
         <div><dt>8.4 s</dt><dd>from upload to result, <s>397 s</s> before the vectorised rewrite</dd></div>
         <div><dt>ESS 1–11</dt><dd>ready-made rules files included</dd></div>
       </dl>
+    </div>
+  </section>
+
+  <section class="block film" id="film" aria-labelledby="film-title">
+    <div class="wrap">
+      <div class="film-head">
+        <h2 id="film-title">The idea in 30 seconds</h2>
+        <p class="film-note">No sound needed: every word is on screen.</p>
+      </div>
+      <figure class="film-frame">
+        <video controls muted playsinline preload="metadata" width="1920" height="1080" poster="video/surveyguard-promo-poster.jpg" aria-describedby="film-caption">
+          <source src="video/surveyguard-promo.mp4" type="video/mp4">
+          <a href="video/surveyguard-promo.mp4">Download the video (MP4, 4.7 MB)</a>
+        </video>
+        <figcaption id="film-caption">A grid of answers with one straightliner, the three detectors on SurveyGuard's real charts, then 1,498 respondents down to 10 suspicious. Made with HyperFrames from this page; 30 seconds, silent.</figcaption>
+      </figure>
     </div>
   </section>
 
