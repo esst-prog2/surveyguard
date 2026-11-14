@@ -1,0 +1,30 @@
+<template>
+  <style>
+    @font-face { font-family: "Source Serif 4"; src: url("assets/fonts/SourceSerif4-600.woff2") format("woff2"); font-weight: 600; }
+    @font-face { font-family: "IBM Plex Sans"; src: url("assets/fonts/IBMPlexSans-400.woff2") format("woff2"); font-weight: 400 600; }
+    #root { position: absolute; inset: 0; background: #F7F5F0; color: #1B1F24; overflow: hidden; }
+    #contra-copy { position: absolute; left: 150px; top: 360px; width: 560px; }
+    #contra-verb { font: 600 108px/1 "Source Serif 4", serif; letter-spacing: -0.015em; }
+    #contra-line { font: 400 38px/1.35 "IBM Plex Sans", sans-serif; color: #5B6470; margin-top: 28px; }
+    #contra-shot { position: absolute; left: 800px; top: 380px; width: 990px; background: #fff; border: 2px solid #DAD6CC; border-radius: 10px; overflow: hidden; }
+    #contra-shot img { display: block; width: 100%; height: auto; }
+    #contra-label { position: absolute; left: 800px; top: 680px; font: 400 30px "IBM Plex Sans", sans-serif; color: #5B6470; }
+  </style>
+  <div id="root" data-composition-id="contra" data-width="1920" data-height="1080">
+    <div id="contra-copy">
+      <h2 id="contra-verb">Contradicts.</h2>
+      <p id="contra-line">Answers that cannot both be true, by rules you write.</p>
+    </div>
+    <div id="contra-shot"><img src="assets/img/live-contradiction.png" alt="SurveyGuard respondent drill-down" /></div>
+    <p id="contra-label">Each triggered rule, next to the actual answers</p>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    tl.fromTo("#contra-shot", { x: 260, opacity: 0, filter: "blur(12px)" }, { x: 0, opacity: 1, filter: "blur(0px)", duration: 0.45, ease: "expo.out" }, 0.0);
+    tl.fromTo("#contra-verb", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.18, ease: "power4.out" }, 0.2);
+    tl.fromTo("#contra-line", { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 0.55);
+    tl.fromTo("#contra-label", { opacity: 0 }, { opacity: 1, duration: 0.25, ease: "power2.out" }, 0.4);
+    tl.to(["#contra-copy", "#contra-shot", "#contra-label"], { opacity: 0, filter: "blur(8px)", duration: 0.2, ease: "power3.in" }, 3.38);
+    window.__timelines["contra"] = tl;
+  </script>
+</template>

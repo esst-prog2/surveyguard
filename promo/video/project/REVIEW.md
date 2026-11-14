@@ -1,0 +1,8 @@
+# REVIEW: SurveyGuard promo, storyline A
+
+- Creative calls: storyline A "Spot the one who didn't read" (picked by the user); B "One number lands" and C "Before and after" were not built (see STORYLINES.md). The look is the promo page's own world (paper #F7F5F0, Source Serif 4, IBM Plex Sans, red only for "suspicious"); the spec bans that cream-paper look as a default, but it is the brand's own.
+- Real output only: the four charts are the screenshots in docs/img (drawn by SurveyGuard from the synthetic sample); 1,498 / 10 come from the real Hungarian ESS round 2 demo; 66.7 / 33.3 from the scoring code. The opening grid and the 1,498-strip field are illustrations (positions invented, counts real: 1,498 strips, 10 outlined).
+- Measured: `hyperframes check` ok (only film_silent / audio_none); `snapshot --review` beats, seams and phone sheets looked at; fixed: empty left side at frame 0, the straightliner label over the "EU Parliament" header, line holds, 26 px labels, 2.19:1 contrast on "1,498", the subline arriving before the wordmark.
+- Not checked: sound, because there is none.
+- Kept on purpose: film_silent. There is no music source on this machine (no HeyGen sign-in, no local model), and the skill says to deliver silent rather than synthesize audio. To add music later: sign in with `npx hyperframes auth login` and use /media-use, or drop a licensed track into assets/ as an <audio> with an id.
+- Weakest shot: the three proof shots; the screenshots' own labels are small (about 13 px at 1080p, unreadable on a phone). With more time: punch in 1.6-2x on the one row or point that proves each verb (the flat row, one red rule row, the red points).
