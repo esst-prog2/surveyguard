@@ -1,0 +1,51 @@
+<template>
+  <style>
+    @font-face { font-family: "Source Serif 4"; src: url("assets/fonts/SourceSerif4-600.woff2") format("woff2"); font-weight: 600; }
+    @font-face { font-family: "IBM Plex Sans"; src: url("assets/fonts/IBMPlexSans-400.woff2") format("woff2"); font-weight: 400 600; }
+    #root { position: absolute; inset: 0; background: #F7F5F0; color: #1B1F24; overflow: hidden; }
+    #pay-nums { position: absolute; left: 150px; top: 250px; }
+    #pay-from { font: 600 200px/1 "Source Serif 4", serif; letter-spacing: -0.02em; color: #5E86B2; }
+    #pay-to { font: 600 200px/1 "Source Serif 4", serif; letter-spacing: -0.02em; color: #C0392B; margin-top: 10px; }
+    #pay-to small { font: 600 72px "Source Serif 4", serif; margin-left: 24px; letter-spacing: 0; }
+    #pay-src { position: absolute; left: 156px; top: 760px; font: 400 34px/1.4 "IBM Plex Sans", sans-serif; color: #5B6470; width: 1100px; }
+    #pay-ledger { position: absolute; left: 150px; top: 230px; width: 1620px; }
+    #pay-head { font: 600 92px/1.05 "Source Serif 4", serif; letter-spacing: -0.01em; }
+    .pay-row { display: grid; grid-template-columns: 200px 1fr 260px 380px; align-items: center; gap: 40px; padding: 34px 0; border-bottom: 2px solid #DAD6CC; }
+    #pay-rows { margin-top: 56px; border-top: 2px solid #DAD6CC; }
+    .pay-marks { display: flex; gap: 14px; }
+    .pay-marks i { width: 48px; height: 48px; border-radius: 8px; background: #DAD6CC; }
+    .pay-marks i.on { background: #5E86B2; }
+    #pay-r2 .pay-marks i.on { background: #C0392B; }
+    .pay-what { font: 400 40px "IBM Plex Sans", sans-serif; color: #5B6470; }
+    .pay-score { font: 600 110px/1 "Source Serif 4", serif; text-align: right; }
+    .pay-out { font: 600 46px "IBM Plex Sans", sans-serif; }
+    #pay-r2 .pay-score, #pay-r2 .pay-out { color: #C0392B; }
+  </style>
+  <div id="root" data-composition-id="payoff" data-width="1920" data-height="1080">
+    <div id="pay-nums">
+      <p id="pay-from">1,498</p>
+      <p id="pay-to">10 <small>suspicious</small></p>
+    </div>
+    <p id="pay-src">Real Hungarian ESS round 2 data</p>
+    <div id="pay-ledger">
+      <h2 id="pay-head">One flag is a warning, not a verdict.</h2>
+      <div id="pay-rows">
+        <div class="pay-row" id="pay-r1"><span class="pay-marks"><i class="on"></i><i></i><i></i></span><span class="pay-what">1 of 3 detectors</span><span class="pay-score">66.7</span><span class="pay-out">stays in</span></div>
+        <div class="pay-row" id="pay-r2"><span class="pay-marks"><i class="on"></i><i class="on"></i><i></i></span><span class="pay-what">2 of 3 detectors</span><span class="pay-score">33.3</span><span class="pay-out">suspicious</span></div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    tl.fromTo("#pay-from", { opacity: 0, filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 0.05);
+    tl.fromTo("#pay-to", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.6, ease: "expo.out" }, 0.75);
+    tl.fromTo("#pay-src", { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 0.7);
+    tl.to(["#pay-nums", "#pay-src"], { opacity: 0, filter: "blur(10px)", duration: 0.22, ease: "power3.in" }, 2.4);
+    tl.fromTo("#pay-ledger", { opacity: 0 }, { opacity: 1, duration: 0.01 }, 2.6);
+    tl.fromTo("#pay-head", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 2.6);
+    tl.fromTo("#pay-r1", { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.55, ease: "expo.out" }, 3.1);
+    tl.fromTo("#pay-r2", { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.55, ease: "expo.out" }, 3.6);
+    tl.to("#pay-ledger", { scale: 0.92, opacity: 0, filter: "blur(8px)", duration: 0.25, ease: "power3.in" }, 5.52);
+    window.__timelines["payoff"] = tl;
+  </script>
+</template>
