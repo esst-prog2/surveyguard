@@ -1,0 +1,54 @@
+<template>
+  <style>
+    @font-face { font-family: "Source Serif 4"; src: url("assets/fonts/SourceSerif4-600.woff2") format("woff2"); font-weight: 600; }
+    @font-face { font-family: "IBM Plex Sans"; src: url("assets/fonts/IBMPlexSans-400.woff2") format("woff2"); font-weight: 400 600; }
+    #root { position: absolute; inset: 0; background: #FFFFFF; overflow: hidden; }
+    #aw-cam { position: absolute; left: 0; top: 0; width: 2400px; height: 1500px; transform-origin: 0 0; }
+    #aw-cam img { position: absolute; left: 0; top: 0; width: 2400px; height: 1500px; }
+    #aw-mask { position: absolute; left: 540px; top: 800px; width: 1780px; height: 560px; background: #FFFFFF; }
+    #aw-s4 { opacity: 0; }
+    #aw-cur { position: absolute; left: 0; top: 0; width: 64px; height: 64px; }
+    .aw-band { position: absolute; left: 0; right: 0; bottom: 0; height: 176px; background: #F7F5F0; border-top: 2px solid #DAD6CC; }
+    .aw-cap { position: absolute; left: 120px; bottom: 70px; font: 600 54px/1.1 "Source Serif 4", serif; color: #1B1F24; }
+    .aw-note { position: absolute; left: 122px; bottom: 22px; font: 400 28px "IBM Plex Sans", sans-serif; color: #5B6470; }
+  </style>
+  <div id="root" data-composition-id="appwhy" data-width="1920" data-height="1080">
+    <div id="aw-cam">
+      <img id="aw-s3b" src="assets/app/s3b-flagged.png" alt="Flagged respondents table and the straightlining heatmap of respondent 5020" />
+      <div id="aw-mask"></div>
+      <img id="aw-s4" src="assets/app/s4-drilldown.png" alt="Respondent drill-down of 5020 with its contradiction rule" />
+    </div>
+    <svg id="aw-cur" viewBox="0 0 64 64" aria-hidden="true"><path d="M8 4 L8 52 L21 40 L30 60 L38 56 L29 37 L46 37 Z" fill="#1B1F24" stroke="#FFFFFF" stroke-width="3" stroke-linejoin="round" /></svg>
+    <div class="aw-band">
+      <p id="aw-c1" class="aw-cap">Respondent 5020 gave the same answer ten times.</p>
+      <p id="aw-c2" class="aw-cap">And two answers that contradict each other.</p>
+      <p class="aw-note">Real SurveyGuard screens, synthetic sample</p>
+    </div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    const view = (cx, cy, z) => ({ x: 960 - cx * z, y: 465 - cy * z, scale: z });
+    // the flagged table, 5020 at the top; click its row
+    tl.set("#aw-cam", view(1420, 520, 0.85), 0);
+    const at = (ix, iy) => { const v = view(1420, 520, 0.85); return { x: v.x + ix * 0.85, y: v.y + iy * 0.85 }; };
+    tl.fromTo("#aw-cur", { x: 1500, y: 900 }, { ...at(595, 263), duration: 0.65, ease: "power2.inOut" }, 0.1);
+    tl.to("#aw-cur", { scale: 0.82, duration: 0.07, ease: "power2.out", yoyo: true, repeat: 1, transformOrigin: "8px 4px" }, 0.8);
+    tl.to("#aw-mask", { opacity: 0, duration: 0.3, ease: "power2.out" }, 0.95);
+    tl.to("#aw-cur", { opacity: 0, duration: 0.2, ease: "power2.in" }, 1.3);
+    // follow the heatmap down
+    tl.to("#aw-cam", { ...view(1440, 1100, 0.9), duration: 0.8, ease: "power2.inOut" }, 1.25);
+    // the drill-down of the same respondent: the contradiction rows
+    tl.fromTo("#aw-s4", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.out" }, 4.35);
+    tl.to("#aw-cam", { ...view(1420, 950, 0.95), duration: 0.7, ease: "power2.inOut" }, 4.3);
+    // point at the two rows that contradict each other
+    const v2 = view(1420, 950, 0.95);
+    tl.set("#aw-cur", { x: 1700, y: 760 }, 5.29);
+    tl.to("#aw-cur", { x: v2.x + 1500 * 0.95, y: v2.y + 1050 * 0.95, opacity: 1, duration: 0.7, ease: "power2.inOut" }, 5.3);
+    tl.to("#aw-cur", { y: v2.y + 1096 * 0.95, duration: 0.5, ease: "power2.inOut" }, 6.4);
+    tl.to("#aw-cur", { x: v2.x + 1790 * 0.95, duration: 0.6, ease: "power2.inOut" }, 7.2);
+    tl.fromTo("#aw-c1", { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 0.35);
+    tl.to("#aw-c1", { opacity: 0, filter: "blur(8px)", duration: 0.18, ease: "power3.in" }, 4.2);
+    tl.fromTo("#aw-c2", { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 4.6);
+    window.__timelines["appwhy"] = tl;
+  </script>
+</template>

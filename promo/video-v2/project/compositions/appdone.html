@@ -1,0 +1,36 @@
+<template>
+  <style>
+    @font-face { font-family: "Source Serif 4"; src: url("assets/fonts/SourceSerif4-600.woff2") format("woff2"); font-weight: 600; }
+    @font-face { font-family: "IBM Plex Sans"; src: url("assets/fonts/IBMPlexSans-400.woff2") format("woff2"); font-weight: 400 600; }
+    #root { position: absolute; inset: 0; background: #FFFFFF; overflow: hidden; }
+    #ad-cam { position: absolute; left: 0; top: 0; width: 2400px; height: 1500px; transform-origin: 0 0; }
+    #ad-cam img { position: absolute; left: 0; top: 0; width: 2400px; height: 1500px; }
+    #ad-cur { position: absolute; left: 0; top: 0; width: 64px; height: 64px; }
+    .ad-band { position: absolute; left: 0; right: 0; bottom: 0; height: 176px; background: #F7F5F0; border-top: 2px solid #DAD6CC; }
+    .ad-cap { position: absolute; left: 120px; bottom: 70px; font: 600 54px/1.1 "Source Serif 4", serif; color: #1B1F24; }
+    .ad-note { position: absolute; left: 122px; bottom: 22px; font: 400 28px "IBM Plex Sans", sans-serif; color: #5B6470; }
+  </style>
+  <div id="root" data-composition-id="appdone" data-width="1920" data-height="1080">
+    <div id="ad-cam"><img id="ad-s4" src="assets/app/s4-drilldown.png" alt="Download buttons and the cleaned data summary" /></div>
+    <svg id="ad-cur" viewBox="0 0 64 64" aria-hidden="true"><path d="M8 4 L8 52 L21 40 L30 60 L38 56 L29 37 L46 37 Z" fill="#1B1F24" stroke="#FFFFFF" stroke-width="3" stroke-linejoin="round" /></svg>
+    <div class="ad-band">
+      <p id="ad-c1" class="ad-cap">8 removed, 276 kept. Report included.</p>
+      <p class="ad-note">Real SurveyGuard screens, synthetic sample</p>
+    </div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    const view = (cx, cy, z) => ({ x: 960 - cx * z, y: 465 - cy * z, scale: z });
+    tl.fromTo("#ad-cam", { x: 960 - 1420 * 0.95, y: 465 - 950 * 0.95, scale: 0.95 }, { ...view(1150, 1180, 1.05), duration: 0.6, ease: "power2.inOut" }, 0);
+    const v = view(1150, 1180, 1.05);
+    tl.fromTo("#ad-cur", { x: 1700, y: 900, opacity: 1 }, { x: v.x + 1584 * 1.05, y: v.y + 1172 * 1.05, duration: 0.6, ease: "power2.inOut" }, 0.15);
+    tl.to("#ad-cur", { scale: 0.82, duration: 0.07, ease: "power2.out", yoyo: true, repeat: 1, transformOrigin: "8px 4px" }, 0.8);
+    tl.to("#ad-cur", { x: v.x + 1090 * 1.05, y: v.y + 1250 * 1.05, duration: 0.5, ease: "power2.inOut" }, 1.05);
+    tl.to("#ad-cur", { opacity: 0, duration: 0.2, ease: "power2.in" }, 2.4);
+    // back to the whole screen, ready to pull out of the laptop
+    tl.to("#ad-cam", { x: 0, y: 0, scale: 0.8, duration: 0.55, ease: "power2.inOut" }, 2.6);
+    tl.fromTo("#ad-c1", { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 0.25);
+    tl.to("#ad-c1", { opacity: 0, filter: "blur(8px)", duration: 0.18, ease: "power3.in" }, 2.95);
+    window.__timelines["appdone"] = tl;
+  </script>
+</template>
