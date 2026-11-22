@@ -12,7 +12,7 @@
     #rc-app { position: absolute; inset: 0; width: 820px; height: 512.5px; }
     #rc-app img { display: block; width: 820px; height: 512.5px; }
     #rc-clock { position: absolute; left: 1595px; top: 700px; width: 170px; height: 70px; background: #1B1F24; border-radius: 10px; font: 600 40px/70px "IBM Plex Sans", sans-serif; color: #F6D9A0; text-align: center; letter-spacing: 0.04em; }
-    .rc-cap { position: absolute; left: 140px; width: 600px; font: 600 54px/1.08 "Source Serif 4", serif; color: #F7F5F0; }
+    .rc-cap { position: absolute; left: 140px; width: 520px; font: 600 54px/1.08 "Source Serif 4", serif; color: #F7F5F0; }
     #rc-c1 { top: 340px; }
     #rc-c2 { top: 340px; }
   </style>
@@ -98,7 +98,7 @@
     tl.fromTo("#rc-larm-up", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.4, ease: "back.out(1.6)" }, 0.85);
     tl.to("#rc-rarm", { opacity: 0, duration: 0.08, ease: "none" }, 0.97);
     tl.fromTo("#rc-rarm-up", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.4, ease: "back.out(1.6)" }, 0.97);
-    tl.fromTo("#rc-c1", { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 0.3);
+    tl.fromTo("#rc-c1", { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 0.75);
     window.__timelines["roomclose"] = tl;
   </script>
 </template>
