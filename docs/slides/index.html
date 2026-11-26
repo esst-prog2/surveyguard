@@ -248,15 +248,15 @@ html, body, .reveal-viewport { background: var(--bg); }
       <p class="who-row"><span class="tag ok">agent</span> 390 tests <b class="pass">✓ passed</b></p>
       <p class="who-row"><span class="tag me">me</span> the app, on real data:</p>
       <ol>
-        <li class="on"><span class="num">1</span><span>Axis numbers cut off</span></li>
-        <li class="fragment" data-fragment-index="1"><span class="num">2</span><span><code>&gt; 8</code> shown as <code>| 8</code></span></li>
-        <li class="fragment" data-fragment-index="2"><span class="num">3</span><span>A few suspicious next to 1,500: invisible</span></li>
-        <li class="fragment" data-fragment-index="3"><span class="num">4</span><span>Points stacked on the map</span></li>
+        <li class="fragment" data-fragment-index="1"><span class="num">1</span><span>Axis numbers cut off</span></li>
+        <li class="fragment" data-fragment-index="2"><span class="num">2</span><span><code>&gt; 8</code> shown as <code>| 8</code></span></li>
+        <li class="fragment" data-fragment-index="3"><span class="num">3</span><span>A few suspicious next to 1,500: invisible</span></li>
+        <li class="fragment" data-fragment-index="4"><span class="num">4</span><span>Points stacked on the map</span></li>
       </ol>
     </div>
     <div class="shots r-stack">
 
-      <figure class="fragment fade-out" data-fragment-index="1">
+      <figure class="fragment current-visible" data-fragment-index="1">
         <div class="bf">
           <div><p class="bf-h bad">✗ Before</p>
             <svg viewBox="0 0 260 230">
@@ -286,7 +286,7 @@ html, body, .reveal-viewport { background: var(--bg); }
         <figcaption>1 · Real ESS9 check: numbers and titles clipped on the histogram and the map · fix: room around every axis · redrawn sketch</figcaption>
       </figure>
 
-      <figure class="fragment current-visible" data-fragment-index="1">
+      <figure class="fragment current-visible" data-fragment-index="2">
         <div class="bf">
           <div><p class="bf-h bad">✗ Before</p>
             <table class="mini"><thead><tr><th>Column</th><th>Value</th><th>Condition</th></tr></thead>
@@ -300,10 +300,10 @@ html, body, .reveal-viewport { background: var(--bg); }
         <figcaption>2 · Real ESS9 check: the drill-down read “&gt; 8” as a quote mark and dropped the “&gt;” · fix: the whole condition in the cell · redrawn sketch</figcaption>
       </figure>
 
-      <figure class="fragment current-visible" data-fragment-index="2">
+      <figure class="fragment current-visible" data-fragment-index="3">
         <div class="bf">
           <div><p class="bf-h bad">✗ Before · linear axis</p>
-            <svg viewBox="0 0 260 230">
+            <svg viewBox="0 -14 260 244">
               <line x1="20" y1="190" x2="250" y2="190" class="h-base"/>
               <rect x="45" y="189.6" width="60" height="0.4" class="h-red"/>
               <text x="75" y="178" class="h-val red">3 ?</text>
@@ -328,7 +328,7 @@ html, body, .reveal-viewport { background: var(--bg); }
         <figcaption>3 · Real ESS9, then ESS8: 3 suspicious (red) next to 1,446 · fix: counts on the bars, then a log axis · the real ESS8 bins, redrawn</figcaption>
       </figure>
 
-      <figure class="fragment" data-fragment-index="3">
+      <figure class="fragment" data-fragment-index="4">
         <div class="bf">
           <div><p class="bf-h bad">✗ Before</p>
             <svg viewBox="0 0 260 230">
