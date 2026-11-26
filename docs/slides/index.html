@@ -183,11 +183,11 @@ html, body, .reveal-viewport { background: var(--bg); }
           <thead><tr><th>Rule</th><th>Answers</th><th></th></tr></thead>
           <tbody>
             <tr><td><b>Political</b><span class="math">trust_politicians &gt; 8 ∧ trust_parliament &lt; 2</span></td><td class="ans">trust_politicians = <b>10</b><br>trust_parliament = <b>0</b></td><td><span class="tag ok">bundled ESS rule</span></td></tr>
+            <tr><td><b>Age vs. birth year</b><span class="math">age ≤ 30 ∧ birth_year ≤ 1969</span></td><td class="ans">age = <b>25</b><br>birth_year = <b>1950</b></td><td><span class="tag ok">bundled ESS rule</span></td></tr>
             <tr><td><b>Demographic</b><span class="math">education = PhD ∧ age &lt; 18</span></td><td class="ans">education = <b>PhD</b><br>age = <b>8</b></td><td><span class="tag">example ·<br>not built yet</span></td></tr>
-            <tr><td><b>Timing</b><span class="math">time_taken &lt; 0.1 × expected_length</span></td><td class="ans">expected_length = <b>60 min</b><br>time_taken = <b>3 min</b></td><td><span class="tag">example ·<br>not built yet</span></td></tr>
           </tbody>
         </table>
-        <figcaption>b · Contradiction rules: two answers that can't both be true · illustration with made-up answers; only the first rule ships today</figcaption>
+        <figcaption>b · Contradiction rules: two answers that can't both be true · made-up answers · the first two rules ship today</figcaption>
       </figure>
       <figure class="fragment current-visible" data-fragment-index="4">
         <img class="shot" src="img/demo-3c-pca.png" alt="PCA map of one scale: grey dots for respondents, two red dots are outliers on this scale.">
@@ -205,7 +205,7 @@ html, body, .reveal-viewport { background: var(--bg); }
     1. I upload the survey file, pick the bundled rules for ESS round 2, and click Run. Seconds later: 284 respondents, 8 suspicious.
     2. Three detectors look for three kinds of careless answering, and the app counts each. One flag alone is a warning; two make a respondent suspicious.
     3a. Straightlining: the heatmap shows one person's answers cell by cell. This one answered 3 to all five Job Demands questions: one colour, zero variation.
-    3b. Contradiction: rules for two answers that can't both be true. The political one ships today: full trust in politicians but none in parliament. The other two are examples I want to add, and they are marked so: a PhD at age 8, and a one-hour questionnaire finished in three minutes, which needs the interview time in the data.
+    3b. Contradiction: rules for two answers that can't both be true. The first two ship today: full trust in politicians but none in parliament, and someone who says they are 25 but were born in 1950, in a survey taken in 2005. The third is an example I want to add, and it is marked so: a PhD at age 8.
     3c. Outliers: every dot is a respondent on one scale. Red ones answer unlike anybody else. They only count if they stand out on at least three scales; in this sample nobody does.
     4. Then I download the cleaned file and a report I can cite in my methods section: 8 removed, 276 kept.
     On the real Hungarian ESS file: 1,498 respondents, 10 suspicious, in 8.4 seconds.
