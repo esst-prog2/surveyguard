@@ -54,6 +54,11 @@ html, body, .reveal-viewport { background: var(--bg); }
 .steps-demo li.on .num, .steps-demo li.visible .num { background: var(--ink); color: var(--bg); }
 .steps-demo li.fragment { opacity: .3; visibility: visible; }
 .steps-demo li.fragment.visible { opacity: 1; }
+.steps-demo .sub { display: block; margin-top: .35em; }
+.steps-demo .sub > span { display: block; margin-bottom: .25em; font-size: .92em; }
+.steps-demo .sub b { color: var(--ok); margin-right: .3em; }
+.steps-demo .sub .fragment { opacity: .3; visibility: visible; }
+.steps-demo .sub .fragment.visible { opacity: 1; }
 .shots { position: relative; height: 520px; }
 .shots figure { position: absolute; inset: 0; margin: 0; display: flex; flex-direction: column; align-items: flex-start; }
 .reveal .shots .shot { width: auto; max-width: 100%; max-height: 490px; }
@@ -140,9 +145,14 @@ html, body, .reveal-viewport { background: var(--bg); }
   <div class="steps-demo">
     <ol>
       <li class="on"><span class="num">1</span><span>Upload, pick the ESS rules, Run: 8 of 284 suspicious.</span></li>
-      <li class="fragment" data-fragment-index="1"><span class="num">2</span><span>Who, and why. The heatmap: one answer down a whole scale.</span></li>
-      <li class="fragment" data-fragment-index="2"><span class="num">3</span><span>The map: red dots stand out from everyone else.</span></li>
-      <li class="fragment" data-fragment-index="3"><span class="num">4</span><span>One respondent, every reason. Download the cleaned file.</span></li>
+      <li class="fragment" data-fragment-index="1"><span class="num">2</span><span>Three detectors, each counted.</span></li>
+      <li class="fragment" data-fragment-index="2"><span class="num">3</span><span>Each one shows its evidence:
+        <span class="sub">
+          <span class="fragment" data-fragment-index="2"><b>a</b> Same answer everywhere: heatmap</span>
+          <span class="fragment" data-fragment-index="3"><b>b</b> Answers that can't both be true: rules</span>
+          <span class="fragment" data-fragment-index="4"><b>c</b> Unlike everyone else: map</span>
+        </span></span></li>
+      <li class="fragment" data-fragment-index="5"><span class="num">4</span><span>Download the report and the cleaned file.</span></li>
     </ol>
     <div class="shots r-stack">
       <figure class="fragment fade-out" data-fragment-index="1">
@@ -150,16 +160,24 @@ html, body, .reveal-viewport { background: var(--bg); }
         <figcaption>Real SurveyGuard screen · synthetic sample</figcaption>
       </figure>
       <figure class="fragment current-visible" data-fragment-index="1">
-        <img class="shot" src="img/demo-2-flagged.png" alt="Flagged respondents table with reasons; respondent 5020 selected; straightlining heatmap shows the same answer, 1, on all ten Study_Conditions items.">
-        <figcaption>Real SurveyGuard screen · synthetic sample · flagged table and straightlining heatmap</figcaption>
+        <img class="shot" src="img/demo-2-detectors.png" alt="Detector results: straightlining 29 respondents (10.21%), contradiction 42 (14.79%), Mahalanobis 0 (0.00%), with a bar chart; Mahalanobis counts respondents flagged on at least 3 scales.">
+        <figcaption>Real SurveyGuard screen · synthetic sample · one flag alone is a warning, not a verdict</figcaption>
       </figure>
       <figure class="fragment current-visible" data-fragment-index="2">
-        <img class="shot" src="img/demo-3-pca.png" alt="PCA map of one scale: grey dots for respondents, two red dots are outliers on this scale.">
-        <figcaption>SurveyGuard's PCA map of one scale · synthetic sample · red: outlier on this scale</figcaption>
+        <img class="shot" src="img/demo-3a-heatmap.png" alt="Straightlining heatmap: one respondent answered 3 to all five Job Demands items, one colour across the row.">
+        <figcaption>a · Straightlining heatmap: 3 to all five Job Demands questions, zero variation</figcaption>
       </figure>
-      <figure class="fragment" data-fragment-index="3">
-        <img class="shot" src="img/demo-4-why.png" alt="Respondent drill-down for 5020: score 33.33, straightlining on Study_Conditions and the contradiction olwmsop==5 vs ignrlaw==5; download buttons; cleaned data: removed 8, kept 276.">
-        <figcaption>Real SurveyGuard screen · synthetic sample · removed 8, kept 276</figcaption>
+      <figure class="fragment current-visible" data-fragment-index="3">
+        <img class="shot" src="img/demo-3b-contradiction.png" alt="Contradiction table: the same respondent answered 5 to dckptrt and dcadmms, and 5 to olwmsop and ignrlaw, two pairs of opposite statements.">
+        <figcaption>b · Contradiction rules: the most extreme answer, 5, to two opposite statements about doctors, and two about obeying the law</figcaption>
+      </figure>
+      <figure class="fragment current-visible" data-fragment-index="4">
+        <img class="shot" src="img/demo-3c-pca.png" alt="PCA map of one scale: grey dots for respondents, two red dots are outliers on this scale.">
+        <figcaption>c · Mahalanobis PCA map of one scale: red dots are outliers on it; suspicious only if on 3 scales</figcaption>
+      </figure>
+      <figure class="fragment" data-fragment-index="5">
+        <img class="shot" src="img/demo-4-download.png" alt="Respondent drill-down for 5020 with its reasons, the buttons Download diagnostic report and Download cleaned data (CSV), and the note: removed 8 suspicious respondents, kept 276.">
+        <figcaption>Real SurveyGuard screen · synthetic sample · cleaned data: removed 8, kept 276</figcaption>
       </figure>
     </div>
   </div>
@@ -167,9 +185,11 @@ html, body, .reveal-viewport { background: var(--bg); }
   <aside class="notes">
     This is a real run of the app, recorded from the screen, on the synthetic sample that ships with the repository.
     1. I upload the survey file, pick the bundled rules for ESS round 2, and click Run. Seconds later: 284 respondents, 8 suspicious.
-    2. The table says who was flagged and why. I tick respondent 5020, and the heatmap shows it: the same answer, 1, to all ten questions of one scale.
-    3. The map shows everyone's answers on one scale as dots. The red ones answer unlike anybody else; they only count as suspicious if they stand out on at least three scales.
-    4. The drill-down puts every reason for 5020 in one place: the straightlining, and two answers that contradict each other. Then I download the cleaned file and a report I can cite in my methods section.
+    2. Three detectors look for three kinds of careless answering, and the app counts each. One flag alone is a warning; two make a respondent suspicious.
+    3a. Straightlining: the heatmap shows one person's answers cell by cell. This one answered 3 to all five Job Demands questions: one colour, zero variation.
+    3b. Contradiction: rules written from the questionnaire. This person gave the most extreme answer to two opposite statements about doctors, and to two about obeying the law.
+    3c. Outliers: every dot is a respondent on one scale. Red ones answer unlike anybody else. They only count if they stand out on at least three scales; in this sample nobody does.
+    4. Then I download the cleaned file and a report I can cite in my methods section: 8 removed, 276 kept.
     On the real Hungarian ESS file: 1,498 respondents, 10 suspicious, in 8.4 seconds.
   </aside>
 </section>
