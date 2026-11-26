@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SurveyGuard: five slides</title>
+<link rel="stylesheet" href="lib/reveal.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F7F5F0; --surface: #FFFFFF; --ink: #1B1F24; --muted: #5B6470;
+  --rule: #DAD6CC; --ok: #2F5D8A; --flag: #C0392B; --pale: #C9C3B6;
+  --v1: #DCE6F0; --v2: #B5CAE0; --v3: #8AABCD; --v4: #5E86B2; --v5: #2F5D8A;
+  --serif: "Source Serif 4", Georgia, serif;
+  --sans: "IBM Plex Sans", "Segoe UI", Arial, sans-serif;
+  --mono: "IBM Plex Mono", Consolas, monospace;
+}
+html, body, .reveal-viewport { background: var(--bg); }
+.reveal { font-family: var(--sans); font-size: 30px; color: var(--ink); }
+.reveal .slides { text-align: left; }
+.reveal .slides section { height: 100%; padding: 12px 8px 0; }
+.reveal h2 { font-family: var(--serif); font-weight: 600; font-size: 1.9em; line-height: 1.1; margin: 0 0 .45em; letter-spacing: -0.01em; }
+.reveal p { margin: 0 0 .55em; line-height: 1.3; }
+.reveal .kicker { font: 500 .62em var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .6em; }
+.reveal .muted { color: var(--muted); }
+.reveal .flag { color: var(--flag); }
+.reveal .source { position: absolute; left: 8px; right: 8px; bottom: 6px; font-size: .5em; color: var(--muted); border-top: 1px solid var(--rule); padding-top: .5em; }
+.reveal img { margin: 0; }
+.reveal .shot { display: block; width: 100%; height: auto; border: 1px solid var(--rule); border-radius: 6px; background: #fff; }
+
+/* 1: answer grid */
+.two { display: grid; grid-template-columns: 1.1fr 1fr; gap: 56px; align-items: center; margin-top: 40px; }
+.figure { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 22px 22px 16px; }
+.grid-head, .row { display: grid; grid-template-columns: 54px repeat(6, 1fr); gap: 6px; align-items: center; }
+.grid-head { font: 500 .42em/1.1 var(--sans); color: var(--muted); margin-bottom: 8px; align-items: end; }
+.grid-head span { writing-mode: vertical-rl; transform: rotate(180deg); justify-self: center; white-space: nowrap; }
+.row { position: relative; margin-bottom: 6px; }
+.row .id { font: 400 .45em var(--mono); color: var(--muted); }
+.c { height: 30px; border-radius: 3px; }
+.v1 { background: var(--v1); } .v2 { background: var(--v2); } .v3 { background: var(--v3); }
+.v4 { background: var(--v4); } .v5 { background: var(--v5); }
+.row.flagged::after { content: ""; position: absolute; inset: -4px -6px -4px 48px; border: 3px solid var(--flag); border-radius: 6px; }
+.flag-label { text-align: right; font: 500 .45em var(--mono); color: var(--flag); margin: 2px 0 8px; }
+.who { font-family: var(--serif); font-size: 1.15em; line-height: 1.25; }
+.facts { font-size: .62em; color: var(--muted); margin-top: 1.4em; }
+
+/* 2: demo */
+.steps-demo { display: grid; grid-template-columns: 300px 1fr; gap: 40px; align-items: start; }
+.steps-demo ol { list-style: none; margin: 0; padding: 0; }
+.steps-demo li { display: grid; grid-template-columns: 44px 1fr; gap: 12px; margin-bottom: 1em; line-height: 1.25; }
+.num { width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--ink); display: grid; place-items: center; font: 600 .7em var(--sans); }
+.steps-demo li.current-fragment .num, .steps-demo li.visible .num { background: var(--ink); color: var(--bg); }
+.steps-demo li.fragment { opacity: .3; visibility: visible; }
+.steps-demo li.fragment.visible { opacity: 1; }
+.shots { position: relative; height: 470px; }
+.shots figure { position: absolute; inset: 0; margin: 0; }
+.shots figcaption { font-size: .48em; color: var(--muted); margin-top: .5em; }
+
+/* 3 and 4: bar charts (single series; the chosen bar is the one in colour) */
+.bars { margin: .8em 0 0; }
+.bar-row { display: grid; grid-template-columns: 340px 1fr; gap: 20px; align-items: center; margin-bottom: 20px; }
+.bar-row .lab { font-size: .68em; line-height: 1.2; text-align: right; color: var(--muted); }
+.bar-row.chosen .lab { color: var(--ink); font-weight: 600; }
+.track { display: flex; align-items: center; gap: 12px; }
+.bar { height: 44px; background: var(--pale); border-radius: 0 4px 4px 0; min-width: 4px; }
+.bar-row.chosen .bar { background: var(--ok); }
+.val { font: 500 .66em var(--mono); color: var(--ink); white-space: nowrap; }
+.bar-row:hover .bar { outline: 2px solid var(--ink); outline-offset: 2px; }
+.lead { font-family: var(--serif); font-size: 1.05em; }
+
+.speed { margin-top: .6em; }
+.speed .bar-row { grid-template-columns: 220px 1fr; margin-bottom: 22px; }
+.speed .bar { height: 56px; }
+.speed .val { font-size: .9em; }
+.lesson { margin-top: 1em; padding-left: 20px; border-left: 4px solid var(--ok); font-family: var(--serif); font-size: 1.05em; line-height: 1.3; }
+
+/* 5: next */
+.next { list-style: none; margin: .4em 0 0; padding: 0; counter-reset: n; }
+.next li { counter-increment: n; display: grid; grid-template-columns: 64px 1fr; gap: 16px; margin-bottom: 1.05em; }
+.next li::before { content: counter(n); font: 600 1.6em/1 var(--serif); color: var(--ok); }
+.next strong { display: block; font-family: var(--serif); font-size: 1.15em; font-weight: 600; }
+.next span { font-size: .72em; color: var(--muted); }
+.plan { display: inline-block; font: 500 .5em var(--mono); color: var(--muted); border: 1px solid var(--rule); border-radius: 4px; padding: .25em .6em; margin-bottom: .9em; }
+
+/* closing */
+.reveal .slides section.closing { text-align: center; padding-top: 210px; }
+.closing h2 { font-size: 2.6em; }
+.closing .link a { font: 600 1.25em var(--sans); color: var(--ok); text-decoration: none; border-bottom: 4px solid var(--ok); }
+.closing p.muted { margin-top: 1.6em; font-size: .7em; }
+
+.reveal .progress { color: var(--ok); }
+.reveal .slide-number { background: transparent; color: var(--muted); font: 400 14px var(--mono); }
+.reveal .slide-number a { color: inherit; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- 1. For whom, and why -->
+<section>
+  <p class="kicker">1 · For whom, and why</p>
+  <div class="two">
+    <div>
+      <h2>SurveyGuard</h2>
+      <p class="who">For social science students who must clean a survey before the analysis.</p>
+      <p class="who">Why: some respondents click without reading, and nobody checks 1,498 rows by eye.</p>
+      <p class="facts">Free · runs on your own computer · ESS rounds 1–11 ready to use</p>
+    </div>
+    <figure class="figure" role="img" aria-label="Illustration: eight made-up respondents' answers to six trust items; respondent 1044 gave the same answer to every item and is outlined in red.">
+      <div class="grid-head" aria-hidden="true"><span></span><span>Parliament</span><span>Legal system</span><span>Police</span><span>Politicians</span><span>Parties</span><span>EU Parliament</span></div>
+      <div class="row"><span class="id">1017</span><i class="c v2"></i><i class="c v4"></i><i class="c v3"></i><i class="c v5"></i><i class="c v1"></i><i class="c v4"></i></div>
+      <div class="row"><span class="id">1023</span><i class="c v5"></i><i class="c v3"></i><i class="c v4"></i><i class="c v2"></i><i class="c v4"></i><i class="c v3"></i></div>
+      <div class="row"><span class="id">1031</span><i class="c v1"></i><i class="c v2"></i><i class="c v1"></i><i class="c v3"></i><i class="c v2"></i><i class="c v2"></i></div>
+      <div class="row flagged"><span class="id">1044</span><i class="c v3"></i><i class="c v3"></i><i class="c v3"></i><i class="c v3"></i><i class="c v3"></i><i class="c v3"></i></div>
+      <div class="flag-label" aria-hidden="true">↑ didn't read</div>
+      <div class="row"><span class="id">1052</span><i class="c v4"></i><i class="c v5"></i><i class="c v3"></i><i class="c v4"></i><i class="c v5"></i><i class="c v2"></i></div>
+      <div class="row"><span class="id">1068</span><i class="c v2"></i><i class="c v1"></i><i class="c v3"></i><i class="c v2"></i><i class="c v4"></i><i class="c v1"></i></div>
+      <div class="row"><span class="id">1071</span><i class="c v5"></i><i class="c v4"></i><i class="c v5"></i><i class="c v3"></i><i class="c v4"></i><i class="c v5"></i></div>
+    </figure>
+  </div>
+  <aside class="notes">
+    Promise: in five minutes you'll know how to find the respondents who didn't read your questionnaire, and why each one was flagged.
+    Who it's for: social science students and researchers writing a thesis or a paper on survey data.
+    The problem: some respondents click through without reading. On the right, respondent 1044 gave the same answer to every trust question. In a file of 1,498 people, nobody finds these rows by eye, and they bend the results.
+  </aside>
+</section>
+
+<!-- 2. The demo -->
+<section>
+  <p class="kicker">2 · The demo</p>
+  <h2>Upload, run, read why.</h2>
+  <div class="steps-demo">
+    <ol>
+      <li class="fragment" data-fragment-index="0"><span class="num">1</span><span>Upload the survey, pick the ESS rules, Run.</span></li>
+      <li class="fragment" data-fragment-index="0"><span class="num">2</span><span>8 of 284 are suspicious.</span></li>
+      <li class="fragment" data-fragment-index="1"><span class="num">3</span><span>Every flag says why. Download the cleaned file.</span></li>
+    </ol>
+    <div class="shots r-stack">
+      <figure class="fragment fade-out" data-fragment-index="1">
+        <img class="shot" src="img/demo-run.png" alt="SurveyGuard after Run: ess2_mock.csv uploaded, config/ess2.json chosen; 284 processed respondents, 8 suspicious, average quality score 91.67.">
+        <figcaption>Real SurveyGuard screen · synthetic sample</figcaption>
+      </figure>
+      <figure class="fragment" data-fragment-index="1">
+        <img class="shot" src="img/demo-why.png" alt="Respondent drill-down for 5020: score 33.33, straightlining on Study_Conditions and the contradiction olwmsop==5 vs ignrlaw==5; download buttons; cleaned data: removed 8, kept 276.">
+        <figcaption>Real SurveyGuard screen · synthetic sample · removed 8, kept 276</figcaption>
+      </figure>
+    </div>
+  </div>
+  <p class="source">On the real Hungarian ESS 2005 file: 1,498 respondents → 10 suspicious, 8.4 s. Screens: <code>tests/fixtures/ess2_mock.csv</code>, no real respondent data.</p>
+  <aside class="notes">
+    This is a real run of the app, recorded from the screen, on the synthetic sample that ships with the repository.
+    1. I upload the survey file, pick the bundled rules for ESS round 2, and click Run.
+    2. Seconds later: 284 respondents, 8 suspicious.
+    3. I click one of them, 5020. It doesn't just say "suspicious": it straightlined a whole scale, and it said yes to two answers that contradict each other. Then I download the cleaned file and a report I can cite in my methods section.
+    On the real Hungarian ESS file: 1,498 respondents, 10 suspicious, in 8.4 seconds.
+  </aside>
+</section>
+
+<!-- 3. Why it works -->
+<section>
+  <p class="kicker">3 · Why it works</p>
+  <h2>I checked it on real data, not the agent.</h2>
+  <p class="lead">The textbook cut-off flagged most of my real respondents as outliers.</p>
+  <div class="bars" role="img" aria-label="Share of 1,498 real respondents flagged as Mahalanobis outliers: textbook cut-off 64.6%; stricter cut-off on at least 1 scale 37.0%; at least 2 scales 13.1%; at least 3 scales 4.3% (chosen); at least 4 scales 1.7%.">
+    <div class="bar-row" title="alpha 0.05, any scale: 64.6% of 1,498"><span class="lab">Textbook cut-off</span><span class="track"><i class="bar" style="width:64.6%"></i><span class="val">64.6%</span></span></div>
+    <div class="bar-row" title="alpha 0.01, at least 1 scale: 555 of 1,498"><span class="lab">Stricter, on ≥ 1 scale</span><span class="track"><i class="bar" style="width:37.0%"></i><span class="val">37.0%</span></span></div>
+    <div class="bar-row" title="alpha 0.01, at least 2 scales: 196 of 1,498"><span class="lab">… on ≥ 2 scales</span><span class="track"><i class="bar" style="width:13.1%"></i><span class="val">13.1%</span></span></div>
+    <div class="bar-row chosen" title="alpha 0.01, at least 3 scales: 65 of 1,498 (chosen)"><span class="lab">… on ≥ 3 scales · chosen</span><span class="track"><i class="bar" style="width:4.3%"></i><span class="val">4.3%</span></span></div>
+    <div class="bar-row" title="alpha 0.01, at least 4 scales: 26 of 1,498"><span class="lab">… on ≥ 4 scales</span><span class="track"><i class="bar" style="width:1.7%"></i><span class="val">1.7%</span></span></div>
+  </div>
+  <p class="source">Share of 1,498 real respondents flagged as Mahalanobis outliers, Hungarian ESS round 2. Measured and decided on 24 October 2026, <code>PLANNING_LOG.md</code>.</p>
+  <aside class="notes">
+    The agent wrote the code, but I didn't take its word that it works. I ran it on the real Hungarian ESS file.
+    The textbook statistical cut-off would have called 64.6% of real people outliers, because survey answers are whole numbers on short scales, and the textbook assumes smooth data.
+    So we measured every option. I decided: a stricter cut-off, and a respondent only counts as an outlier if they stand out on at least three scales. That's 4.3%. Claude proposed three from the measurement; the decision is in my planning log, with the numbers.
+    The final result on that file: 10 suspicious out of 1,498, each with a reason.
+  </aside>
+</section>
+
+<!-- 4. What I learned -->
+<section>
+  <p class="kicker">4 · What I learned</p>
+  <h2>397 seconds became 8.4.</h2>
+  <div class="bars speed" role="img" aria-label="The same run on the same file: 397 seconds before the October speed-up, 8.4 seconds after.">
+    <div class="bar-row" title="Before the October speed-up: 397.0 s from Run to result"><span class="lab">Before</span><span class="track"><i class="bar" style="width:80%"></i><span class="val">397 s</span></span></div>
+    <div class="bar-row chosen" title="After: 8.4 s on the same machine, same result"><span class="lab">After</span><span class="track"><i class="bar" style="width:1.69%"></i><span class="val">8.4 s</span></span></div>
+  </div>
+  <p class="lesson">Faster only counts if the answer stays the same. The old slow code stayed in the tests, and the new one had to match it byte for byte.</p>
+  <p class="source">Same file, same machine, same result: 1,498 · 10 · 96.22. Speed-up on 25 October, measured again on 8 November 2026, <code>PLANNING_LOG.md</code>.</p>
+  <aside class="notes">
+    The moment: on 25 October I ran the new version and it finished in a second or two. The old one took minutes. Measured on the same machine: 397 seconds before, 8.4 seconds after.
+    What I learned: speed is easy to promise and easy to fake by changing the result. So the old, slow, row-by-row code stayed in the tests as the reference, and the new code had to give a byte-identical output. The test was also run once with a rule broken on purpose, to prove it can fail.
+    At six and a half minutes nobody tries a second setting. At eight seconds you do.
+  </aside>
+</section>
+
+<!-- 5. What's next -->
+<section>
+  <p class="kicker">5 · What's next</p>
+  <h2>Not only ESS.</h2>
+  <p class="plan">A plan, not built yet</p>
+  <ol class="next">
+    <li><div><strong>Rules for other surveys.</strong><span>A rules file for another questionnaire, for example ISSP or your own thesis survey.</span></div></li>
+    <li><div><strong>A rules editor in the app.</strong><span>Pick the scales and the contradictions on screen, without writing JSON by hand.</span></div></li>
+    <li><div><strong>Check it on real data first.</strong><span>As with ESS: measure the cut-offs on the new survey before trusting them.</span></div></li>
+  </ol>
+  <aside class="notes">
+    Today SurveyGuard ships rules for the European Social Survey, rounds 1 to 11. The detectors themselves don't care which survey it is: the survey-specific part is one rules file.
+    Next: rules for other surveys, an editor so nobody writes JSON, and the same real-data check I did for ESS before anyone trusts the numbers.
+    If you have a survey for your thesis, that's who I want to try it.
+  </aside>
+</section>
+
+<!-- Closing (not one of the five) -->
+<section class="closing">
+  <h2>SurveyGuard</h2>
+  <p class="link"><a href="https://esst-prog2.github.io/surveyguard/">esst-prog2.github.io/surveyguard</a></p>
+  <p class="muted">Free · runs on your own computer · ESS rounds 1–11</p>
+  <aside class="notes">
+    The page has a 30-second film, the four real charts, and four steps to try it on the sample file. Thank you.
+  </aside>
+</section>
+
+</div>
+</div>
+<script src="lib/reveal.js"></script>
+<script src="lib/plugin/notes.js"></script>
+<script>
+  Reveal.initialize({
+    width: 1280, height: 720, margin: 0.06,
+    center: false, hash: true, controls: false, progress: true,
+    slideNumber: 'c/t', transition: 'fade', transitionSpeed: 'fast',
+    plugins: [ RevealNotes ]
+  });
+</script>
+</body>
+</html>
