@@ -44,7 +44,7 @@ html, body, .reveal-viewport { background: var(--bg); }
 .row.flagged::after { content: ""; position: absolute; inset: -4px -6px -4px 48px; border: 3px solid var(--flag); border-radius: 6px; }
 .flag-label { text-align: right; font: 500 .45em var(--mono); color: var(--flag); margin: 2px 0 8px; }
 .who { font-family: var(--serif); font-size: 1.15em; line-height: 1.25; }
-.facts { font-size: .62em; color: var(--muted); margin-top: 1.4em; }
+.facts { font-size: .62em; color: var(--muted); margin-top: .9em; text-align: center; }
 
 /* 2: demo */
 .steps-demo { display: grid; grid-template-columns: 270px 1fr; gap: 28px; align-items: start; margin-top: -.1em; }
@@ -117,8 +117,8 @@ html, body, .reveal-viewport { background: var(--bg); }
       <h2>SurveyGuard</h2>
       <p class="who fragment" data-fragment-index="1">For social science students who must clean a survey before the analysis.</p>
       <p class="who fragment" data-fragment-index="2">Why: some respondents click without reading, and nobody checks 1,498 rows by eye.</p>
-      <p class="facts fragment" data-fragment-index="2">Free · runs on your own computer · ESS rounds 1–11 ready to use</p>
     </div>
+    <div>
     <figure class="figure" role="img" aria-label="Illustration: eight made-up respondents' answers to six trust items; respondent 1044 gave the same answer to every item and is outlined in red.">
       <div class="grid-head" aria-hidden="true"><span></span><span>Parliament</span><span>Legal system</span><span>Police</span><span>Politicians</span><span>Parties</span><span>EU Parliament</span></div>
       <div class="row"><span class="id">1017</span><i class="c v2"></i><i class="c v4"></i><i class="c v3"></i><i class="c v5"></i><i class="c v1"></i><i class="c v4"></i></div>
@@ -130,6 +130,8 @@ html, body, .reveal-viewport { background: var(--bg); }
       <div class="row"><span class="id">1068</span><i class="c v2"></i><i class="c v1"></i><i class="c v3"></i><i class="c v2"></i><i class="c v4"></i><i class="c v1"></i></div>
       <div class="row"><span class="id">1071</span><i class="c v5"></i><i class="c v4"></i><i class="c v5"></i><i class="c v3"></i><i class="c v4"></i><i class="c v5"></i></div>
     </figure>
+    <p class="facts">Free · runs on your own computer · ESS rounds 1–11 ready to use</p>
+    </div>
   </div>
   <aside class="notes">
     Promise: in five minutes you'll know how to find the respondents who didn't read your questionnaire, and why each one was flagged.
