@@ -66,6 +66,9 @@ html, body, .reveal-viewport { background: var(--bg); }
 .reveal table.rules th { text-align: left; font-weight: 500; color: var(--muted); padding: .7em .8em; border-bottom: 1px solid var(--rule); }
 .reveal table.rules td { padding: .85em .8em; border-bottom: 1px solid #fff; background: #F6DCDB; vertical-align: middle; line-height: 1.25; }
 .reveal table.rules td b { font-weight: 600; }
+.reveal table.rules td.ans { font-family: var(--mono); font-size: .82em; white-space: nowrap; line-height: 1.5; }
+.reveal table.rules .math { display: block; font: 500 .82em var(--mono); margin-top: .3em; white-space: nowrap; }
+.reveal table.rules .tag { white-space: normal; text-align: center; }
 .tag { display: inline-block; font: 500 .78em var(--mono); color: var(--muted); border: 1px dashed var(--muted); border-radius: 4px; padding: .2em .5em; white-space: nowrap; background: var(--bg); }
 .tag.ok { color: var(--ok); border: 1px solid var(--ok); }
 .shots figcaption { font-size: .48em; color: var(--muted); margin-top: .4em; }
@@ -177,11 +180,11 @@ html, body, .reveal-viewport { background: var(--bg); }
       </figure>
       <figure class="fragment current-visible" data-fragment-index="3">
         <table class="rules">
-          <thead><tr><th>Rule</th><th>One answer</th><th>The other answer</th><th></th></tr></thead>
+          <thead><tr><th>Rule</th><th>Answers</th><th></th></tr></thead>
           <tbody>
-            <tr><td><b>Political</b> · trusts politicians, not parliament</td><td>Trust in politicians: <b>10</b></td><td>Trust in parliament: <b>0</b></td><td><span class="tag ok">bundled ESS rule</span></td></tr>
-            <tr><td><b>Demographic</b> · a PhD at 8</td><td>Education: <b>doctorate</b></td><td>Age: <b>8</b></td><td><span class="tag">example · not built yet</span></td></tr>
-            <tr><td><b>Demographic</b> · 1 hour in 3 minutes</td><td>Expected length: <b>60 min</b></td><td>Time taken: <b>3 min</b></td><td><span class="tag">example · not built yet</span></td></tr>
+            <tr><td><b>Political</b><span class="math">trust_politicians &gt; 8 ∧ trust_parliament &lt; 2</span></td><td class="ans">trust_politicians = <b>10</b><br>trust_parliament = <b>0</b></td><td><span class="tag ok">bundled ESS rule</span></td></tr>
+            <tr><td><b>Demographic</b><span class="math">education = PhD ∧ age &lt; 18</span></td><td class="ans">education = <b>PhD</b><br>age = <b>8</b></td><td><span class="tag">example ·<br>not built yet</span></td></tr>
+            <tr><td><b>Timing</b><span class="math">time_taken &lt; 0.1 × expected_length</span></td><td class="ans">expected_length = <b>60 min</b><br>time_taken = <b>3 min</b></td><td><span class="tag">example ·<br>not built yet</span></td></tr>
           </tbody>
         </table>
         <figcaption>b · Contradiction rules: two answers that can't both be true · illustration with made-up answers; only the first rule ships today</figcaption>
