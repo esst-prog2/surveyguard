@@ -191,7 +191,7 @@ html, body, .reveal-viewport { background: var(--bg); }
       </figure>
       <figure class="fragment current-visible" data-fragment-index="4">
         <img class="shot" src="img/demo-3c-pca.png" alt="PCA map of one scale: grey dots for respondents, two red dots are outliers on this scale.">
-        <figcaption>c · Mahalanobis PCA map of one scale: red dots are outliers on it; suspicious only if on 3 scales</figcaption>
+        <figcaption>c · Mahalanobis PCA map of one scale: red dots are outliers on it; the flag counts only on 3 or more scales</figcaption>
       </figure>
       <figure class="fragment" data-fragment-index="5">
         <img class="shot" src="img/demo-4-download.png" alt="Respondent 5020 flagged as suspicious, score 33.33, with its reasons: straightlining on Study_Conditions and the contradiction olwmsop==5 vs ignrlaw==5; below, the buttons Download diagnostic report and Download cleaned data (CSV), and the note: removed 8 suspicious respondents, kept 276.">
@@ -265,7 +265,7 @@ html, body, .reveal-viewport { background: var(--bg); }
   <aside class="notes">
     Today SurveyGuard ships rules for the European Social Survey, rounds 1 to 11. The detectors themselves don't care which survey it is: the survey-specific part is one rules file.
     Next: rules for other surveys, an editor so nobody writes JSON, and the same real-data check I did for ESS before anyone trusts the numbers.
-    If you have a survey for your thesis, that's who I want to try it.
+    If you have a survey for your thesis, I'd like you to be the first to try it.
   </aside>
 </section>
 
