@@ -95,6 +95,31 @@ html, body, .reveal-viewport { background: var(--bg); }
 .speed .val { font-size: .9em; }
 .lesson { margin-top: 1em; padding-left: 20px; border-left: 4px solid var(--ok); font-family: var(--serif); font-size: 1.05em; line-height: 1.3; }
 
+/* 3: who checked */
+.check { display: grid; grid-template-columns: 1fr 560px; gap: 40px; align-items: start; margin-top: .2em; }
+.who-row { font-size: .72em; margin: 0 0 .5em; }
+.who-row .tag { margin-right: .5em; }
+.tag.me { color: var(--flag); border: 1px solid var(--flag); }
+.pass { color: var(--ok); }
+.bugs { margin: 0 0 .8em 1.2em; padding: 0; font-size: .68em; line-height: 1.45; }
+.bugs li { list-style: none; position: relative; }
+.bugs li::before { content: "✗"; position: absolute; left: -1.1em; color: var(--flag); font-weight: 600; }
+.bugs code { font-family: var(--mono); background: var(--surface); padding: 0 .2em; border-radius: 3px; }
+.hist { margin: 0; background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 16px 18px 10px; }
+.hist-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.hist svg { width: 100%; height: auto; overflow: visible; }
+.hist .h-log.fragment { visibility: visible; opacity: .12; }
+.hist .h-log.fragment.visible { opacity: 1; }
+.h-title { font: 600 15px var(--sans); fill: var(--ink); }
+.h-base { stroke: var(--muted); stroke-width: 1.5; }
+.h-grid line { stroke: var(--rule); stroke-width: 1; }
+.h-tick { font: 400 11px var(--mono); fill: var(--muted); text-anchor: end; }
+.h-red { fill: var(--flag); } .h-blue { fill: var(--pale); }
+.h-val { font: 600 15px var(--sans); fill: var(--ink); text-anchor: middle; }
+.h-val.red { fill: var(--flag); }
+.h-axis { font: 400 12px var(--mono); fill: var(--muted); text-anchor: middle; }
+.hist figcaption { font-size: .45em; color: var(--muted); margin-top: .3em; }
+
 /* 5: next */
 .next { list-style: none; margin: .4em 0 0; padding: 0; counter-reset: n; }
 .next li { counter-increment: n; display: grid; grid-template-columns: 64px 1fr; gap: 16px; margin-bottom: 1.05em; }
@@ -215,22 +240,54 @@ html, body, .reveal-viewport { background: var(--bg); }
 <!-- 3. Why it works -->
 <section>
   <p class="kicker">3 · Why it works</p>
-  <h2>I checked it on real data, not the agent.</h2>
-  <p class="lead">How many of 1,498 real respondents does it call “odd”?</p>
-  <div class="bars" role="img" aria-label="Share of 1,498 real respondents called odd: textbook setting 64.6%; odd on 1 topic 37.0%; on 2 topics 13.1%; on 3 topics 4.3%, my choice; on 4 topics 1.7%.">
-    <div class="bar-row" title="alpha 0.05, any scale: 64.6% of 1,498"><span class="lab">Textbook setting</span><span class="track"><i class="bar" style="width:64.6%"></i><span class="val">64.6%<small>2 in 3: useless</small></span></span></div>
-    <div class="bar-row" title="alpha 0.01, at least 1 scale: 555 of 1,498"><span class="lab">Odd on 1 topic</span><span class="track"><i class="bar" style="width:37.0%"></i><span class="val">37.0%</span></span></div>
-    <div class="bar-row" title="alpha 0.01, at least 2 scales: 196 of 1,498"><span class="lab">Odd on 2 topics</span><span class="track"><i class="bar" style="width:13.1%"></i><span class="val">13.1%</span></span></div>
-    <div class="bar-row chosen" title="alpha 0.01, at least 3 scales: 65 of 1,498 (chosen)"><span class="lab">Odd on 3 topics</span><span class="track"><i class="bar" style="width:4.3%"></i><span class="val">4.3%<small>my choice: 65 people</small></span></span></div>
-    <div class="bar-row" title="alpha 0.01, at least 4 scales: 26 of 1,498"><span class="lab">Odd on 4 topics</span><span class="track"><i class="bar" style="width:1.7%"></i><span class="val">1.7%</span></span></div>
+  <h2>390 tests passed. I still found the bugs.</h2>
+  <div class="check">
+    <div>
+      <p class="who-row"><span class="tag ok">agent</span> 390 tests <b class="pass">✓ all passed</b></p>
+      <p class="who-row"><span class="tag me">me</span> the app, on real ESS9 data:</p>
+      <ul class="bugs">
+        <li>axis numbers cut off</li>
+        <li><code>&gt; 8</code> shown as <code>| 8</code></li>
+        <li>a bar of 4 next to 1,500: invisible</li>
+        <li>points stacked on the map</li>
+      </ul>
+      <p class="who-row fragment" data-fragment-index="1"><span class="tag me">me</span> again, on real ESS8: the 3 suspicious still invisible → <b>log axis</b></p>
+    </div>
+    <figure class="hist" role="img" aria-label="Two bins of the real ESS8 score histogram: 3 suspicious respondents in 30 to 35 and 1,446 in 95 to 100. On a linear axis the bar of 3 is invisible; on a log axis it is clearly visible.">
+      <div class="hist-pair">
+        <svg viewBox="0 0 260 250" class="h-lin">
+          <text x="0" y="16" class="h-title">Linear axis</text>
+          <line x1="20" y1="210" x2="250" y2="210" class="h-base"/>
+          <rect x="45" y="209.6" width="60" height="0.4" class="h-red"/>
+          <text x="75" y="198" class="h-val red">3 ?</text>
+          <rect x="165" y="40" width="60" height="170" rx="3" class="h-blue"/>
+          <text x="195" y="32" class="h-val">1,446</text>
+          <text x="75" y="232" class="h-axis">30–35</text>
+          <text x="195" y="232" class="h-axis">95–100</text>
+        </svg>
+        <svg viewBox="0 0 260 250" class="h-log fragment" data-fragment-index="1">
+          <text x="0" y="16" class="h-title">Log axis</text>
+          <line x1="20" y1="210" x2="250" y2="210" class="h-base"/>
+          <g class="h-grid"><line x1="20" y1="153" x2="250" y2="153"/><line x1="20" y1="97" x2="250" y2="97"/><line x1="20" y1="40" x2="250" y2="40"/></g>
+          <text x="14" y="213" class="h-tick">1</text><text x="14" y="157" class="h-tick">10</text><text x="14" y="101" class="h-tick">100</text><text x="14" y="44" class="h-tick">1000</text>
+          <rect x="45" y="183" width="60" height="27" rx="3" class="h-red"/>
+          <text x="75" y="175" class="h-val red">3</text>
+          <rect x="165" y="31" width="60" height="179" rx="3" class="h-blue"/>
+          <text x="195" y="24" class="h-val">1,446</text>
+          <text x="75" y="232" class="h-axis">30–35</text>
+          <text x="195" y="232" class="h-axis">95–100</text>
+        </svg>
+      </div>
+      <figcaption>Two bins of the real ESS8 score histogram, redrawn · red: suspicious</figcaption>
+    </figure>
   </div>
-  <p class="takeaway">With all three detectors together: <b>10 suspicious</b> of 1,498, each with a reason.</p>
-  <p class="source">Mahalanobis outliers on the real Hungarian ESS round 2 file; a topic is one question scale, e.g. trust in institutions. Measured and decided on 24 October 2026, <code>PLANNING_LOG.md</code>.</p>
+  <p class="takeaway fragment" data-fragment-index="1">Fixed, then I checked it again myself: <b>405 tests</b> and my OK.</p>
+  <p class="source">Tests by the agent, browser checks by me on the real ESS9 and ESS8 files, 3 November 2026, <code>PLANNING_LOG.md</code>.</p>
   <aside class="notes">
-    The agent wrote the code, but I didn't take its word that it works. I ran it on the real Hungarian ESS file.
-    The textbook statistical cut-off would have called 64.6% of real people outliers, because survey answers are whole numbers on short scales, and the textbook assumes smooth data.
-    So we measured every option. I decided: a stricter cut-off, and a respondent only counts as an outlier if they stand out on at least three scales. That's 4.3%. Claude proposed three from the measurement; the decision is in my planning log, with the numbers.
-    The final result on that file: 10 suspicious out of 1,498, each with a reason.
+    The agent writes the code and the tests. On 3 November all 390 tests passed. That's where most people stop.
+    I opened the app myself, with the real ESS round 9 file, and found four bugs no test had caught: axis numbers cut off, a "greater than 8" rule printed as a quote mark, a bar of 4 respondents invisible next to 1,500, and dots stacked on top of each other on the map.
+    After the fixes I checked again, on round 8: the 3 suspicious respondents were still invisible next to 1,446. A bar of 3 is a fraction of a pixel. So I asked for a log axis, and now you can see them.
+    Only when I was happy did the task get closed: 405 tests, and my own check.
   </aside>
 </section>
 
