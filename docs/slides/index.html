@@ -11,7 +11,7 @@
 <style>
 :root {
   --bg: #F7F5F0; --surface: #FFFFFF; --ink: #1B1F24; --muted: #5B6470;
-  --rule: #DAD6CC; --ok: #2F5D8A; --flag: #C0392B; --pale: #C9C3B6;
+  --rule: #DAD6CC; --ok: #2F5D8A; --flag: #C0392B; --pale: #8E959E;
   --v1: #DCE6F0; --v2: #B5CAE0; --v3: #8AABCD; --v4: #5E86B2; --v5: #2F5D8A;
   --serif: "Source Serif 4", Georgia, serif;
   --sans: "IBM Plex Sans", "Segoe UI", Arial, sans-serif;
@@ -66,7 +66,11 @@ html, body, .reveal-viewport { background: var(--bg); }
 .track { display: flex; align-items: center; gap: 12px; }
 .bar { height: 44px; background: var(--pale); border-radius: 0 4px 4px 0; min-width: 4px; }
 .bar-row.chosen .bar { background: var(--ok); }
-.val { font: 500 .66em var(--mono); color: var(--ink); white-space: nowrap; }
+.val { font: 600 .7em var(--sans); color: var(--ink); white-space: nowrap; }
+.val small { font-weight: 400; color: var(--muted); font-size: .85em; margin-left: .4em; }
+.bar-row.chosen .val { color: var(--ok); }
+.takeaway { margin-top: .7em; font-family: var(--serif); font-size: 1.05em; }
+.takeaway b { color: var(--ok); }
 .bar-row:hover .bar { outline: 2px solid var(--ink); outline-offset: 2px; }
 .lead { font-family: var(--serif); font-size: 1.05em; }
 
@@ -163,15 +167,16 @@ html, body, .reveal-viewport { background: var(--bg); }
 <section>
   <p class="kicker">3 · Why it works</p>
   <h2>I checked it on real data, not the agent.</h2>
-  <p class="lead">The textbook cut-off flagged most of my real respondents as outliers.</p>
-  <div class="bars" role="img" aria-label="Share of 1,498 real respondents flagged as Mahalanobis outliers: textbook cut-off 64.6%; stricter cut-off on at least 1 scale 37.0%; at least 2 scales 13.1%; at least 3 scales 4.3% (chosen); at least 4 scales 1.7%.">
-    <div class="bar-row" title="alpha 0.05, any scale: 64.6% of 1,498"><span class="lab">Textbook cut-off</span><span class="track"><i class="bar" style="width:64.6%"></i><span class="val">64.6%</span></span></div>
-    <div class="bar-row" title="alpha 0.01, at least 1 scale: 555 of 1,498"><span class="lab">Stricter, on ≥ 1 scale</span><span class="track"><i class="bar" style="width:37.0%"></i><span class="val">37.0%</span></span></div>
-    <div class="bar-row" title="alpha 0.01, at least 2 scales: 196 of 1,498"><span class="lab">… on ≥ 2 scales</span><span class="track"><i class="bar" style="width:13.1%"></i><span class="val">13.1%</span></span></div>
-    <div class="bar-row chosen" title="alpha 0.01, at least 3 scales: 65 of 1,498 (chosen)"><span class="lab">… on ≥ 3 scales · chosen</span><span class="track"><i class="bar" style="width:4.3%"></i><span class="val">4.3%</span></span></div>
-    <div class="bar-row" title="alpha 0.01, at least 4 scales: 26 of 1,498"><span class="lab">… on ≥ 4 scales</span><span class="track"><i class="bar" style="width:1.7%"></i><span class="val">1.7%</span></span></div>
+  <p class="lead">How many of 1,498 real respondents does it call “odd”?</p>
+  <div class="bars" role="img" aria-label="Share of 1,498 real respondents called odd: textbook setting 64.6%; odd on 1 topic 37.0%; on 2 topics 13.1%; on 3 topics 4.3%, my choice; on 4 topics 1.7%.">
+    <div class="bar-row" title="alpha 0.05, any scale: 64.6% of 1,498"><span class="lab">Textbook setting</span><span class="track"><i class="bar" style="width:64.6%"></i><span class="val">64.6%<small>2 in 3: useless</small></span></span></div>
+    <div class="bar-row" title="alpha 0.01, at least 1 scale: 555 of 1,498"><span class="lab">Odd on 1 topic</span><span class="track"><i class="bar" style="width:37.0%"></i><span class="val">37.0%</span></span></div>
+    <div class="bar-row" title="alpha 0.01, at least 2 scales: 196 of 1,498"><span class="lab">Odd on 2 topics</span><span class="track"><i class="bar" style="width:13.1%"></i><span class="val">13.1%</span></span></div>
+    <div class="bar-row chosen" title="alpha 0.01, at least 3 scales: 65 of 1,498 (chosen)"><span class="lab">Odd on 3 topics</span><span class="track"><i class="bar" style="width:4.3%"></i><span class="val">4.3%<small>my choice: 65 people</small></span></span></div>
+    <div class="bar-row" title="alpha 0.01, at least 4 scales: 26 of 1,498"><span class="lab">Odd on 4 topics</span><span class="track"><i class="bar" style="width:1.7%"></i><span class="val">1.7%</span></span></div>
   </div>
-  <p class="source">Share of 1,498 real respondents flagged as Mahalanobis outliers, Hungarian ESS round 2. Measured and decided on 24 October 2026, <code>PLANNING_LOG.md</code>.</p>
+  <p class="takeaway">With all three detectors together: <b>10 suspicious</b> of 1,498, each with a reason.</p>
+  <p class="source">Mahalanobis outliers on the real Hungarian ESS round 2 file; a topic is one question scale, e.g. trust in institutions. Measured and decided on 24 October 2026, <code>PLANNING_LOG.md</code>.</p>
   <aside class="notes">
     The agent wrote the code, but I didn't take its word that it works. I ran it on the real Hungarian ESS file.
     The textbook statistical cut-off would have called 64.6% of real people outliers, because survey answers are whole numbers on short scales, and the textbook assumes smooth data.
@@ -183,12 +188,13 @@ html, body, .reveal-viewport { background: var(--bg); }
 <!-- 4. What I learned -->
 <section>
   <p class="kicker">4 · What I learned</p>
-  <h2>397 seconds became 8.4.</h2>
+  <h2>Same answer, 47 times faster.</h2>
+  <p class="lead">The same 1,498-respondent file, from Run to result:</p>
   <div class="bars speed" role="img" aria-label="The same run on the same file: 397 seconds before the October speed-up, 8.4 seconds after.">
-    <div class="bar-row" title="Before the October speed-up: 397.0 s from Run to result"><span class="lab">Before</span><span class="track"><i class="bar" style="width:80%"></i><span class="val">397 s</span></span></div>
-    <div class="bar-row chosen" title="After: 8.4 s on the same machine, same result"><span class="lab">After</span><span class="track"><i class="bar" style="width:1.69%"></i><span class="val">8.4 s</span></span></div>
+    <div class="bar-row" title="Before the October speed-up: 397.0 s from Run to result"><span class="lab">Before</span><span class="track"><i class="bar" style="width:72%"></i><span class="val">397 s<small>6.5 minutes</small></span></span></div>
+    <div class="bar-row chosen" title="After: 8.4 s on the same machine, same result"><span class="lab">After</span><span class="track"><i class="bar" style="width:1.52%"></i><span class="val">8.4 s</span></span></div>
   </div>
-  <p class="lesson">Faster only counts if the answer stays the same. The old slow code stayed in the tests, and the new one had to match it byte for byte.</p>
+  <p class="lesson">Speed means nothing if the answer changes. So the old, slow version stayed in the tests as the referee: the new one must give exactly the same output.</p>
   <p class="source">Same file, same machine, same result: 1,498 · 10 · 96.22. Speed-up on 25 October, measured again on 8 November 2026, <code>PLANNING_LOG.md</code>.</p>
   <aside class="notes">
     The moment: on 25 October I ran the new version and it finished in a second or two. The old one took minutes. Measured on the same machine: 397 seconds before, 8.4 seconds after.
