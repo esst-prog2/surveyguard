@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SurveyGuard: five slides</title>
+<link rel="stylesheet" href="lib/reveal.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F7F5F0; --surface: #FFFFFF; --ink: #1B1F24; --muted: #5B6470;
+  --rule: #DAD6CC; --ok: #2F5D8A; --flag: #C0392B; --pale: #8E959E;
+  --v1: #DCE6F0; --v2: #B5CAE0; --v3: #8AABCD; --v4: #5E86B2; --v5: #2F5D8A;
+  --serif: "Source Serif 4", Georgia, serif;
+  --sans: "IBM Plex Sans", "Segoe UI", Arial, sans-serif;
+  --mono: "IBM Plex Mono", Consolas, monospace;
+}
+html, body, .reveal-viewport { background: var(--bg); }
+.reveal { font-family: var(--sans); font-size: 30px; color: var(--ink); }
+.reveal .slides { text-align: left; }
+.reveal .slides section { height: 100%; padding: 12px 8px 0; }
+.reveal h2 { font-family: var(--serif); font-weight: 600; font-size: 1.9em; line-height: 1.1; margin: 0 0 .45em; letter-spacing: -0.01em; }
+.reveal p { margin: 0 0 .55em; line-height: 1.3; }
+.reveal .kicker { font: 500 .62em var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .6em; }
+.reveal .muted { color: var(--muted); }
+.reveal .flag { color: var(--flag); }
+.reveal .source { position: absolute; left: 8px; right: 8px; bottom: 6px; font-size: .5em; color: var(--muted); border-top: 1px solid var(--rule); padding-top: .5em; }
+.reveal img { margin: 0; }
+.reveal .shot { display: block; width: 100%; height: auto; border: 1px solid var(--rule); border-radius: 6px; background: #fff; }
+
+/* 1: answer grid */
+.two { display: grid; grid-template-columns: 1.1fr 1fr; gap: 56px; align-items: center; margin-top: 40px; }
+.figure { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 22px 22px 16px; }
+.grid-head, .row { display: grid; grid-template-columns: 54px repeat(6, 1fr); gap: 6px; align-items: center; }
+.grid-head { font: 500 .42em/1.1 var(--sans); color: var(--muted); margin-bottom: 8px; align-items: end; }
+.grid-head span { writing-mode: vertical-rl; transform: rotate(180deg); justify-self: center; white-space: nowrap; }
+.row { position: relative; margin-bottom: 6px; }
+.row .id { font: 400 .45em var(--mono); color: var(--muted); }
+.c { height: 30px; border-radius: 3px; }
+.v1 { background: var(--v1); } .v2 { background: var(--v2); } .v3 { background: var(--v3); }
+.v4 { background: var(--v4); } .v5 { background: var(--v5); }
+.row.flagged::after { content: ""; position: absolute; inset: -4px -6px -4px 48px; border: 3px solid var(--flag); border-radius: 6px; }
+.flag-label { text-align: right; font: 500 .45em var(--mono); color: var(--flag); margin: 2px 0 8px; }
+.who { font-family: var(--serif); font-size: 1.15em; line-height: 1.25; }
+.facts { font-size: .62em; color: var(--muted); margin-top: .9em; text-align: center; }
+
+/* 2: demo */
+.steps-demo { display: grid; grid-template-columns: 270px 1fr; gap: 28px; align-items: start; margin-top: -.1em; }
+.steps-demo ol { list-style: none; margin: 0; padding: 0; }
+.steps-demo li { display: grid; grid-template-columns: 40px 1fr; gap: 10px; margin-bottom: .8em; line-height: 1.2; font-size: .68em; }
+.num { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--ink); display: grid; place-items: center; font: 600 .9em var(--sans); }
+.steps-demo li.on .num, .steps-demo li.visible .num { background: var(--ink); color: var(--bg); }
+.steps-demo li.fragment { opacity: .3; visibility: visible; }
+.steps-demo li.fragment.visible { opacity: 1; }
+.steps-demo .sub { display: block; margin-top: .35em; }
+.steps-demo .sub > span { display: block; margin-bottom: .25em; font-size: .92em; }
+.steps-demo .sub b { color: var(--ok); margin-right: .3em; }
+.steps-demo .sub .fragment { opacity: .3; visibility: visible; }
+.steps-demo .sub .fragment.visible { opacity: 1; }
+.shots { position: relative; height: 520px; }
+.shots figure { position: absolute; inset: 0; margin: 0; display: flex; flex-direction: column; align-items: flex-start; }
+.reveal .shots .shot { width: auto; max-width: 100%; max-height: 490px; }
+.reveal table.rules { width: 100%; border-collapse: collapse; font-size: .62em; background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; margin: 0; }
+.reveal table.rules th { text-align: left; font-weight: 500; color: var(--muted); padding: .7em .8em; border-bottom: 1px solid var(--rule); }
+.reveal table.rules td { padding: .85em .8em; border-bottom: 1px solid #fff; background: #F6DCDB; vertical-align: middle; line-height: 1.25; }
+.reveal table.rules td b { font-weight: 600; }
+.reveal table.rules td.ans { font-family: var(--mono); font-size: .82em; white-space: nowrap; line-height: 1.5; }
+.reveal table.rules .math { display: block; font: 500 .82em var(--mono); margin-top: .3em; white-space: nowrap; }
+.reveal table.rules .tag { white-space: normal; text-align: center; }
+.tag { display: inline-block; font: 500 .78em var(--mono); color: var(--muted); border: 1px dashed var(--muted); border-radius: 4px; padding: .2em .5em; white-space: nowrap; background: var(--bg); }
+.tag.ok { color: var(--ok); border: 1px solid var(--ok); }
+.shots figcaption { font-size: .48em; color: var(--muted); margin-top: .4em; }
+
+/* 3 and 4: bar charts (single series; the chosen bar is the one in colour) */
+.bars { margin: .8em 0 0; }
+.bar-row { display: grid; grid-template-columns: 340px 1fr; gap: 20px; align-items: center; margin-bottom: 20px; }
+.bar-row .lab { font-size: .68em; line-height: 1.2; text-align: right; color: var(--muted); }
+.bar-row.chosen .lab { color: var(--ink); font-weight: 600; }
+.track { display: flex; align-items: center; gap: 12px; }
+.bar { height: 44px; background: var(--pale); border-radius: 0 4px 4px 0; min-width: 4px; }
+.bar-row.chosen .bar { background: var(--ok); }
+.val { font: 600 .7em var(--sans); color: var(--ink); white-space: nowrap; }
+.val small { font-weight: 400; color: var(--muted); font-size: .85em; margin-left: .4em; }
+.bar-row.chosen .val { color: var(--ok); }
+.takeaway { margin-top: .7em; font-family: var(--serif); font-size: 1.05em; }
+.takeaway b { color: var(--ok); }
+.bar-row:hover .bar { outline: 2px solid var(--ink); outline-offset: 2px; }
+.lead { font-family: var(--serif); font-size: 1.05em; }
+
+.speed { margin-top: .6em; }
+.speed .bar-row { grid-template-columns: 220px 1fr; margin-bottom: 22px; }
+.speed .bar { height: 56px; }
+.speed .val { font-size: .9em; }
+.lesson { margin-top: 1em; padding-left: 20px; border-left: 4px solid var(--ok); font-family: var(--serif); font-size: 1.05em; line-height: 1.3; }
+
+/* 3: who checked */
+.who-row { font-size: .66em; margin: 0 0 .5em; line-height: 1.3; }
+.who-row .tag { margin-right: .4em; }
+.tag.me { color: var(--flag); border: 1px solid var(--flag); }
+.pass { color: var(--ok); }
+.steps-demo code { font-family: var(--mono); font-size: .9em; background: var(--surface); padding: 0 .2em; border-radius: 3px; }
+.bf { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; width: 100%; background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 16px 20px 14px; box-sizing: border-box; }
+.bf svg { width: 100%; height: auto; display: block; }
+.reveal .bf-h { font: 600 .55em var(--sans); margin: 0 0 .5em; }
+.bf-h.bad { color: var(--flag); } .bf-h.good { color: var(--ok); }
+.frame { fill: #FBFAF7; stroke: var(--rule); }
+.h-base { stroke: var(--muted); stroke-width: 1.5; }
+.h-grid line { stroke: var(--rule); stroke-width: 1; }
+.h-tick { font: 400 11px var(--mono); fill: var(--muted); text-anchor: end; }
+.h-tick.big { font-size: 15px; }
+.h-red { fill: var(--flag); } .h-blue { fill: var(--pale); }
+.h-val { font: 600 15px var(--sans); fill: var(--ink); text-anchor: middle; }
+.h-val.red { fill: var(--flag); }
+.h-axis { font: 400 13px var(--mono); fill: var(--muted); text-anchor: middle; }
+.h-xtitle { font: 500 15px var(--sans); fill: var(--ink); text-anchor: middle; }
+.h-note { font: 500 14px var(--sans); fill: var(--muted); text-anchor: middle; }
+.dots circle { fill: var(--pale); stroke: #FBFAF7; stroke-width: 1.5; }
+.reveal table.mini { width: 100%; border-collapse: collapse; font-size: .55em; margin: 1.2em 0 0; }
+.reveal table.mini th { text-align: left; font-weight: 500; color: var(--muted); padding: .5em .6em; border-bottom: 1px solid var(--rule); }
+.reveal table.mini td { padding: .7em .6em; background: #F6DCDB; font-family: var(--mono); }
+.quote { display: inline-block; border-left: 4px solid var(--muted); padding-left: .6em; color: var(--muted); }
+
+/* 5: next */
+.next { list-style: none; margin: .4em 0 0; padding: 0; counter-reset: n; }
+.next li { counter-increment: n; display: grid; grid-template-columns: 64px 1fr; gap: 16px; margin-bottom: 1.05em; }
+.next li::before { content: counter(n); font: 600 1.6em/1 var(--serif); color: var(--ok); }
+.next strong { display: block; font-family: var(--serif); font-size: 1.15em; font-weight: 600; }
+.next span { font-size: .72em; color: var(--muted); }
+.plan { display: inline-block; font: 500 .5em var(--mono); color: var(--muted); border: 1px solid var(--rule); border-radius: 4px; padding: .25em .6em; margin-bottom: .9em; }
+
+/* closing */
+.reveal .slides section.closing { text-align: center; padding-top: 210px; }
+.closing h2 { font-size: 2.6em; }
+.closing .link a { font: 600 1.25em var(--sans); color: var(--ok); text-decoration: none; border-bottom: 4px solid var(--ok); }
+.closing p.muted { margin-top: 1.6em; font-size: .7em; }
+.reveal .byline { font: 500 .7em var(--sans); color: var(--muted); margin: -.6em 0 1em; letter-spacing: .02em; }
+.reveal .closing .byline { margin: -.4em 0 1.4em; }
+.reveal .closing .cta { font-family: var(--serif); font-size: 1.2em; margin: 0 0 1em; }
+
+.reveal .progress { color: var(--ok); }
+.reveal .slide-number { background: transparent; color: var(--muted); font: 400 14px var(--mono); }
+.reveal .slide-number a { color: inherit; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- 1. For whom, and why -->
+<section>
+  <p class="kicker">1 · For whom, and why</p>
+  <div class="two">
+    <div>
+      <h2>SurveyGuard</h2>
+      <p class="byline">Gergő Hegedűs</p>
+      <p class="who fragment" data-fragment-index="1">For social science students who must clean a survey before the analysis.</p>
+      <p class="who fragment" data-fragment-index="2">Why: some respondents click without reading, and nobody checks 1,498 rows by eye.</p>
+    </div>
+    <div>
+    <figure class="figure" role="img" aria-label="Illustration: eight made-up respondents' answers to six trust items; respondent 1044 gave the same answer to every item and is outlined in red.">
+      <div class="grid-head" aria-hidden="true"><span></span><span>Parliament</span><span>Legal system</span><span>Police</span><span>Politicians</span><span>Parties</span><span>EU Parliament</span></div>
+      <div class="row"><span class="id">1017</span><i class="c v2"></i><i class="c v4"></i><i class="c v3"></i><i class="c v5"></i><i class="c v1"></i><i class="c v4"></i></div>
+      <div class="row"><span class="id">1023</span><i class="c v5"></i><i class="c v3"></i><i class="c v4"></i><i class="c v2"></i><i class="c v4"></i><i class="c v3"></i></div>
+      <div class="row"><span class="id">1031</span><i class="c v1"></i><i class="c v2"></i><i class="c v1"></i><i class="c v3"></i><i class="c v2"></i><i class="c v2"></i></div>
+      <div class="row flagged"><span class="id">1044</span><i class="c v3"></i><i class="c v3"></i><i class="c v3"></i><i class="c v3"></i><i class="c v3"></i><i class="c v3"></i></div>
+      <div class="flag-label" aria-hidden="true">↑ didn't read</div>
+      <div class="row"><span class="id">1052</span><i class="c v4"></i><i class="c v5"></i><i class="c v3"></i><i class="c v4"></i><i class="c v5"></i><i class="c v2"></i></div>
+      <div class="row"><span class="id">1068</span><i class="c v2"></i><i class="c v1"></i><i class="c v3"></i><i class="c v2"></i><i class="c v4"></i><i class="c v1"></i></div>
+      <div class="row"><span class="id">1071</span><i class="c v5"></i><i class="c v4"></i><i class="c v5"></i><i class="c v3"></i><i class="c v4"></i><i class="c v5"></i></div>
+    </figure>
+    <p class="facts">Free · runs on your own computer · ESS rounds 1–11 ready to use</p>
+    </div>
+  </div>
+  <aside class="notes">
+    Promise: in five minutes you'll know how to find the respondents who didn't read your questionnaire, and why each one was flagged.
+    Who it's for: social science students and researchers writing a thesis or a paper on survey data.
+    The problem: some respondents click through without reading. On the right, respondent 1044 gave the same answer to every trust question. In a file of 1,498 people, nobody finds these rows by eye, and they bend the results.
+  </aside>
+</section>
+
+<!-- 2. The demo -->
+<section>
+  <p class="kicker">2 · The demo</p>
+  <h2>Upload, run, see why.</h2>
+  <div class="steps-demo">
+    <ol>
+      <li class="on"><span class="num">1</span><span>Upload, pick the ESS rules, Run: 8 of 284 suspicious.</span></li>
+      <li class="fragment" data-fragment-index="1"><span class="num">2</span><span>Three detectors, each counted.</span></li>
+      <li class="fragment" data-fragment-index="2"><span class="num">3</span><span>Each one shows its evidence:
+        <span class="sub">
+          <span class="fragment" data-fragment-index="2"><b>a</b> Same answer everywhere: heatmap</span>
+          <span class="fragment" data-fragment-index="3"><b>b</b> Answers that can't both be true: rules</span>
+          <span class="fragment" data-fragment-index="4"><b>c</b> Unlike everyone else: map</span>
+        </span></span></li>
+      <li class="fragment" data-fragment-index="5"><span class="num">4</span><span>Flagged, with reasons. Then download the report and the cleaned file.</span></li>
+    </ol>
+    <div class="shots r-stack">
+      <figure class="fragment fade-out" data-fragment-index="1">
+        <img class="shot" src="img/demo-1-run.png" alt="SurveyGuard after Run: ess2_mock.csv uploaded, config/ess2.json chosen; 284 processed respondents, 8 suspicious, average quality score 91.67; detector results table and bar chart.">
+        <figcaption>Real SurveyGuard screen · synthetic sample</figcaption>
+      </figure>
+      <figure class="fragment current-visible" data-fragment-index="1">
+        <img class="shot" src="img/demo-2-detectors.png" alt="Detector results: straightlining 29 respondents (10.21%), contradiction 42 (14.79%), Mahalanobis 0 (0.00%), with a bar chart; Mahalanobis counts respondents flagged on at least 3 scales.">
+        <figcaption>Real SurveyGuard screen · synthetic sample · one flag alone is a warning, not a verdict</figcaption>
+      </figure>
+      <figure class="fragment current-visible" data-fragment-index="2">
+        <img class="shot" src="img/demo-3a-heatmap.png" alt="Straightlining heatmap: one respondent answered 3 to all five Job Demands items, one colour across the row.">
+        <figcaption>a · Straightlining heatmap: 3 to all five Job Demands questions, zero variation</figcaption>
+      </figure>
+      <figure class="fragment current-visible" data-fragment-index="3">
+        <table class="rules">
+          <thead><tr><th>Rule</th><th>Answers</th><th></th></tr></thead>
+          <tbody>
+            <tr><td><b>Political</b><span class="math">trust_politicians &gt; 8 ∧ trust_parliament &lt; 2</span></td><td class="ans">trust_politicians = <b>10</b><br>trust_parliament = <b>0</b></td><td><span class="tag ok">bundled ESS rule</span></td></tr>
+            <tr><td><b>Age vs. birth year</b><span class="math">age ≤ 30 ∧ birth_year ≤ 1969</span></td><td class="ans">age = <b>25</b><br>birth_year = <b>1950</b></td><td><span class="tag ok">bundled ESS rule</span></td></tr>
+            <tr><td><b>Demographic</b><span class="math">education = PhD ∧ age &lt; 18</span></td><td class="ans">education = <b>PhD</b><br>age = <b>8</b></td><td><span class="tag">example ·<br>not built yet</span></td></tr>
+          </tbody>
+        </table>
+        <figcaption>b · Contradiction rules: two answers that can't both be true · made-up answers · the first two rules ship today</figcaption>
+      </figure>
+      <figure class="fragment current-visible" data-fragment-index="4">
+        <img class="shot" src="img/demo-3c-pca.png" alt="PCA map of one scale: grey dots for respondents, two red dots are outliers on this scale.">
+        <figcaption>c · Mahalanobis PCA map of one scale: red dots are outliers on it; the flag counts only on 3 or more scales</figcaption>
+      </figure>
+      <figure class="fragment" data-fragment-index="5">
+        <img class="shot" src="img/demo-4-download.png" alt="Respondent 5020 flagged as suspicious, score 33.33, with its reasons: straightlining on Study_Conditions and the contradiction olwmsop==5 vs ignrlaw==5; below, the buttons Download diagnostic report and Download cleaned data (CSV), and the note: removed 8 suspicious respondents, kept 276.">
+        <figcaption>Real SurveyGuard screen · synthetic sample · the rule table between them left out</figcaption>
+      </figure>
+    </div>
+  </div>
+  <p class="source">On the real Hungarian ESS 2005 file: 1,498 respondents → 10 suspicious, 8.4 s. Screens: <code>tests/fixtures/ess2_mock.csv</code>, no real respondent data.</p>
+  <aside class="notes">
+    This is a real run of the app, recorded from the screen, on the synthetic sample that ships with the repository.
+    1. I upload the survey file, pick the bundled rules for ESS round 2, and click Run. Seconds later: 284 respondents, 8 suspicious.
+    2. Three detectors look for three kinds of careless answering, and the app counts each. One flag alone is a warning; two make a respondent suspicious.
+    3a. Straightlining: the heatmap shows one person's answers cell by cell. This one answered 3 to all five Job Demands questions: one colour, zero variation.
+    3b. Contradiction: rules for two answers that can't both be true. The first two ship today: full trust in politicians but none in parliament, and someone who says they are 25 but were born in 1950, in a survey taken in 2005. The third is an example I want to add, and it is marked so: a PhD at age 8.
+    3c. Outliers: every dot is a respondent on one scale. Red ones answer unlike anybody else. They only count if they stand out on at least three scales; in this sample nobody does.
+    4. Then I download the cleaned file and a report I can cite in my methods section: 8 removed, 276 kept.
+    On the real Hungarian ESS file: 1,498 respondents, 10 suspicious, in 8.4 seconds.
+  </aside>
+</section>
+
+<!-- 3. Why it works -->
+<section>
+  <p class="kicker">3 · Why it works</p>
+  <h2>390 tests passed. I still found the bugs.</h2>
+  <div class="steps-demo">
+    <div>
+      <p class="who-row"><span class="tag ok">agent</span> 390 tests <b class="pass">✓ passed</b></p>
+      <p class="who-row"><span class="tag me">me</span> the app, on real data:</p>
+      <ol>
+        <li class="fragment" data-fragment-index="1"><span class="num">1</span><span>Axis numbers cut off</span></li>
+        <li class="fragment" data-fragment-index="2"><span class="num">2</span><span><code>&gt; 8</code> shown as <code>| 8</code></span></li>
+        <li class="fragment" data-fragment-index="3"><span class="num">3</span><span>A few suspicious next to 1,500: invisible</span></li>
+        <li class="fragment" data-fragment-index="4"><span class="num">4</span><span>Points stacked on the map</span></li>
+      </ol>
+    </div>
+    <div class="shots r-stack">
+
+      <figure class="fragment current-visible" data-fragment-index="1">
+        <div class="bf">
+          <div><p class="bf-h bad">✗ Before</p>
+            <svg viewBox="0 0 260 230">
+              <rect x="0.5" y="0.5" width="259" height="210" class="frame"/>
+              <svg x="0" y="0" width="260" height="211" overflow="hidden">
+                <g class="h-grid"><line x1="14" y1="40" x2="250" y2="40"/><line x1="14" y1="100" x2="250" y2="100"/></g>
+                <text x="10" y="44" class="h-tick big">1000</text><text x="10" y="104" class="h-tick big">500</text><text x="10" y="164" class="h-tick big">0</text>
+                <rect x="40" y="130" width="50" height="30" class="h-blue"/><rect x="110" y="95" width="50" height="65" class="h-blue"/><rect x="180" y="35" width="50" height="125" class="h-blue"/>
+                <line x1="14" y1="160" x2="250" y2="160" class="h-base"/>
+                <text x="65" y="180" class="h-axis">60</text><text x="135" y="180" class="h-axis">80</text><text x="205" y="180" class="h-axis">100</text>
+                <text x="132" y="216" class="h-xtitle">Quality score</text>
+              </svg>
+            </svg>
+          </div>
+          <div><p class="bf-h good">✓ After</p>
+            <svg viewBox="0 0 260 230">
+              <rect x="0.5" y="0.5" width="259" height="210" class="frame"/>
+              <g transform="translate(0,20)"><g class="h-grid"><line x1="52" y1="40" x2="250" y2="40"/><line x1="52" y1="90" x2="250" y2="90"/></g>
+              <text x="46" y="44" class="h-tick big">1000</text><text x="46" y="94" class="h-tick big">500</text><text x="46" y="144" class="h-tick big">0</text>
+              <rect x="66" y="115" width="46" height="25" class="h-blue"/><rect x="128" y="86" width="46" height="54" class="h-blue"/><rect x="190" y="36" width="46" height="104" class="h-blue"/>
+              <line x1="52" y1="140" x2="250" y2="140" class="h-base"/>
+              <text x="89" y="160" class="h-axis">60</text><text x="151" y="160" class="h-axis">80</text><text x="213" y="160" class="h-axis">100</text>
+              <text x="151" y="178" class="h-xtitle">Quality score</text></g>
+            </svg>
+          </div>
+        </div>
+        <figcaption>1 · Real ESS9 check: numbers and titles clipped on the histogram and the map · fix: room around every axis · redrawn sketch</figcaption>
+      </figure>
+
+      <figure class="fragment current-visible" data-fragment-index="2">
+        <div class="bf">
+          <div><p class="bf-h bad">✗ Before</p>
+            <table class="mini"><thead><tr><th>Column</th><th>Value</th><th>Condition</th></tr></thead>
+              <tbody><tr><td>trstprt</td><td>9</td><td><span class="quote">8</span></td></tr></tbody></table>
+          </div>
+          <div><p class="bf-h good">✓ After</p>
+            <table class="mini"><thead><tr><th>Column</th><th>Value</th><th>Condition</th></tr></thead>
+              <tbody><tr><td>trstprt</td><td>9</td><td>trstprt &gt; 8</td></tr></tbody></table>
+          </div>
+        </div>
+        <figcaption>2 · Real ESS9 check: the drill-down read “&gt; 8” as a quote mark and dropped the “&gt;” · fix: the whole condition in the cell · redrawn sketch</figcaption>
+      </figure>
+
+      <figure class="fragment current-visible" data-fragment-index="3">
+        <div class="bf">
+          <div><p class="bf-h bad">✗ Before · linear axis</p>
+            <svg viewBox="0 -14 260 244">
+              <line x1="20" y1="190" x2="250" y2="190" class="h-base"/>
+              <rect x="45" y="189.6" width="60" height="0.4" class="h-red"/>
+              <text x="75" y="178" class="h-val red">3 ?</text>
+              <rect x="165" y="20" width="60" height="170" rx="3" class="h-blue"/>
+              <text x="195" y="13" class="h-val">1,446</text>
+              <text x="75" y="210" class="h-axis">30–35</text><text x="195" y="210" class="h-axis">95–100</text>
+            </svg>
+          </div>
+          <div><p class="bf-h good">✓ After · log axis</p>
+            <svg viewBox="0 -14 260 244">
+              <g class="h-grid"><line x1="30" y1="133" x2="250" y2="133"/><line x1="30" y1="77" x2="250" y2="77"/><line x1="30" y1="20" x2="250" y2="20"/></g>
+              <text x="24" y="194" class="h-tick">1</text><text x="24" y="137" class="h-tick">10</text><text x="24" y="81" class="h-tick">100</text><text x="24" y="24" class="h-tick">1000</text>
+              <line x1="30" y1="190" x2="250" y2="190" class="h-base"/>
+              <rect x="50" y="163" width="60" height="27" rx="3" class="h-red"/>
+              <text x="80" y="155" class="h-val red">3</text>
+              <rect x="170" y="11" width="60" height="179" rx="3" class="h-blue"/>
+              <text x="200" y="6" class="h-val">1,446</text>
+              <text x="80" y="210" class="h-axis">30–35</text><text x="200" y="210" class="h-axis">95–100</text>
+            </svg>
+          </div>
+        </div>
+        <figcaption>3 · Real ESS9, then ESS8: 3 suspicious (red) next to 1,446 · fix: counts on the bars, then a log axis · the real ESS8 bins, redrawn</figcaption>
+      </figure>
+
+      <figure class="fragment" data-fragment-index="4">
+        <div class="bf">
+          <div><p class="bf-h bad">✗ Before</p>
+            <svg viewBox="0 0 260 230">
+              <rect x="0.5" y="0.5" width="259" height="210" class="frame"/>
+              <g class="dots">
+                <circle cx="60" cy="150" r="7"/><circle cx="60" cy="150" r="7"/><circle cx="60" cy="150" r="7"/><circle cx="60" cy="150" r="7"/>
+                <circle cx="110" cy="110" r="7"/><circle cx="110" cy="110" r="7"/><circle cx="110" cy="110" r="7"/>
+                <circle cx="160" cy="80" r="7"/><circle cx="160" cy="80" r="7"/><circle cx="160" cy="80" r="7"/><circle cx="160" cy="80" r="7"/><circle cx="160" cy="80" r="7"/>
+                <circle cx="110" cy="160" r="7"/><circle cx="110" cy="160" r="7"/>
+                <circle cx="200" cy="130" r="7"/><circle cx="200" cy="130" r="7"/><circle cx="200" cy="130" r="7"/>
+              </g>
+              <text x="130" y="30" class="h-note">17 people, 5 dots</text>
+            </svg>
+          </div>
+          <div><p class="bf-h good">✓ After</p>
+            <svg viewBox="0 0 260 230">
+              <rect x="0.5" y="0.5" width="259" height="210" class="frame"/>
+              <g class="dots soft">
+                <circle cx="56" cy="147" r="7"/><circle cx="64" cy="152" r="7"/><circle cx="59" cy="156" r="7"/><circle cx="62" cy="144" r="7"/>
+                <circle cx="106" cy="108" r="7"/><circle cx="114" cy="113" r="7"/><circle cx="110" cy="104" r="7"/>
+                <circle cx="155" cy="78" r="7"/><circle cx="163" cy="83" r="7"/><circle cx="160" cy="74" r="7"/><circle cx="166" cy="76" r="7"/><circle cx="157" cy="86" r="7"/>
+                <circle cx="106" cy="160" r="7"/><circle cx="113" cy="163" r="7"/>
+                <circle cx="196" cy="128" r="7"/><circle cx="204" cy="133" r="7"/><circle cx="201" cy="124" r="7"/>
+              </g>
+              <text x="130" y="30" class="h-note">a small random offset</text>
+            </svg>
+          </div>
+        </div>
+        <figcaption>4 · Real ESS9 check: identical answers drew on top of each other · fix: a small random offset, exact values on hover · redrawn sketch, offset enlarged</figcaption>
+      </figure>
+    </div>
+  </div>
+  <p class="source">Tests by the agent, browser checks by me on the real ESS9 and ESS8 files, 3 November 2026 · after the fixes: 405 tests and my OK · <code>PLANNING_LOG.md</code>.</p>
+  <aside class="notes">
+    The agent writes the code and the tests. On 3 November all 390 tests passed. That's where most people stop.
+    I opened the app myself, with the real ESS round 9 file, and found what no test had caught.
+    1. Axis numbers and titles were cut off at the edge of the charts.
+    2. A rule "greater than 8" was printed as a quote mark: the "greater than" sign disappeared.
+    3. A bar of a few respondents was invisible next to one of 1,500. After the first fix I checked again on round 8: the 3 suspicious respondents were still a fraction of a pixel. So I asked for a log axis, and now you can see them.
+    4. People with identical answers were drawn on top of each other on the map, so a thousand people looked like a few dozen dots.
+    Only when I was happy did the task get closed: 405 tests, and my own check.
+  </aside>
+</section>
+
+<!-- 4. What I learned -->
+<section>
+  <p class="kicker">4 · What I learned</p>
+  <h2>Same answer, 47 times faster.</h2>
+  <p class="lead">The same 1,498-respondent file, from Run to result:</p>
+  <div class="bars speed" role="img" aria-label="The same run on the same file: 397 seconds before the October speed-up, 8.4 seconds after.">
+    <div class="bar-row" title="Before the October speed-up: 397.0 s from Run to result"><span class="lab">Before</span><span class="track"><i class="bar" style="width:72%"></i><span class="val">397 s<small>6.5 minutes</small></span></span></div>
+    <div class="bar-row chosen" title="After: 8.4 s on the same machine, same result"><span class="lab">After</span><span class="track"><i class="bar" style="width:1.52%"></i><span class="val">8.4 s</span></span></div>
+  </div>
+  <p class="lesson">Speed means nothing if the answer changes. So the old, slow version stayed in the tests as the referee: the new one must give exactly the same output.</p>
+  <p class="source">Same file, same machine, same result: 1,498 · 10 · 96.22. Speed-up on 25 October, measured again on 8 November 2026, <code>PLANNING_LOG.md</code>.</p>
+  <aside class="notes">
+    The moment: on 25 October I ran the new version and it finished in a second or two. The old one took minutes. Measured on the same machine: 397 seconds before, 8.4 seconds after.
+    What I learned: speed is easy to promise and easy to fake by changing the result. So the old, slow, row-by-row code stayed in the tests as the reference, and the new code had to give a byte-identical output. The test was also run once with a rule broken on purpose, to prove it can fail.
+    At six and a half minutes nobody tries a second setting. At eight seconds you do.
+  </aside>
+</section>
+
+<!-- 5. What's next -->
+<section>
+  <p class="kicker">5 · What's next</p>
+  <h2>Not only ESS.</h2>
+  <p class="plan">A plan, not built yet</p>
+  <ol class="next">
+    <li><div><strong>Rules for other surveys.</strong><span>A rules file for another questionnaire, for example ISSP or your own thesis survey.</span></div></li>
+    <li><div><strong>A rules editor in the app.</strong><span>Pick the scales and the contradictions on screen, without writing JSON by hand.</span></div></li>
+    <li><div><strong>Check it on real data first.</strong><span>As with ESS: measure the cut-offs on the new survey before trusting them.</span></div></li>
+  </ol>
+  <aside class="notes">
+    Today SurveyGuard ships rules for the European Social Survey, rounds 1 to 11. The detectors themselves don't care which survey it is: the survey-specific part is one rules file.
+    Next: rules for other surveys, an editor so nobody writes JSON, and the same real-data check I did for ESS before anyone trusts the numbers.
+    If you have a survey for your thesis, I'd like you to be the first to try it.
+  </aside>
+</section>
+
+<!-- Closing (not one of the five) -->
+<section class="closing">
+  <h2>SurveyGuard</h2>
+  <p class="byline">Gergő Hegedűs</p>
+  <p class="cta">Writing a thesis on survey data? Try it on yours.</p>
+  <p class="link"><a href="https://esst-prog2.github.io/surveyguard/">esst-prog2.github.io/surveyguard</a></p>
+  <p class="muted">Free · runs on your own computer · ESS rounds 1–11</p>
+  <aside class="notes">
+    If you're writing a thesis on survey data, try it on yours. The page has a 30-second film and four steps to run it on the sample file. Thank you.
+  </aside>
+</section>
+
+</div>
+</div>
+<script src="lib/reveal.js"></script>
+<script src="lib/plugin/notes.js"></script>
+<script>
+  Reveal.initialize({
+    width: 1280, height: 720, margin: 0.06,
+    center: false, hash: true, controls: false, progress: true,
+    slideNumber: 'c/t', transition: 'fade', transitionSpeed: 'fast',
+    plugins: [ RevealNotes ]
+  });
+</script>
+</body>
+</html>
