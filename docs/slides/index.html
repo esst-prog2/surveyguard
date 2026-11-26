@@ -47,16 +47,17 @@ html, body, .reveal-viewport { background: var(--bg); }
 .facts { font-size: .62em; color: var(--muted); margin-top: 1.4em; }
 
 /* 2: demo */
-.steps-demo { display: grid; grid-template-columns: 300px 1fr; gap: 40px; align-items: start; }
+.steps-demo { display: grid; grid-template-columns: 270px 1fr; gap: 28px; align-items: start; margin-top: -.1em; }
 .steps-demo ol { list-style: none; margin: 0; padding: 0; }
-.steps-demo li { display: grid; grid-template-columns: 44px 1fr; gap: 12px; margin-bottom: 1em; line-height: 1.25; }
-.num { width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--ink); display: grid; place-items: center; font: 600 .7em var(--sans); }
-.steps-demo li.current-fragment .num, .steps-demo li.visible .num { background: var(--ink); color: var(--bg); }
+.steps-demo li { display: grid; grid-template-columns: 40px 1fr; gap: 10px; margin-bottom: .8em; line-height: 1.2; font-size: .68em; }
+.num { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--ink); display: grid; place-items: center; font: 600 .9em var(--sans); }
+.steps-demo li.on .num, .steps-demo li.visible .num { background: var(--ink); color: var(--bg); }
 .steps-demo li.fragment { opacity: .3; visibility: visible; }
 .steps-demo li.fragment.visible { opacity: 1; }
-.shots { position: relative; height: 470px; }
-.shots figure { position: absolute; inset: 0; margin: 0; }
-.shots figcaption { font-size: .48em; color: var(--muted); margin-top: .5em; }
+.shots { position: relative; height: 520px; }
+.shots figure { position: absolute; inset: 0; margin: 0; display: flex; flex-direction: column; align-items: flex-start; }
+.reveal .shots .shot { width: auto; max-width: 100%; max-height: 490px; }
+.shots figcaption { font-size: .48em; color: var(--muted); margin-top: .4em; }
 
 /* 3 and 4: bar charts (single series; the chosen bar is the one in colour) */
 .bars { margin: .8em 0 0; }
@@ -135,20 +136,29 @@ html, body, .reveal-viewport { background: var(--bg); }
 <!-- 2. The demo -->
 <section>
   <p class="kicker">2 · The demo</p>
-  <h2>Upload, run, read why.</h2>
+  <h2>Upload, run, see why.</h2>
   <div class="steps-demo">
     <ol>
-      <li class="fragment" data-fragment-index="0"><span class="num">1</span><span>Upload the survey, pick the ESS rules, Run.</span></li>
-      <li class="fragment" data-fragment-index="0"><span class="num">2</span><span>8 of 284 are suspicious.</span></li>
-      <li class="fragment" data-fragment-index="1"><span class="num">3</span><span>Every flag says why. Download the cleaned file.</span></li>
+      <li class="on"><span class="num">1</span><span>Upload, pick the ESS rules, Run: 8 of 284 suspicious.</span></li>
+      <li class="fragment" data-fragment-index="1"><span class="num">2</span><span>Who, and why. The heatmap: one answer down a whole scale.</span></li>
+      <li class="fragment" data-fragment-index="2"><span class="num">3</span><span>The map: red dots stand out from everyone else.</span></li>
+      <li class="fragment" data-fragment-index="3"><span class="num">4</span><span>One respondent, every reason. Download the cleaned file.</span></li>
     </ol>
     <div class="shots r-stack">
       <figure class="fragment fade-out" data-fragment-index="1">
-        <img class="shot" src="img/demo-run.png" alt="SurveyGuard after Run: ess2_mock.csv uploaded, config/ess2.json chosen; 284 processed respondents, 8 suspicious, average quality score 91.67.">
+        <img class="shot" src="img/demo-1-run.png" alt="SurveyGuard after Run: ess2_mock.csv uploaded, config/ess2.json chosen; 284 processed respondents, 8 suspicious, average quality score 91.67; detector results table and bar chart.">
         <figcaption>Real SurveyGuard screen · synthetic sample</figcaption>
       </figure>
-      <figure class="fragment" data-fragment-index="1">
-        <img class="shot" src="img/demo-why.png" alt="Respondent drill-down for 5020: score 33.33, straightlining on Study_Conditions and the contradiction olwmsop==5 vs ignrlaw==5; download buttons; cleaned data: removed 8, kept 276.">
+      <figure class="fragment current-visible" data-fragment-index="1">
+        <img class="shot" src="img/demo-2-flagged.png" alt="Flagged respondents table with reasons; respondent 5020 selected; straightlining heatmap shows the same answer, 1, on all ten Study_Conditions items.">
+        <figcaption>Real SurveyGuard screen · synthetic sample · flagged table and straightlining heatmap</figcaption>
+      </figure>
+      <figure class="fragment current-visible" data-fragment-index="2">
+        <img class="shot" src="img/demo-3-pca.png" alt="PCA map of one scale: grey dots for respondents, two red dots are outliers on this scale.">
+        <figcaption>SurveyGuard's PCA map of one scale · synthetic sample · red: outlier on this scale</figcaption>
+      </figure>
+      <figure class="fragment" data-fragment-index="3">
+        <img class="shot" src="img/demo-4-why.png" alt="Respondent drill-down for 5020: score 33.33, straightlining on Study_Conditions and the contradiction olwmsop==5 vs ignrlaw==5; download buttons; cleaned data: removed 8, kept 276.">
         <figcaption>Real SurveyGuard screen · synthetic sample · removed 8, kept 276</figcaption>
       </figure>
     </div>
@@ -156,9 +166,10 @@ html, body, .reveal-viewport { background: var(--bg); }
   <p class="source">On the real Hungarian ESS 2005 file: 1,498 respondents → 10 suspicious, 8.4 s. Screens: <code>tests/fixtures/ess2_mock.csv</code>, no real respondent data.</p>
   <aside class="notes">
     This is a real run of the app, recorded from the screen, on the synthetic sample that ships with the repository.
-    1. I upload the survey file, pick the bundled rules for ESS round 2, and click Run.
-    2. Seconds later: 284 respondents, 8 suspicious.
-    3. I click one of them, 5020. It doesn't just say "suspicious": it straightlined a whole scale, and it said yes to two answers that contradict each other. Then I download the cleaned file and a report I can cite in my methods section.
+    1. I upload the survey file, pick the bundled rules for ESS round 2, and click Run. Seconds later: 284 respondents, 8 suspicious.
+    2. The table says who was flagged and why. I tick respondent 5020, and the heatmap shows it: the same answer, 1, to all ten questions of one scale.
+    3. The map shows everyone's answers on one scale as dots. The red ones answer unlike anybody else; they only count as suspicious if they stand out on at least three scales.
+    4. The drill-down puts every reason for 5020 in one place: the straightlining, and two answers that contradict each other. Then I download the cleaned file and a report I can cite in my methods section.
     On the real Hungarian ESS file: 1,498 respondents, 10 suspicious, in 8.4 seconds.
   </aside>
 </section>
